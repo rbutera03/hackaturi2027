@@ -29,3 +29,6 @@ dist-ssr
 !.dev.vars.example
 .env*
 !.env.example
+
+# Accidental nested clone — do not track as a submodule
+hackaturi2025/
