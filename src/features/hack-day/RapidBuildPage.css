@@ -1,0 +1,556 @@
+/* ==========================================================================
+   RapidBuildPage.css — Full-page Rapid Build overlay
+   Depends on: shared.css (design tokens, panel-card, btn-primary, stars)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. OVERLAY SHELL
+   ========================================================================== */
+.rb-page-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  overflow-y: auto;
+  animation: rbSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background:
+    radial-gradient(ellipse 90% 55% at 8% 12%, rgba(10, 78, 78, 0.16), transparent 58%),
+    radial-gradient(ellipse 75% 45% at 92% 28%, rgba(195, 168, 115, 0.28), transparent 52%),
+    radial-gradient(ellipse 70% 40% at 15% 72%, rgba(11, 79, 79, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 35% at 85% 88%, rgba(203, 185, 121, 0.22), transparent 50%),
+    linear-gradient(180deg, rgba(10, 78, 78, 0.18) 0%, transparent 18%),
+    linear-gradient(180deg, #f4e0a8 0%, var(--cream) 22%, #f8ecc8 58%, #efd7a0 100%);
+}
+
+@keyframes rbSlideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.rb-page-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   2. BACK NAV + STARS
+   ========================================================================== */
+.rb-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--teal-border) 0%, var(--teal-nav) 100%);
+  color: var(--parchment);
+  border: 2px solid var(--gold-light);
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-bottom: 30px;
+  font-family: var(--font-main);
+  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rb-back-btn:hover {
+  background: linear-gradient(135deg, var(--brown-dark) 0%, #4a3a30 100%);
+  color: var(--gold);
+  transform: translateX(-3px);
+  box-shadow: 0 12px 28px rgba(12, 58, 64, 0.28);
+}
+
+.rb-star {
+  width: 40px;
+  height: 40px;
+  opacity: 0.75;
+  filter: drop-shadow(0 0 6px rgba(195, 168, 115, 0.45));
+}
+
+.rb-star--sm { width: 26px; height: 26px; }
+.rb-star--md { width: 40px; height: 40px; }
+.rb-star--lg { width: 56px; height: 56px; }
+
+.rb-star.star-1  { top: 6%;  left: 5%; }
+.rb-star.star-2  { top: 10%; right: 8%; }
+.rb-star.star-3  { top: 18%; left: 14%; }
+.rb-star.star-4  { top: 24%; right: 16%; }
+.rb-star.star-5  { top: 32%; left: 3%; }
+.rb-star.star-6  { top: 38%; right: 5%; }
+.rb-star.star-7  { top: 46%; left: 10%; }
+.rb-star.star-8  { top: 52%; right: 12%; }
+.rb-star.star-9  { top: 60%; left: 4%; }
+.rb-star.star-10 { top: 68%; right: 7%; }
+.rb-star.star-11 { top: 74%; left: 16%; }
+.rb-star.star-12 { top: 82%; right: 14%; }
+.rb-star.star-13 { top: 88%; left: 8%; }
+.rb-star.star-14 { top: 94%; right: 4%; }
+
+.rb-star.star-6  { animation-delay: 0.3s; }
+.rb-star.star-7  { animation-delay: 0.9s; }
+.rb-star.star-8  { animation-delay: 1.5s; }
+.rb-star.star-9  { animation-delay: 2.1s; }
+.rb-star.star-10 { animation-delay: 0.45s; }
+.rb-star.star-11 { animation-delay: 1.05s; }
+.rb-star.star-12 { animation-delay: 1.65s; }
+.rb-star.star-13 { animation-delay: 2.25s; }
+.rb-star.star-14 { animation-delay: 2.85s; }
+
+/* ==========================================================================
+   3. SHARED SECTION STYLES
+   ========================================================================== */
+.rb-section {
+  margin-bottom: 56px;
+}
+
+.rb-section-title {
+  text-align: center;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--teal-dark);
+  margin: 0 0 12px;
+  font-family: var(--font-main);
+  text-shadow: 0 2px 0 rgba(249, 233, 192, 0.85), 0 8px 24px rgba(12, 58, 64, 0.12);
+}
+
+.rb-section-subtitle {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 28px;
+  color: var(--text-dark);
+  opacity: 0.9;
+  font-size: 1.05rem;
+}
+
+.rb-page-overlay .panel-card {
+  background: linear-gradient(160deg, rgba(249, 233, 192, 0.96) 0%, rgba(246, 233, 200, 0.9) 100%);
+  border-color: var(--teal-nav);
+  box-shadow:
+    0 10px 28px rgba(12, 58, 64, 0.14),
+    0 0 0 1px rgba(195, 168, 115, 0.35);
+}
+
+.rb-page-overlay .panel-card:hover {
+  box-shadow:
+    0 14px 34px rgba(12, 58, 64, 0.18),
+    0 0 0 1px rgba(195, 168, 115, 0.5);
+}
+
+/* ==========================================================================
+   4. HERO
+   ========================================================================== */
+.rb-hero {
+  display: grid;
+  grid-template-columns: minmax(220px, 340px) 1fr;
+  gap: clamp(20px, 4vw, 40px);
+  align-items: center;
+  margin-bottom: 56px;
+}
+
+.rb-pirate-logo-wrap {
+  width: clamp(220px, 28vw, 320px);
+  height: clamp(220px, 28vw, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #fff6d8 0%, var(--parchment) 55%, #edd79a 100%);
+  box-shadow:
+    0 22px 40px rgba(12, 58, 64, 0.22),
+    0 0 0 4px rgba(195, 168, 115, 0.45),
+    0 0 36px rgba(195, 168, 115, 0.35);
+  border: 6px solid var(--teal-dark);
+  padding: clamp(12px, 1.5vw, 18px);
+  margin: 0 auto;
+  animation: rbLogoFloat 5s ease-in-out infinite;
+}
+
+@keyframes rbLogoFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.rb-pirate-logo {
+  width: 88%;
+  height: auto;
+}
+
+.rb-hero-copy {
+  text-align: left;
+}
+
+.rb-hero-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brown-wood);
+}
+
+.rb-hero-title {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  font-weight: 800;
+  color: var(--teal-dark);
+  line-height: 1.1;
+  text-shadow: 0 2px 0 rgba(249, 233, 192, 0.9);
+}
+
+.rb-hero-tagline {
+  margin: 0 0 14px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--brown-wood);
+}
+
+.rb-hero-description {
+  margin: 0 0 22px;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text-dark);
+}
+
+.rb-hero-ctas {
+  justify-content: flex-start;
+}
+
+/* ==========================================================================
+   5. EVENT DETAILS
+   ========================================================================== */
+.rb-event-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.rb-event-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.rb-event-meta-row svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--brown-wood);
+  filter: drop-shadow(0 1px 0 rgba(249, 233, 192, 0.8));
+}
+
+.rb-event-meta-row a {
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   6. PROJECT SHOWCASE
+   ========================================================================== */
+.rb-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.rb-project-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  display: block;
+  border: 2px solid rgba(12, 58, 64, 0.15);
+  box-shadow: 0 8px 18px rgba(12, 58, 64, 0.12);
+}
+
+.rb-project-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rb-project-card:hover {
+  transform: translateY(-4px);
+}
+
+.rb-project-card h3 {
+  margin: 0 0 10px;
+  color: var(--teal-dark);
+  font-size: 1.25rem;
+}
+
+.rb-project-card p {
+  margin: 0 0 16px;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.rb-project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--brown-wood);
+  text-decoration: none;
+}
+
+.rb-project-link:hover {
+  color: var(--teal-dark);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   7. PHOTO CAROUSEL
+   ========================================================================== */
+.rb-photo-carousel {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  border: 3px solid var(--teal-nav);
+  box-shadow:
+    0 14px 36px rgba(12, 58, 64, 0.18),
+    0 0 0 1px rgba(195, 168, 115, 0.4);
+}
+
+.rb-photo-slide {
+  width: 100%;
+  height: clamp(240px, 42vw, 420px);
+  object-fit: cover;
+  display: block;
+}
+
+.rb-photo-caption {
+  margin: 0;
+  padding: 14px 18px 18px;
+  text-align: center;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+  background: linear-gradient(180deg, rgba(249, 233, 192, 0.55), rgba(249, 233, 192, 0.95));
+}
+
+.rb-photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(160deg, rgba(10, 78, 78, 0.12), rgba(195, 168, 115, 0.18));
+  color: var(--teal-dark);
+}
+
+.rb-photo-placeholder--large {
+  min-height: clamp(240px, 42vw, 420px);
+  font-size: 2.5rem;
+}
+
+.rb-photo-placeholder--large p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.rb-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border: 2px solid var(--gold-light);
+  border-radius: 50%;
+  background: rgba(12, 58, 64, 0.88);
+  color: var(--parchment);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.rb-carousel-arrow:hover {
+  background: var(--brown-dark);
+  color: var(--gold);
+}
+
+.rb-carousel-arrow--left { left: 14px; }
+.rb-carousel-arrow--right { right: 14px; }
+
+.fade-in {
+  animation: rbFadeIn 0.45s ease-out;
+}
+
+@keyframes rbFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ==========================================================================
+   8. FAQ
+   ========================================================================== */
+.rb-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.rb-faq-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.rb-faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-main);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+.rb-faq-arrow {
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+  color: var(--brown-wood);
+}
+
+.rb-faq-arrow.open {
+  transform: rotate(180deg);
+}
+
+.rb-faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.rb-faq-answer p {
+  margin: 0;
+  padding: 0 22px 20px;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-dark);
+}
+
+.rb-faq-bullets {
+  margin: 0;
+  padding: 0 22px 20px 42px;
+  color: var(--text-dark);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.rb-faq-bullets li + li {
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   9. CTA
+   ========================================================================== */
+.rb-cta-inner {
+  text-align: center;
+  background:
+    linear-gradient(160deg, rgba(10, 78, 78, 0.1) 0%, rgba(249, 233, 192, 0.95) 40%, rgba(195, 168, 115, 0.18) 100%);
+  border-color: var(--gold-light);
+}
+
+.rb-cta-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.rb-page-overlay .btn-primary.rb-cta-btn {
+  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-nav) 50%, var(--teal-mid) 100%);
+  border: 2px solid var(--gold-light);
+  color: var(--parchment);
+  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.25);
+}
+
+.rb-page-overlay .btn-primary.rb-cta-btn:hover {
+  background: linear-gradient(135deg, var(--brown-dark) 0%, #4a3a30 100%);
+  color: var(--gold);
+}
+
+.rb-cta-btn--secondary {
+  display: inline-block;
+  padding: 15px 28px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--teal-dark);
+  background: rgba(249, 233, 192, 0.65);
+  border: 2px solid var(--teal-dark);
+  transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rb-cta-btn--secondary:hover {
+  background: var(--teal-dark);
+  color: var(--parchment);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(12, 58, 64, 0.22);
+}
+
+.rb-cta-btn--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   10. RESPONSIVE
+   ========================================================================== */
+@media (max-width: 900px) {
+  .rb-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .rb-hero-copy {
+    text-align: center;
+  }
+
+  .rb-hero-ctas {
+    justify-content: center;
+  }
+
+  .rb-project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .rb-page-inner {
+    padding-top: 24px;
+  }
+
+  .rb-section-title {
+    font-size: 2rem;
+  }
+
+  .rb-pirate-logo-wrap {
+    animation: none;
+  }
+}

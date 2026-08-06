@@ -6,12 +6,13 @@ import pirateLogo from '../../assets/pirate_ram.svg';
 import starsSvg from '../../assets/stars-bg.svg';
 import CountdownTimer from './components/Countdown';
 import { ARCHIVE_NAV_ITEMS } from '../archive/data/events/index.js';
+import { RAPID_BUILD_HASH } from '../hack-day';
 import '../../shared/styles/shared.css';
 import './HomeSection.css';
-// Sponsor logo assets used in the hero sponsor strip.
-import yconicLogo from '/images/sponsors/yconic-transparent.png';
-import monsterLogo from '/images/sponsors/monster.png';
-import themoveappLogo from '/images/sponsors/themoveapp.png';
+// Sponsor logos live in /public/images/sponsors (served from site root).
+const yconicLogo = '/images/sponsors/yconic-transparent.png';
+const monsterLogo = '/images/sponsors/monster.png';
+const themoveappLogo = '/images/sponsors/themoveapp.png';
 
 // ─── Home Hero Config ──────────────────────────────────────────────────────────
 const EVENT_DATE_DISPLAY = 'February 21-22, 2026';
@@ -24,6 +25,10 @@ const REGISTRATION_LINK = 'https://forms.gle/7q3LSHYr7gqQ2CaZ9';
 // Toggle between archive/projects CTA and live countdown card.
 const SHOW_PROJECT_GALLERY = true;
 const PROJECT_GALLERY_HREF = ARCHIVE_NAV_ITEMS.find(item => item.id === `#archive-${2026}`).id;
+
+// Hack Day / Rapid Build overlay (opened via hash in App.jsx).
+const SHOW_HACK_DAY_BUTTON = true;
+const HACK_DAY_BUTTON_LABEL = 'Explore Hack Day →';
 
 // Hero sponsors shown directly below the event title.
 const HERO_SPONSORS = [
@@ -76,6 +81,15 @@ const HomeSection = () => {
             <div className="hero-countdown">
               <div className="countdown-date">{EVENT_DATE_DISPLAY}</div>
               <CountdownTimer />
+            </div>
+          )}
+
+          {/* ── Hack Day / Rapid Build CTA ────────────────────────────────── */}
+          {SHOW_HACK_DAY_BUTTON && (
+            <div className="hero-cta hero-cta--hack-day">
+              <a href={RAPID_BUILD_HASH} className="btn hack-day">
+                {HACK_DAY_BUTTON_LABEL}
+              </a>
             </div>
           )}
 

@@ -14,6 +14,7 @@ import Tracks from '../features/tracks';
 import Connect from '../features/connect';
 import { RegistrationPopup, FloatingRegistration } from '../features/registration';
 import Schedule, { SchedulePage } from '../features/schedule';
+import { RapidBuildPage } from '../features/hack-day';
 import ArchivePage from '../features/archive/ArchivePage.jsx';
 import { DEFAULT_ARCHIVE_EVENT_ID } from '../features/archive/data/events/index.js';
 import '../shared/styles/shared.css';
@@ -26,6 +27,7 @@ const App = () => {
   // Gate controls for landing lock, full schedule modal, and selected archive event.
   const [isSiteRevealed, setIsSiteRevealed] = useState(!SITE_HIDDEN);
   const [showSchedulePage, setShowSchedulePage] = useState(false);
+  const [showRapidBuildPage, setShowRapidBuildPage] = useState(false);
   const [archiveEvent, setArchiveEvent] = useState(null);
 
   // Stores deferred section navigation while archive overlay is closing.
@@ -62,6 +64,7 @@ const App = () => {
       const hash = window.location.hash;
 
       setShowSchedulePage(hash === '#full-schedule');
+      setShowRapidBuildPage(hash === '#rapid-build');
 
       if (hash.startsWith('#archive-')) {
         const eventId = hash.replace('#archive-', '');
@@ -91,6 +94,11 @@ const App = () => {
   const handleCloseSchedulePage = () => {
     window.location.hash = '';
     setShowSchedulePage(false);
+  };
+
+  const handleCloseRapidBuildPage = () => {
+    window.location.hash = '';
+    setShowRapidBuildPage(false);
   };
 
   const handleCloseArchivePage = () => {
@@ -137,6 +145,11 @@ const App = () => {
       {/* ── Full Schedule Page Overlay ───────────────────────────────────── */}
       {showSchedulePage && (
         <SchedulePage onClose={handleCloseSchedulePage} />
+      )}
+
+      {/* ── Rapid Build Page Overlay ─────────────────────────────────────── */}
+      {showRapidBuildPage && (
+        <RapidBuildPage onClose={handleCloseRapidBuildPage} />
       )}
 
       {/* ── Archive Page Overlay ─────────────────────────────────────────── */}

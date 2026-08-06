@@ -2,18 +2,18 @@
 // Session-scoped prompt modal for organizer interest/registration messaging.
 
 import React, { useState, useEffect } from 'react';
+import { RAPID_BUILD_HASH } from '../../hack-day';
 import '../../../shared/styles/shared.css';
 import './RegistrationPopup.css';
 
 // ─── Registration Popup Config ────────────────────────────────────────────────
 const SHOW_DEADLINE_INFO   = false; // Set false to hide deadline copy and ignore cutoff gating
 const REGISTRATION_DEADLINE = '2027-02-07T23:59:59'; // Last day to register
-const REGISTRATION_URL      = 'https://docs.google.com/forms/d/e/1FAIpQLSfvNrL-fWzOD5FGZ7sW3_Njzdup-KZG4uXOGhuRlPzFjrT4Wg/viewform?usp=publish-editor';
 
 const POPUP_TEXT = {
-  title:    'Interested in joining Hack@URI 2027 as an organizer?',
-  deadline: 'Check out the interest form below!',           // Human-readable deadline shown in popup body
-  cta:      'Organizer Interest Form →',            // Button label
+  title:    'Interested in attending Rapid Build 2027?',
+  deadline: 'Click below for more information!',           // Human-readable deadline shown in popup body
+  cta:      'Click here to learn more ->', // Button label
 };
 
 // sessionStorage key — changing this resets popup "seen" state for all users
@@ -81,9 +81,7 @@ const RegistrationPopup = () => {
 
         {/* ── Primary CTA ────────────────────────────────────────────────── */}
         <a
-          href={REGISTRATION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={RAPID_BUILD_HASH}
           className="reg-btn"
           onClick={handleClose}
         >

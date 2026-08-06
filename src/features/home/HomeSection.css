@@ -285,6 +285,24 @@
   box-shadow: 0 0 20px rgba(10, 78, 78, 0.4);
 }
 
+.hero-cta--hack-day {
+  margin-top: 4px;
+}
+
+.btn.hack-day {
+  background: var(--teal-dark);
+  color: var(--parchment);
+  box-shadow: 0 12px 30px rgba(12, 58, 64, 0.12);
+  border: 2px solid var(--teal-nav);
+}
+
+.btn.hack-day:hover {
+  background: var(--brown-dark);
+  color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(12, 58, 64, 0.2);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .hero-gallery-card {

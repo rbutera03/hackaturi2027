@@ -5,9 +5,10 @@ import React from 'react';
 import { FaHeartbeat, FaBrain, FaAnchor, FaPalette, FaShieldAlt } from 'react-icons/fa';
 import { GiWaterSplash } from 'react-icons/gi';
 import starsSvg from '../../assets/stars-bg.svg';
-import yconicLogo from '/images/sponsors/yconic-transparent.png';
 import '../../shared/styles/shared.css';
 import './TracksSection.css';
+
+const yconicLogo = '/images/sponsors/yconic-transparent.png';
 
 // ─── Tracks Config ────────────────────────────────────────────────────────────
 const TRACKS = [

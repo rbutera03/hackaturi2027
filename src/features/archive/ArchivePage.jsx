@@ -9,12 +9,10 @@ import '../../shared/styles/shared.css';
 import './ArchivePage.css';
 import { Header } from '../layout';
 
-// Repository images available to archive event photo directory scanning.
-const REPO_IMAGE_FILES = import.meta.glob('/{src,public}/**/*.{png,jpg,jpeg,webp,avif,gif}', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-});
+// Path keys only — public assets are served from the site root (do not import with ?url).
+const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
+  import.meta.glob('/public/images/past-events/**/*.{png,jpg,jpeg,webp,avif,gif}'),
+);
 
 // Important archive settings (timing, mode-specific UI labels/spacing).
 const ARCHIVE_PAGE_CONFIG = {
@@ -31,15 +29,17 @@ const normalizeDirectoryPath = (path = '') => {
   return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`;
 };
 
+const toPublicUrl = (filePath) => filePath.replace(/^\/public/, '') || filePath;
+
 // Resolve all image URLs under the configured archive photo directory.
 const getImagesFromPhotoDirectory = (photoDirectory) => {
   const normalizedDir = normalizeDirectoryPath(photoDirectory);
   if (!normalizedDir) return [];
 
-  return Object.entries(REPO_IMAGE_FILES)
-    .filter(([filePath]) => filePath.startsWith(normalizedDir))
-    .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-    .map(([, imageUrl]) => imageUrl)
+  return PUBLIC_PAST_EVENT_IMAGE_PATHS
+    .filter((filePath) => filePath.startsWith(normalizedDir))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+    .map(toPublicUrl)
     .filter(Boolean);
 };
 
