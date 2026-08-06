@@ -20,7 +20,8 @@ import { DEFAULT_ARCHIVE_EVENT_ID } from '../features/archive/data/events/index.
 import '../shared/styles/shared.css';
 
 // ─── Site Visibility Config ───────────────────────────────────────────────────
-const SITE_HIDDEN = true;
+const SITE_HIDDEN = false;
+const SHOW_REGISTRATION_POPUPS = false; // Set false to hide modal + floating registration card
 // ─────────────────────────────────────────────────────────────────────────────
 
 const App = () => {
@@ -164,8 +165,12 @@ const App = () => {
       )}
 
       {/* ── Global UI Elements ────────────────────────────────────────────── */}
-      <RegistrationPopup />
-      <FloatingRegistration />
+      {SHOW_REGISTRATION_POPUPS && (
+        <>
+          <RegistrationPopup />
+          <FloatingRegistration />
+        </>
+      )}
 
       {/* MLH Trust Badge */}
       <a
