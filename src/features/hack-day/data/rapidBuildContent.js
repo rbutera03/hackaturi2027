@@ -3,6 +3,16 @@
 
 export const RAPID_BUILD_HASH = '#rapid-build';
 
+/** Treasure-map journey markers — one per major section, top to bottom */
+export const MAP_STOPS = [
+  { id: 'hero',     label: 'Set Sail',         icon: '⚓' },
+  { id: 'details',  label: 'Plot the Course',  icon: '🧭' },
+  { id: 'photos',   label: 'Past Voyages',     icon: '📷' },
+  { id: 'projects', label: 'Buried Treasure',  icon: '💎' },
+  { id: 'faq',      label: "Captain's Log",    icon: '📜' },
+  { id: 'cta',      label: 'X Marks the Spot', icon: '✕' },
+];
+
 const DONATE_URL = 'https://hcb.hackclub.com/donations/start/hack-uri';
 
 /** Shared CTAs — rendered in the hero and bottom CTA section */

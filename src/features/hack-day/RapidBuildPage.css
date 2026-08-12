@@ -36,6 +36,161 @@
 }
 
 /* ==========================================================================
+   2b. PIRATE DECORATIONS
+   ========================================================================== */
+.rb-deco {
+  pointer-events: none;
+  user-select: none;
+}
+
+.rb-deco--map-corner {
+  position: fixed;
+  top: 48px;
+  right: -24px;
+  width: min(300px, 38vw);
+  opacity: 0.14;
+  z-index: 1;
+  transform: rotate(14deg);
+  filter: sepia(0.35);
+}
+
+.rb-deco--map-flip {
+  top: auto;
+  right: auto;
+  left: -36px;
+  bottom: 60px;
+  transform: rotate(-16deg) scaleX(-1);
+  opacity: 0.1;
+}
+
+.rb-deco--chest {
+  position: absolute;
+  right: 8px;
+  bottom: -28px;
+  width: clamp(88px, 14vw, 120px);
+  z-index: 3;
+  filter: drop-shadow(0 10px 18px rgba(47, 37, 32, 0.28));
+  animation: rbChestBob 4.5s ease-in-out infinite;
+}
+
+@keyframes rbChestBob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-6px) rotate(2deg); }
+}
+
+/* ==========================================================================
+   2c. TREASURE MAP JOURNEY TRAIL
+   ========================================================================== */
+.rb-voyage {
+  position: relative;
+}
+
+.rb-treasure-trail-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  color: var(--brown-wood);
+  overflow: visible;
+}
+
+.rb-treasure-trail-path {
+  opacity: 0.88;
+  animation: rbTrailMarch 1.6s linear infinite;
+}
+
+@keyframes rbTrailMarch {
+  to { stroke-dashoffset: -32; }
+}
+
+.rb-map-stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: clamp(12px, 2vw, 24px);
+  align-items: stretch;
+  margin-bottom: 0;
+}
+
+.rb-map-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: start;
+}
+
+.rb-map-marker {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 4;
+}
+
+.rb-map-marker-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 30%, #fff6d8 0%, var(--parchment) 55%, #e8c882 100%);
+  border: 3px solid var(--brown-wood);
+  box-shadow:
+    0 6px 16px rgba(47, 37, 32, 0.22),
+    inset 0 0 0 2px rgba(195, 168, 115, 0.45);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.rb-map-stop:last-of-type .rb-map-marker-pin {
+  background:
+    radial-gradient(circle at 35% 30%, #ffe8a8 0%, #e8b84a 45%, #c48e56 100%);
+  border-color: var(--teal-dark);
+  color: var(--teal-dark);
+  font-weight: 900;
+  font-size: 1.35rem;
+  animation: rbXPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes rbXPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(195, 168, 115, 0.45); }
+  50%      { box-shadow: 0 0 0 10px rgba(195, 168, 115, 0); }
+}
+
+.rb-map-marker-label {
+  max-width: 72px;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brown-wood);
+  line-height: 1.2;
+}
+
+.rb-map-stop--gap-after {
+  padding-bottom: 48px;
+}
+
+.rb-map-stop-content {
+  min-width: 0;
+  position: relative;
+}
+
+.rb-map-stop-content .rb-section {
+  margin-bottom: 0;
+}
+
+.rb-cta {
+  position: relative;
+}
+
+/* ==========================================================================
    2. BACK NAV + STARS
    ========================================================================== */
 .rb-back-btn {
@@ -64,40 +219,17 @@
 }
 
 .rb-star {
-  width: 40px;
-  height: 40px;
+  position: absolute;
+  pointer-events: none;
   opacity: 0.75;
   filter: drop-shadow(0 0 6px rgba(195, 168, 115, 0.45));
+  animation: twinkle 3s ease-in-out infinite;
+  z-index: 2;
 }
 
 .rb-star--sm { width: 26px; height: 26px; }
 .rb-star--md { width: 40px; height: 40px; }
 .rb-star--lg { width: 56px; height: 56px; }
-
-.rb-star.star-1  { top: 6%;  left: 5%; }
-.rb-star.star-2  { top: 10%; right: 8%; }
-.rb-star.star-3  { top: 18%; left: 14%; }
-.rb-star.star-4  { top: 24%; right: 16%; }
-.rb-star.star-5  { top: 32%; left: 3%; }
-.rb-star.star-6  { top: 38%; right: 5%; }
-.rb-star.star-7  { top: 46%; left: 10%; }
-.rb-star.star-8  { top: 52%; right: 12%; }
-.rb-star.star-9  { top: 60%; left: 4%; }
-.rb-star.star-10 { top: 68%; right: 7%; }
-.rb-star.star-11 { top: 74%; left: 16%; }
-.rb-star.star-12 { top: 82%; right: 14%; }
-.rb-star.star-13 { top: 88%; left: 8%; }
-.rb-star.star-14 { top: 94%; right: 4%; }
-
-.rb-star.star-6  { animation-delay: 0.3s; }
-.rb-star.star-7  { animation-delay: 0.9s; }
-.rb-star.star-8  { animation-delay: 1.5s; }
-.rb-star.star-9  { animation-delay: 2.1s; }
-.rb-star.star-10 { animation-delay: 0.45s; }
-.rb-star.star-11 { animation-delay: 1.05s; }
-.rb-star.star-12 { animation-delay: 1.65s; }
-.rb-star.star-13 { animation-delay: 2.25s; }
-.rb-star.star-14 { animation-delay: 2.85s; }
 
 /* ==========================================================================
    3. SHARED SECTION STYLES
@@ -114,6 +246,21 @@
   margin: 0 0 12px;
   font-family: var(--font-main);
   text-shadow: 0 2px 0 rgba(249, 233, 192, 0.85), 0 8px 24px rgba(12, 58, 64, 0.12);
+}
+
+.rb-section-title::after {
+  content: '';
+  display: block;
+  width: 96px;
+  height: 5px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--brown-wood) 0 10px,
+    transparent 10px 18px
+  );
+  opacity: 0.55;
 }
 
 .rb-section-subtitle {
@@ -147,7 +294,11 @@
   grid-template-columns: minmax(220px, 340px) 1fr;
   gap: clamp(20px, 4vw, 40px);
   align-items: center;
-  margin-bottom: 56px;
+  margin-bottom: 0;
+}
+
+.rb-hero-art {
+  position: relative;
 }
 
 .rb-pirate-logo-wrap {
@@ -181,6 +332,19 @@
 
 .rb-hero-copy {
   text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.rb-hero-copy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  opacity: 0.65;
 }
 
 .rb-hero-eyebrow {
@@ -228,6 +392,17 @@
   gap: 16px;
   max-width: 520px;
   margin: 0 auto;
+  border-style: dashed;
+  border-width: 2px;
+  background:
+    linear-gradient(160deg, rgba(249, 233, 192, 0.96) 0%, rgba(246, 233, 200, 0.9) 100%),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 12px,
+      rgba(139, 69, 19, 0.04) 12px,
+      rgba(139, 69, 19, 0.04) 24px
+    );
 }
 
 .rb-event-meta-row {
@@ -274,6 +449,16 @@
 
 .rb-project-card {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.rb-project-card::before {
+  content: '🏴‍☠️';
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 1.1rem;
+  opacity: 0.35;
 }
 
 .rb-project-card:hover {
@@ -539,6 +724,17 @@
   .rb-project-grid {
     grid-template-columns: 1fr;
   }
+
+  .rb-map-stop {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .rb-map-marker-pin {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -552,5 +748,43 @@
 
   .rb-pirate-logo-wrap {
     animation: none;
+  }
+
+  .rb-deco--map-corner {
+    display: none;
+  }
+
+  .rb-map-stop {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+  }
+
+  .rb-map-marker {
+    position: static;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+    gap: 10px;
+  }
+
+  .rb-map-marker-label {
+    max-width: none;
+    font-size: 0.75rem;
+  }
+
+  .rb-treasure-trail-overlay {
+    display: none;
+  }
+
+  .rb-map-stop:not(.rb-map-stop--last) {
+    border-bottom: 2px dashed rgba(139, 69, 19, 0.28);
+    padding-bottom: 28px;
+    margin-bottom: 28px;
+  }
+
+  .rb-deco--chest {
+    right: 50%;
+    transform: translateX(50%);
+    bottom: -48px;
   }
 }
