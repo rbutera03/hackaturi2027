@@ -5,7 +5,6 @@ import React, { useRef } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import starsSvg from '../../assets/stars-bg.svg';
 import treasureMapSvg from '../../assets/treasure-map.svg';
-import treasureChestSvg from '../../assets/treasure-chest.svg';
 import '../../shared/styles/shared.css';
 import './RapidBuildPage.css';
 import Hero from './components/Hero.jsx';
@@ -49,29 +48,28 @@ const RapidBuildPage = ({ onClose }) => {
         <div className="rb-voyage" ref={voyageRef}>
           <TreasureTrail containerRef={voyageRef} />
 
-          <MapStop stopId="hero">
+          <MapStop stopId="hero" side="left">
             <Hero />
           </MapStop>
 
-          <MapStop stopId="details">
+          <MapStop stopId="details" side="right">
             <EventDetails />
           </MapStop>
 
-          <MapStop stopId="photos">
+          <MapStop stopId="photos" side="left">
             <PhotoStrip />
           </MapStop>
 
-          <MapStop stopId="projects">
+          <MapStop stopId="projects" side="right">
             <ProjectShowcase />
           </MapStop>
 
-          <MapStop stopId="faq" extraGapAfter>
+          <MapStop stopId="faq" side="left" extraGapAfter>
             <Faq />
           </MapStop>
 
-          <MapStop stopId="cta" isLast>
+          <MapStop stopId="cta" side="right" isLast>
             <CtaSection />
-            <img src={treasureChestSvg} alt="" className="rb-deco rb-deco--chest" />
           </MapStop>
         </div>
       </div>

@@ -11,7 +11,7 @@ import './LandingPage.css';
 // Update these values each year before switching SITE_HIDDEN back to true.
 const LANDING_CONFIG = {
   eventName:    'Hack@URI 2027',
-  tagline:      'Rapid Build 2027!',
+  tagline:      'Hack@URI Rapid Build!',
   description:  'We are excited to announce our second ever Mini Hack Event: Hack@URI Rapid Build!',
   eventDates:   'Learn more about Hack@URI Rapid Build below!',
 

@@ -1,7 +1,13 @@
 import React from 'react';
 import { MAP_STOPS } from '../data/rapidBuildContent.js';
 
-const MapStop = ({ stopId, children, isLast = false, extraGapAfter = false }) => {
+const MapStop = ({
+  stopId,
+  children,
+  isLast = false,
+  extraGapAfter = false,
+  side = 'left',
+}) => {
   const stop = MAP_STOPS.find((s) => s.id === stopId);
 
   if (!stop) {
@@ -12,6 +18,7 @@ const MapStop = ({ stopId, children, isLast = false, extraGapAfter = false }) =>
     <div
       className={[
         'rb-map-stop',
+        side === 'right' ? 'rb-map-stop--right' : 'rb-map-stop--left',
         isLast ? 'rb-map-stop--last' : '',
         extraGapAfter ? 'rb-map-stop--gap-after' : '',
       ].filter(Boolean).join(' ')}

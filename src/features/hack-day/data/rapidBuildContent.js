@@ -10,7 +10,7 @@ export const MAP_STOPS = [
   { id: 'photos',   label: 'Past Voyages',     icon: '📷' },
   { id: 'projects', label: 'Buried Treasure',  icon: '💎' },
   { id: 'faq',      label: "Captain's Log",    icon: '📜' },
-  { id: 'cta',      label: 'X Marks the Spot', icon: '✕' },
+  { id: 'cta',      label: 'X Marks the Spot', icon: '❌' },
 ];
 
 /** Background star positions on the Rapid Build overlay */
@@ -88,7 +88,7 @@ export const RAPID_BUILD_PAGE = {
 
   photos: {
     sectionTitle: 'Hack Day 2025',
-    sectionSubtitle: 'Photos from last year\'s Hack Day.',
+    sectionSubtitle: 'Photos from last year\'s Hack Day!',
     // Drop images in this folder to auto-populate the carousel (sorted by filename).
     photoDirectory: '/public/images/past-events/hack-day-2025',
     items: [
@@ -112,7 +112,7 @@ export const RAPID_BUILD_PAGE = {
 
   projects: {
     sectionTitle: 'Past Hack Day Projects',
-    sectionSubtitle: 'Standout builds from last year\'s Mini HackDay — explore even more on Devpost.',
+    sectionSubtitle: 'Standout builds from last year\'s Mini HackDay — explore even more on Devpost!',
     galleryCta: {
       label: "See the Full Project Gallery",
       url: 'https://hack-uri-mini-hackday.devpost.com/project-gallery',
@@ -188,8 +188,8 @@ export const RAPID_BUILD_PAGE = {
   },
 
   cta: {
-    sectionTitle: 'Ready to build?',
-    sectionSubtitle: 'Apply now, volunteer as a judge, or help sponsor the event.',
+    sectionTitle: 'Be Part of the Adventure!',
+    sectionSubtitle: 'Register now, volunteer as a judge, or help sponsor the event!',
     buttons: RAPID_BUILD_CTAS,
   },
 };

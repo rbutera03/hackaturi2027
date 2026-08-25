@@ -1,24 +1,25 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-const LABEL_GAP_PX = 10;
-const CURVE_SWAY_PX = 20;
+const PIN_GAP_PX = 8;
 
-/** Smooth S-curve from below a label to the top of the next map pin */
-function buildTrailPath(x1, y1, x2, y2, index) {
+/** Curve from one pin to the next, biasing toward the destination early */
+function buildTrailPath(x1, y1, x2, y2) {
   const dy = y2 - y1;
   if (dy < 4) return null;
 
-  const midY = y1 + dy * 0.5;
-  const sway = index % 2 === 0 ? -CURVE_SWAY_PX : CURVE_SWAY_PX;
-  const midX = (x1 + x2) / 2 + sway;
+  const dx = x2 - x1;
+
+  // Start mostly vertical, then commit to the destination x so relocated
+  // pins (like the final X) stay clearly targeted.
+  const c1x = x1 + dx * 0.2;
+  const c1y = y1 + dy * 0.35;
+  const c2x = x2 - dx * 0.05;
+  const c2y = y2 - dy * 0.28;
 
   return [
     `M ${x1.toFixed(1)} ${y1.toFixed(1)}`,
-    `C ${x1.toFixed(1)} ${(y1 + dy * 0.2).toFixed(1)},`,
-    `${midX.toFixed(1)} ${(midY - dy * 0.1).toFixed(1)},`,
-    `${midX.toFixed(1)} ${midY.toFixed(1)}`,
-    `C ${midX.toFixed(1)} ${(midY + dy * 0.1).toFixed(1)},`,
-    `${x2.toFixed(1)} ${(y2 - dy * 0.15).toFixed(1)},`,
+    `C ${c1x.toFixed(1)} ${c1y.toFixed(1)},`,
+    `${c2x.toFixed(1)} ${c2y.toFixed(1)},`,
     `${x2.toFixed(1)} ${y2.toFixed(1)}`,
   ].join(' ');
 }
@@ -31,9 +32,8 @@ const TreasureTrail = ({ containerRef }) => {
     const container = containerRef.current;
     if (!container) return;
 
-    const labels = container.querySelectorAll('.rb-map-marker-label');
-    const pins = container.querySelectorAll('.rb-map-marker-pin');
-    if (labels.length < 2 || pins.length < 2) {
+    const stops = container.querySelectorAll('.rb-map-stop');
+    if (stops.length < 2) {
       setPaths([]);
       return;
     }
@@ -45,16 +45,20 @@ const TreasureTrail = ({ containerRef }) => {
     });
 
     const nextPaths = [];
-    for (let i = 0; i < labels.length - 1; i += 1) {
-      const labelRect = labels[i].getBoundingClientRect();
-      const nextPinRect = pins[i + 1].getBoundingClientRect();
+    for (let i = 0; i < stops.length - 1; i += 1) {
+      const fromPin = stops[i].querySelector('.rb-map-marker-pin');
+      const toPin = stops[i + 1].querySelector('.rb-map-marker-pin');
+      if (!fromPin || !toPin) continue;
 
-      const x1 = labelRect.left + labelRect.width / 2 - containerRect.left;
-      const y1 = labelRect.bottom - containerRect.top + LABEL_GAP_PX;
-      const x2 = nextPinRect.left + nextPinRect.width / 2 - containerRect.left;
-      const y2 = nextPinRect.top - containerRect.top;
+      const fromRect = fromPin.getBoundingClientRect();
+      const toRect = toPin.getBoundingClientRect();
 
-      const d = buildTrailPath(x1, y1, x2, y2, i);
+      const x1 = fromRect.left + fromRect.width / 2 - containerRect.left;
+      const y1 = fromRect.bottom - containerRect.top + PIN_GAP_PX;
+      const x2 = toRect.left + toRect.width / 2 - containerRect.left;
+      const y2 = toRect.top - containerRect.top - PIN_GAP_PX;
+
+      const d = buildTrailPath(x1, y1, x2, y2);
       if (d) nextPaths.push({ id: i, d });
     }
 
@@ -67,8 +71,12 @@ const TreasureTrail = ({ containerRef }) => {
     const container = containerRef.current;
     if (!container) return undefined;
 
-    const observer = new ResizeObserver(updatePaths);
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(updatePaths);
+    });
     observer.observe(container);
+    container.querySelectorAll('.rb-map-stop').forEach((stop) => observer.observe(stop));
+
     window.addEventListener('resize', updatePaths);
 
     const t1 = window.setTimeout(updatePaths, 120);
