@@ -2,7 +2,7 @@ import React from 'react';
 import { RAPID_BUILD_PAGE } from '../data/rapidBuildContent.js';
 import CtaButtonGroup from './CtaButtonGroup.jsx';
 
-const CtaButtons = () => {
+const CtaSection = () => {
   const { cta } = RAPID_BUILD_PAGE;
 
   return (
@@ -16,4 +16,4 @@ const CtaButtons = () => {
   );
 };
 
-export default CtaButtons;
+export default CtaSection;

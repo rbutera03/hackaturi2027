@@ -431,64 +431,233 @@
    6. PROJECT SHOWCASE
    ========================================================================== */
 .rb-project-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.rb-project-image {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 14px;
-  display: block;
-  border: 2px solid rgba(12, 58, 64, 0.15);
-  box-shadow: 0 8px 18px rgba(12, 58, 64, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
 }
 
 .rb-project-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  position: relative;
-}
-
-.rb-project-card::before {
-  content: '🏴‍☠️';
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  font-size: 1.1rem;
-  opacity: 0.35;
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 288px;
+  max-width: 300px;
+  width: 100%;
+  border-width: 4px;
+  padding: 0;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .rb-project-card:hover {
   transform: translateY(-4px);
 }
 
-.rb-project-card h3 {
-  margin: 0 0 10px;
+.rb-project-card--featured {
+  z-index: 1;
+  flex-basis: 316px;
+  max-width: 330px;
+  transform: translateY(-14px) scale(1.03);
+  box-shadow:
+    0 22px 44px rgba(12, 58, 64, 0.28),
+    0 0 34px rgba(232, 184, 74, 0.4);
+  background:
+    linear-gradient(160deg, #fff6d8 0%, rgba(249, 233, 192, 0.97) 45%, rgba(195, 168, 115, 0.3) 100%);
+}
+
+.rb-project-card--featured:hover {
+  transform: translateY(-18px) scale(1.03);
+}
+
+.rb-project-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 12 / 5;
+  overflow: hidden;
+  background: rgba(12, 58, 64, 0.08);
+  flex-shrink: 0;
+}
+
+.rb-project-winner-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ffe8a8 0%, #e8b84a 55%, #c48e56 100%);
+  border: 2px solid var(--brown-wood);
+  color: var(--brown-dark);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(47, 37, 32, 0.28);
+}
+
+.rb-project-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.rb-project-card:hover .rb-project-image {
+  transform: scale(1.04);
+}
+
+.rb-project-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(249, 233, 192, 0.7) 0%, rgba(246, 233, 200, 1) 100%);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--teal-border);
+  opacity: 0.35;
+}
+
+.rb-project-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 14px 16px 16px;
+}
+
+.rb-project-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.rb-project-track-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(12, 58, 64, 0.08);
   color: var(--teal-dark);
-  font-size: 1.25rem;
+  border: 1px solid rgba(12, 58, 64, 0.2);
+}
+
+.rb-project-card--featured .rb-project-track-badge {
+  background: rgba(195, 168, 115, 0.28);
+  border-color: var(--gold-light);
+  color: var(--brown-dark);
+}
+
+.rb-project-card h3 {
+  margin: 0 0 8px;
+  color: var(--teal-dark);
+  font-size: 1.05rem;
+}
+
+.rb-project-card--featured h3 {
+  font-size: 1.22rem;
+  color: var(--brown-dark);
 }
 
 .rb-project-card p {
-  margin: 0 0 16px;
-  font-size: 0.98rem;
-  line-height: 1.6;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.rb-project-card--featured p {
+  font-size: 0.86rem;
+}
+
+.rb-project-card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.rb-project-team {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.rb-project-team-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(47, 37, 32, 0.65);
+  flex-shrink: 0;
+}
+
+.rb-project-team-members {
+  font-size: 0.74rem;
+  color: #48392f;
+  line-height: 1.45;
 }
 
 .rb-project-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 32px;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: var(--brown-wood);
+  letter-spacing: 0.04em;
+  background: var(--teal-dark);
+  color: var(--gold);
   text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .rb-project-link:hover {
-  color: var(--teal-dark);
-  text-decoration: underline;
+  background: #0a2e34;
+  color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(12, 58, 64, 0.2);
+}
+
+.rb-project-gallery-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.rb-project-gallery-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 26px;
+  border-radius: 32px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--teal-dark);
+  color: var(--gold);
+  border: 2px solid var(--gold-light);
+  text-decoration: none;
+  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.rb-project-gallery-link:hover {
+  background: #0a2e34;
+  color: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(12, 58, 64, 0.28);
 }
 
 /* ==========================================================================
@@ -722,7 +891,19 @@
   }
 
   .rb-project-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .rb-project-card,
+  .rb-project-card--featured {
+    flex-basis: auto;
+    max-width: 320px;
+    transform: none;
+  }
+
+  .rb-project-card--featured:hover {
+    transform: translateY(-4px);
   }
 
   .rb-map-stop {

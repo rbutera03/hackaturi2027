@@ -13,40 +13,10 @@ import EventDetails from './components/EventDetails.jsx';
 import ProjectShowcase from './components/ProjectShowcase.jsx';
 import PhotoStrip from './components/PhotoStrip.jsx';
 import Faq from './components/Faq.jsx';
-import CtaButtons from './components/CtaButtons.jsx';
+import CtaSection from './components/CtaSection.jsx';
 import MapStop from './components/MapStop.jsx';
 import TreasureTrail from './components/TreasureTrail.jsx';
-
-const RB_STARS = [
-  { n: 1, size: 'lg', top: '5%', left: '4%' },
-  { n: 2, size: 'md', top: '8%', right: '6%' },
-  { n: 3, size: 'sm', top: '14%', left: '11%' },
-  { n: 4, size: 'lg', top: '19%', right: '13%' },
-  { n: 5, size: 'md', top: '26%', left: '2%' },
-  { n: 6, size: 'sm', top: '31%', right: '4%' },
-  { n: 7, size: 'md', top: '37%', left: '9%' },
-  { n: 8, size: 'lg', top: '43%', right: '10%' },
-  { n: 9, size: 'sm', top: '49%', left: '3%' },
-  { n: 10, size: 'md', top: '54%', right: '7%' },
-  { n: 11, size: 'sm', top: '59%', left: '15%' },
-  { n: 12, size: 'lg', top: '64%', right: '15%' },
-  { n: 13, size: 'md', top: '69%', left: '6%' },
-  { n: 14, size: 'sm', top: '74%', right: '3%' },
-  { n: 15, size: 'md', top: '78%', left: '13%' },
-  { n: 16, size: 'sm', top: '82%', right: '11%' },
-  { n: 17, size: 'lg', top: '86%', left: '2%' },
-  { n: 18, size: 'md', top: '11%', left: '22%' },
-  { n: 19, size: 'sm', top: '22%', right: '20%' },
-  { n: 20, size: 'md', top: '35%', left: '20%' },
-  { n: 21, size: 'sm', top: '47%', right: '19%' },
-  { n: 22, size: 'lg', top: '58%', left: '19%' },
-  { n: 23, size: 'md', top: '71%', right: '22%' },
-  { n: 24, size: 'sm', top: '91%', right: '8%' },
-  { n: 25, size: 'md', top: '17%', right: '26%' },
-  { n: 26, size: 'sm', top: '44%', left: '24%' },
-  { n: 27, size: 'md', top: '67%', right: '25%' },
-  { n: 28, size: 'sm', top: '93%', left: '10%' },
-];
+import { RB_STARS } from './data/rapidBuildContent.js';
 
 const RapidBuildPage = ({ onClose }) => {
   const voyageRef = useRef(null);
@@ -100,7 +70,7 @@ const RapidBuildPage = ({ onClose }) => {
           </MapStop>
 
           <MapStop stopId="cta" isLast>
-            <CtaButtons />
+            <CtaSection />
             <img src={treasureChestSvg} alt="" className="rb-deco rb-deco--chest" />
           </MapStop>
         </div>

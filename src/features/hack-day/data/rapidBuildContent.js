@@ -13,16 +13,48 @@ export const MAP_STOPS = [
   { id: 'cta',      label: 'X Marks the Spot', icon: '✕' },
 ];
 
+/** Background star positions on the Rapid Build overlay */
+export const RB_STARS = [
+  { n: 1, size: 'lg', top: '5%', left: '4%' },
+  { n: 2, size: 'md', top: '8%', right: '6%' },
+  { n: 3, size: 'sm', top: '14%', left: '11%' },
+  { n: 4, size: 'lg', top: '19%', right: '13%' },
+  { n: 5, size: 'md', top: '26%', left: '2%' },
+  { n: 6, size: 'sm', top: '31%', right: '4%' },
+  { n: 7, size: 'md', top: '37%', left: '9%' },
+  { n: 8, size: 'lg', top: '43%', right: '10%' },
+  { n: 9, size: 'sm', top: '49%', left: '3%' },
+  { n: 10, size: 'md', top: '54%', right: '7%' },
+  { n: 11, size: 'sm', top: '59%', left: '15%' },
+  { n: 12, size: 'lg', top: '64%', right: '15%' },
+  { n: 13, size: 'md', top: '69%', left: '6%' },
+  { n: 14, size: 'sm', top: '74%', right: '3%' },
+  { n: 15, size: 'md', top: '78%', left: '13%' },
+  { n: 16, size: 'sm', top: '82%', right: '11%' },
+  { n: 17, size: 'lg', top: '86%', left: '2%' },
+  { n: 18, size: 'md', top: '11%', left: '22%' },
+  { n: 19, size: 'sm', top: '22%', right: '20%' },
+  { n: 20, size: 'md', top: '35%', left: '20%' },
+  { n: 21, size: 'sm', top: '47%', right: '19%' },
+  { n: 22, size: 'lg', top: '58%', left: '19%' },
+  { n: 23, size: 'md', top: '71%', right: '22%' },
+  { n: 24, size: 'sm', top: '91%', right: '8%' },
+  { n: 25, size: 'md', top: '17%', right: '26%' },
+  { n: 26, size: 'sm', top: '44%', left: '24%' },
+  { n: 27, size: 'md', top: '67%', right: '25%' },
+  { n: 28, size: 'sm', top: '93%', left: '10%' },
+];
+
 const DONATE_URL = 'https://hcb.hackclub.com/donations/start/hack-uri';
 
 /** Shared CTAs — rendered in the hero and bottom CTA section */
 export const RAPID_BUILD_CTAS = [
   {
     id: 'apply',
-    label: 'Apply',
-    url: '#TODO',
+    label: 'Register',
+    url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
     variant: 'primary',
-    external: false,
+    external: true,
   },
   {
     id: 'judge',
@@ -49,9 +81,9 @@ export const RAPID_BUILD_PAGE = {
 
   eventDetails: {
     sectionTitle: 'Event Details',
-    date: 'October 24 (tentative)',
-    time: '8:00 AM – 5:00 PM',
-    location: 'TBD',
+    date: 'October 17, 2026',
+    time: '8:00 AM - 5:00 PM',
+    location: 'Ballentine Hall, 7 Lippitt Road, Kingston, RI 02881',
   },
 
   photos: {
@@ -80,28 +112,42 @@ export const RAPID_BUILD_PAGE = {
 
   projects: {
     sectionTitle: 'Past Hack Day Projects',
-    sectionSubtitle: 'A few standout builds from previous Rapid Build / Hack Day events.',
+    sectionSubtitle: 'Standout builds from last year\'s Mini HackDay — explore even more on Devpost.',
+    galleryCta: {
+      label: "See the Full Project Gallery",
+      url: 'https://hack-uri-mini-hackday.devpost.com/project-gallery',
+    },
     items: [
       {
-        id: 'campus-queue',
-        title: 'Campus Queue',
-        description: 'A real-time dining hall wait-time tracker built in one day so students could plan lunch around the shortest lines.',
-        devpostUrl: null,
-        image: null,
+        id: 'claroma',
+        title: 'Claroma',
+        description:
+          'A VR anatomy app that lets users explore 3D models of the skeleton, muscles, and heart, then uses Gemini Vision to explain any region they point to.',
+        teamMembers: ['Sansrit Paudel', 'Priyankan Kiru'],
+        tracks: [],
+        image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/855/878/datas/medium.png',
+        devpostUrl: 'https://devpost.com/software/claroma',
       },
       {
-        id: 'study-match',
-        title: 'StudyMatch',
-        description: 'A lightweight app that matched students by course and availability for same-day study sessions on campus.',
-        devpostUrl: null,
-        image: null,
+        id: 'home-feature-analyzer',
+        title: 'Home Feature Analyzer',
+        description:
+          'A Gemini-powered tool that scans property photos, extracts key selling features, and auto-generates a marketing-ready sales pitch for real estate listings.',
+        teamMembers: ['Tunde Fakolujo', 'Angel Bencosme'],
+        tracks: ['Best use of Gemini API'],
+        featured: true,
+        image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/003/856/271/datas/medium.png',
+        devpostUrl: 'https://devpost.com/software/home-feature-analyzer',
       },
       {
-        id: 'lost-and-found-bot',
-        title: 'Lost & Found Bot',
-        description: 'A Discord bot that cataloged found items around URI and pinged students when a match was posted.',
-        devpostUrl: null,
-        image: null,
+        id: 'foursight',
+        title: 'FourSight',
+        description:
+          'Turns a university degree-requirements document into a prerequisite-compliant 4-year course schedule so students can see a guaranteed path to graduation.',
+        teamMembers: ['Peter Card', 'Jackson Torres', 'Junrong Liu'],
+        tracks: [],
+        image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/856/197/datas/medium.png',
+        devpostUrl: 'https://devpost.com/software/foursight-3szqbg',
       },
     ],
   },
@@ -109,7 +155,11 @@ export const RAPID_BUILD_PAGE = {
   faqs: {
     sectionTitle: 'FAQ',
     items: [
-      
+      {
+        question: 'What is Hack@URI Rapid Build?',
+        answer:
+          'Hack@URI Rapid Build is a one-day, beginner-friendly hackathon designed for students who want to explore hackathons in a welcoming, low-pressure environment. Participants spend the day learning new skills, collaborating with teammates, and building a project from start to finish.',
+      },
       {
         question: 'Who should attend?',
         answer:
