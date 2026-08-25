@@ -8,6 +8,7 @@ import { ARCHIVE_EVENTS_BY_ID, DEFAULT_ARCHIVE_EVENT_ID } from './data/events/in
 import '../../shared/styles/shared.css';
 import './ArchivePage.css';
 import { Header } from '../layout';
+import { FaArrowLeft } from 'react-icons/fa';
 
 // Path keys only — public assets are served from the site root (do not import with ?url).
 const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
@@ -18,7 +19,7 @@ const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
 const ARCHIVE_PAGE_CONFIG = {
   carouselAutoCycleMs: 10000,
   landingTopPadding: 'clamp(22px, 4vh, 42px)',
-  returnToLandingLabel: 'Return to Landing Page',
+  returnToLandingLabel: ' Back to Main Site',
 };
 
 // Normalize provided directory strings to a canonical "/path/" form for matching.
@@ -113,6 +114,7 @@ const ArchivePage = ({
                 onReturnToLanding?.();
               }}
             >
+              <FaArrowLeft />
               {ARCHIVE_PAGE_CONFIG.returnToLandingLabel}
             </button>
           </div>

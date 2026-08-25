@@ -20,7 +20,7 @@ import { DEFAULT_ARCHIVE_EVENT_ID } from '../features/archive/data/events/index.
 import '../shared/styles/shared.css';
 
 // ─── Site Visibility Config ───────────────────────────────────────────────────
-const SITE_HIDDEN = false;
+const SITE_HIDDEN = true;
 const SHOW_REGISTRATION_POPUPS = false; // Set false to hide modal + floating registration card
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -123,10 +123,13 @@ const App = () => {
     localStorage.removeItem('hackaturi-site-revealed');
   };
 
-  // Hidden mode: render only landing screen (and archive page if hash points to it).
+  // Hidden mode: render only landing screen (plus rapid-build / archive overlays via hash).
   if (SITE_HIDDEN && !isSiteRevealed) {
     return (
       <div className="app landing-mode">
+        {showRapidBuildPage && (
+          <RapidBuildPage onClose={handleCloseRapidBuildPage} />
+        )}
         {archiveEvent && (
           <ArchivePage
             eventId={archiveEvent}

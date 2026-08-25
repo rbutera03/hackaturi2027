@@ -11,11 +11,18 @@ import './LandingPage.css';
 // Update these values each year before switching SITE_HIDDEN back to true.
 const LANDING_CONFIG = {
   eventName:    'Hack@URI 2027',
-  tagline:      'Coming Soon!',
-  description:  'After a successful Hack@URI 2026, we will be back for another year of hacking!',
-  eventDates:   'Check out more from Hack@URI 2026 below!',
-  archiveUrl:   ARCHIVE_NAV_ITEMS.find(item => item.id === '#archive-2026')?.id || '#archive-2026',
-  organizerFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfvNrL-fWzOD5FGZ7sW3_Njzdup-KZG4uXOGhuRlPzFjrT4Wg/viewform?usp=publish-editor',
+  tagline:      'Rapid Build 2027!',
+  description:  'We are excited to announce our second ever Mini Hack Event: Hack@URI Rapid Build!',
+  eventDates:   'Learn more about Hack@URI Rapid Build below!',
+
+  topLinkLabel: 'Hack@URI Rapid Build →',
+  topLinkUrl:   '#rapid-build',
+
+  bottomCtaCopy:  'While we prepare for Hack@URI 2027, take a look back at Hack@URI 2026 photos, winners, and projects.',
+  bottomLinkLabel: 'Hack@URI 2026 Photos, Winners, and Projects →',
+  bottomLinkUrl: ARCHIVE_NAV_ITEMS.find(item => item.id === '#archive-2026')?.id || '#archive-2026',
+
+  followUsText: 'Follow us for updates:',
   socialLinks: [
     { label: 'Instagram', url: 'https://www.instagram.com/hack.at.uri/' },
     { label: 'LinkedIn', url: 'https://www.linkedin.com/company/hack-uri/posts/?feedView=all' },
@@ -79,30 +86,28 @@ const LandingPage = ({ onRevealSite }) => {
 
               <div className="preregistration-section">
                 <a
-                  href={LANDING_CONFIG.archiveUrl}
+                  href={LANDING_CONFIG.topLinkUrl}
                   className="btn-primary preregistration-button"
                 >
-                  Hack@URI 2026 Photos, Winners, and Projects →
+                  {LANDING_CONFIG.topLinkLabel}
                 </a>
               </div>
 
               <div className="organizer-cta-section">
                 <p className="organizer-cta-copy">
-                  Interested in joining the organizing team? Check out the link below!
+                  {LANDING_CONFIG.bottomCtaCopy}
                 </p>
                 <a
-                  href={LANDING_CONFIG.organizerFormUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={LANDING_CONFIG.bottomLinkUrl}
                   className="btn-primary organizer-cta-button"
                 >
-                  Hack@URI 2027 Organizer Form →
+                  {LANDING_CONFIG.bottomLinkLabel}
                 </a>
               </div>
 
               {/* ── Social Links ─────────────────────────────────────────── */}
               <div className="landing-footer">
-                <p>Follow us for updates:</p>
+                <p>{LANDING_CONFIG.followUsText}</p>
                 <div className="social-links">
                   {LANDING_CONFIG.socialLinks.map((link) => (
                     <a
