@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { RAPID_BUILD_PAGE } from '../data/rapidBuildContent.js';
 
+
 // Path keys only — public assets are served from the site root (do not import with ?url).
 const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
   import.meta.glob('/public/images/past-events/**/*.{png,jpg,jpeg,webp,avif,gif}'),
@@ -16,26 +17,78 @@ const normalizeDirectoryPath = (path = '') => {
 
 const toPublicUrl = (filePath) => filePath.replace(/^\/public/, '') || filePath;
 
-const getImagesFromPhotoDirectory = (photoDirectory) => {
+const PHOTO_CAPTIONS_BY_FILENAME = {
+  all: { alt: 'Hack Day 2025 — group photo', caption: 'A Successful Hack Day 2025!' },
+  opening2: { alt: 'Hack Day 2025 — kickoff', caption: 'Opening Remarks and Kickoff!' },
+  working: { alt: 'Hack Day 2025 — teams building', caption: 'Teams working throughout the day!' },
+  workshop: { alt: 'Hack Day 2025 — workshop', caption: 'First Time Hackers Workshop!' },
+};
+
+const getFilename = (filePath) => filePath.split('/').pop() || '';
+
+const getFilenameStem = (filePath) =>
+  getFilename(filePath).replace(/\.[^.]+$/, '');
+
+const orderDirectoryFiles = (filePaths, photoOrder = []) => {
+  const byFilename = new Map();
+  const byStem = new Map();
+  filePaths.forEach((filePath) => {
+    const filename = getFilename(filePath).toLowerCase();
+    const stem = getFilenameStem(filePath).toLowerCase();
+    byFilename.set(filename, filePath);
+    byStem.set(stem, filePath);
+  });
+
+  const ordered = [];
+  const used = new Set();
+
+  photoOrder.forEach((entry) => {
+    const key = String(entry).trim().toLowerCase();
+    if (!key) return;
+    const match = byFilename.get(key) || byStem.get(getFilenameStem(key));
+    if (match && !used.has(match)) {
+      used.add(match);
+      ordered.push(match);
+    }
+  });
+
+  filePaths
+    .slice()
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
+    .forEach((filePath) => {
+      if (!used.has(filePath)) ordered.push(filePath);
+    });
+
+  return ordered;
+};
+
+const getImagesFromPhotoDirectory = (photoDirectory, photoOrder = []) => {
   const normalizedDir = normalizeDirectoryPath(photoDirectory);
   if (!normalizedDir) return [];
 
-  return PUBLIC_PAST_EVENT_IMAGE_PATHS
-    .filter((filePath) => filePath.startsWith(normalizedDir))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-    .map((filePath, index) => ({
-      src: toPublicUrl(filePath),
-      alt: `Hack Day 2025 — photo ${index + 1}`,
-      caption: `Hack Day 2025 — photo ${index + 1}`,
-    }))
+  const directoryFiles = PUBLIC_PAST_EVENT_IMAGE_PATHS
+    .filter((filePath) => filePath.startsWith(normalizedDir));
+
+  return orderDirectoryFiles(directoryFiles, photoOrder)
+    .map((filePath, index) => {
+      const stem = getFilenameStem(filePath);
+      const labels = PHOTO_CAPTIONS_BY_FILENAME[stem];
+      return {
+        src: toPublicUrl(filePath),
+        alt: labels?.alt || `Hack Day 2025 — photo ${index + 1}`,
+        caption: labels?.caption || `Hack Day 2025 — photo ${index + 1}`,
+      };
+    })
     .filter((photo) => photo.src);
 };
+
+const PHOTO_AUTO_ADVANCE_MS = 15000;
 
 const PhotoStrip = () => {
   const { photos } = RAPID_BUILD_PAGE;
   const directoryPhotos = useMemo(
-    () => getImagesFromPhotoDirectory(photos.photoDirectory),
-    [photos.photoDirectory],
+    () => getImagesFromPhotoDirectory(photos.photoDirectory, photos.photoOrder),
+    [photos.photoDirectory, photos.photoOrder],
   );
   const carouselPhotos = directoryPhotos.length > 0 ? directoryPhotos : photos.items;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -47,12 +100,12 @@ const PhotoStrip = () => {
   useEffect(() => {
     if (carouselPhotos.length <= 1) return;
 
-    const interval = setInterval(() => {
+    const timeout = setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % carouselPhotos.length);
-    }, 8000);
+    }, PHOTO_AUTO_ADVANCE_MS);
 
-    return () => clearInterval(interval);
-  }, [carouselPhotos.length]);
+    return () => clearTimeout(timeout);
+  }, [currentIndex, carouselPhotos.length]);
 
   if (carouselPhotos.length === 0) {
     return (

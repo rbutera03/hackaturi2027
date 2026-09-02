@@ -89,23 +89,45 @@ export const RAPID_BUILD_PAGE = {
   photos: {
     sectionTitle: 'Hack Day 2025',
     sectionSubtitle: 'Photos from last year\'s Hack Day!',
-    // Drop images in this folder to auto-populate the carousel (sorted by filename).
-    photoDirectory: '/public/images/past-events/hack-day-2025',
+    // Drop images in this folder to auto-populate the carousel.
+    photoDirectory: '/public/images/past-events/hackday2025',
+    // Filename order for the carousel. Unlisted files still appear after these.
+    photoOrder: [
+      'opening2.jpeg',
+      'workshop.jpeg',
+      'working.jpg',
+      'all.jpg',
+    ],
     items: [
       {
-        src: '/images/past-events/hack-day-2025/photo-1.jpg',
-        alt: 'Hack Day 2025 — hackers collaborating',
-        caption: 'Teams building at Hack Day 2025',
+        src: '/images/past-events/hackday2025/all.jpg',
+        alt: 'Hack Day 2025 — group photo',
+        caption: 'The full Hack Day 2025 crew',
       },
       {
-        src: '/images/past-events/hack-day-2025/photo-2.jpg',
-        alt: 'Hack Day 2025 — project demos',
-        caption: 'Closing pitches and demos',
+        src: '/images/past-events/hackday2025/openening1.jpeg',
+        alt: 'Hack Day 2025 — opening remarks',
+        caption: 'Opening the day',
       },
       {
-        src: '/images/past-events/hack-day-2025/photo-3.jpg',
-        alt: 'Hack Day 2025 — event space',
-        caption: 'The energy on event day',
+        src: '/images/past-events/hackday2025/opening2.jpeg',
+        alt: 'Hack Day 2025 — kickoff',
+        caption: 'Kickoff and welcome',
+      },
+      {
+        src: '/images/past-events/hackday2025/organizers.jpg',
+        alt: 'Hack Day 2025 — organizers',
+        caption: 'Hack Day 2025 organizers',
+      },
+      {
+        src: '/images/past-events/hackday2025/working.jpg',
+        alt: 'Hack Day 2025 — teams building',
+        caption: 'Teams building throughout the day',
+      },
+      {
+        src: '/images/past-events/hackday2025/workshop.jpeg',
+        alt: 'Hack Day 2025 — workshop',
+        caption: 'Workshop session',
       },
     ],
   },
