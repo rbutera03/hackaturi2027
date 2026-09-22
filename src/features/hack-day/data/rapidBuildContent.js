@@ -59,7 +59,7 @@ export const RAPID_BUILD_CTAS = [
   {
     id: 'judge',
     label: 'Judge Application',
-    url: '#TODO',
+    url: 'https://docs.google.com/forms/d/e/1FAIpQLScnDVY9nGMoVpF7vuINR2ltyv4S0wMAVP0Q2XGOnhp_i9aviw/viewform',
     variant: 'secondary',
     external: false,
   },
