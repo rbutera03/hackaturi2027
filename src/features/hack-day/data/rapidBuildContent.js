@@ -49,13 +49,34 @@ const DONATE_URL = 'https://hcb.hackclub.com/donations/start/hack-uri';
 
 /** Shared CTAs — rendered in the hero and bottom CTA section */
 export const RAPID_BUILD_CTAS = [
+  /*{
+    id: 'devpost',
+    label: 'Devpost!',
+    url: '#TODO',
+    variant: 'primary',
+    external: true,
+  },*/
   {
     id: 'apply',
-    label: 'Register',
+    label: 'Register!',
     url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
     variant: 'primary',
     external: true,
   },
+  /*{
+    id: 'discord',
+    label: 'Join the Discord!',
+    url: 'https://discord.gg/chABaXyTT',
+    variant: 'secondary',
+    external: true,
+  },
+    id: 'mlh',
+    label: 'MLH Page',
+    url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
+    variant: 'secondary',
+    external: true,
+  },
+  */
   {
     id: 'judge',
     label: 'Judge Application',
