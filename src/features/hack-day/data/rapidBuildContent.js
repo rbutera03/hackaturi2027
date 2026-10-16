@@ -49,35 +49,21 @@ const DONATE_URL = 'https://hcb.hackclub.com/donations/start/hack-uri';
 
 /** Shared CTAs — rendered in the hero and bottom CTA section */
 export const RAPID_BUILD_CTAS = [
-  /*{
-    id: 'devpost',
-    label: 'Devpost!',
-    url: '#TODO',
-    variant: 'primary',
-    external: true,
-  },*/
   {
     id: 'apply',
-    label: 'Register!',
+    label: 'MLH Page',
     url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
     variant: 'primary',
     external: true,
   },
-  /*{
+  {
     id: 'discord',
     label: 'Join the Discord!',
     url: 'https://discord.gg/chABaXyTT',
     variant: 'secondary',
     external: true,
   },
-    id: 'mlh',
-    label: 'MLH Page',
-    url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
-    variant: 'secondary',
-    external: true,
-  },
-  */
-  {
+  /*{
     id: 'judge',
     label: 'Judge Application',
     url: 'https://docs.google.com/forms/d/e/1FAIpQLScnDVY9nGMoVpF7vuINR2ltyv4S0wMAVP0Q2XGOnhp_i9aviw/viewform',
@@ -90,7 +76,7 @@ export const RAPID_BUILD_CTAS = [
     url: DONATE_URL,
     variant: 'secondary',
     external: true,
-  },
+  },*/
 ];
 
 export const RAPID_BUILD_PAGE = {
@@ -156,7 +142,7 @@ export const RAPID_BUILD_PAGE = {
         start: '10:00',
         end: '11:00',
         time: '10:00–11:00 AM',
-        title: 'Workshop',
+        title: 'Workshop: Hackathon Survival Guide',
         type: 'workshop',
         emoji: '🔧',
         location: 'Rm 114',
