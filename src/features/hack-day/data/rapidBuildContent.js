@@ -124,7 +124,6 @@ export const RAPID_BUILD_PAGE = {
         title: 'Team Formation',
         type: 'kickoff',
         location: 'Lobby & 114',
-        hosts: 'Liv & Meghan',
         description: 'Find your teammates, brainstorm, and decide what you want to build.',
       },
       {
@@ -162,11 +161,10 @@ export const RAPID_BUILD_PAGE = {
         start: '13:30',
         end: '14:00',
         time: '1:30–2:00 PM',
-        title: 'Mini Workshop',
+        title: 'Mini Workshop: Career Building 101',
         type: 'workshop',
         emoji: '🔧',
         location: 'Rm 114',
-        hosts: 'Liv & Meghan',
         description: 'Take a quick break from your project and learn something new.',
       },
       {
