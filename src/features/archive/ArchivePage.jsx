@@ -7,12 +7,14 @@ import Winners from './components/Winners.jsx';
 import { ARCHIVE_EVENTS_BY_ID, DEFAULT_ARCHIVE_EVENT_ID } from './data/events/index.js';
 import '../../shared/styles/shared.css';
 import './ArchivePage.css';
+import '../hack-day/RapidBuildPage.css';
+import { ARCHIVE_THEMES } from './themes/index.js';
 import { Header } from '../layout';
 import { FaArrowLeft } from 'react-icons/fa';
 
 // Path keys only — public assets are served from the site root (do not import with ?url).
 const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
-  import.meta.glob('/public/images/past-events/**/*.{png,jpg,jpeg,webp,avif,gif}'),
+  import.meta.glob('/public/images/past-events/**/*.{png,jpg,jpeg,webp,avif,gif,PNG,JPG,JPEG,WEBP,AVIF,GIF}'),
 );
 
 // Important archive settings (timing, mode-specific UI labels/spacing).
@@ -60,6 +62,8 @@ const ArchivePage = ({
     setScrollRootElement(node);
   }, []);
   const event = ARCHIVE_EVENTS_BY_ID[eventId] || ARCHIVE_EVENTS_BY_ID[DEFAULT_ARCHIVE_EVENT_ID];
+  const theme = ARCHIVE_THEMES[event.theme];
+  const ThemeDecor = theme?.Decor;
   const photoLinks = event.links?.photos || [];
   const directoryImages = getImagesFromPhotoDirectory(event.photoDirectory);
 
@@ -91,7 +95,11 @@ const ArchivePage = ({
   return (
     <div
       ref={setOverlayNode}
-      className={`archive-page-overlay ${isLandingMode ? 'archive-page-overlay--landing' : 'archive-page-overlay--main'}`}
+      className={[
+        'archive-page-overlay',
+        isLandingMode ? 'archive-page-overlay--landing' : 'archive-page-overlay--main',
+        theme?.className,
+      ].filter(Boolean).join(' ')}
       style={{ '--archive-landing-top-padding': ARCHIVE_PAGE_CONFIG.landingTopPadding }}
     >
       {/* ── Archive Header (main mode only) ─────────────────────────────── */}
@@ -119,6 +127,7 @@ const ArchivePage = ({
             </button>
           </div>
         )}
+        {ThemeDecor && <ThemeDecor />}
         {/* ── Archive Intro Layout ───────────────────────────────────────── */}
         <div className="archive-intro">
           {/* ── Left Column: Event Gallery ───────────────────────────────── */}
@@ -201,6 +210,9 @@ const ArchivePage = ({
                 )}
               </div>
             )}
+            {event.photoCaption && (
+              <p className="archive-subtitle archive-photo-caption">{event.photoCaption}</p>
+            )}
           </div>
 
           {/* ── Right Column: Event Details + Links ─────────────────────── */}
@@ -217,7 +229,7 @@ const ArchivePage = ({
 
             <div className="archive-intro-links">
               <a
-                href={event.links?.devpostUrl}
+                href={event.links?.galleryUrl ?? event.links?.devpostUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="archive-link-card"
@@ -226,8 +238,8 @@ const ArchivePage = ({
                   <FaExternalLinkAlt />
                 </div>
                 <div className="archive-link-body">
-                  <h2>View all projects on Devpost</h2>
-                  <p>Browse every submission, category winner, and honorable mention.</p>
+                  <h2>{event.links?.galleryTitle ?? 'View all projects on Devpost'}</h2>
+                  <p>{event.links?.galleryDescription ?? 'Browse every submission, category winner, and honorable mention.'}</p>
                 </div>
               </a>
             </div>
@@ -241,6 +253,7 @@ const ArchivePage = ({
             subtitle={event.winners?.subtitle}
             winnersData={event.winners?.items}
             winnersAnnounced={event.winners?.announced}
+            showImages={event.winners?.showImages ?? true}
           />
         </section>
       </div>

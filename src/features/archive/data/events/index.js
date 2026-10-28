@@ -1,6 +1,7 @@
 import HACKATURI_2026 from './hackaturi2026.js';
+import RAPID_BUILD_2026 from './rapidbuild2026.js';
 
-export const ARCHIVE_EVENTS = [HACKATURI_2026];
+export const ARCHIVE_EVENTS = [RAPID_BUILD_2026, HACKATURI_2026];
 
 export const ARCHIVE_EVENTS_BY_ID = ARCHIVE_EVENTS.reduce((acc, event) => {
   acc[event.id] = event;
@@ -13,4 +14,3 @@ export const ARCHIVE_NAV_ITEMS = ARCHIVE_EVENTS.map((event) => ({
   id: `#archive-${event.id}`,
   label: event.navLabel,
 }));
-

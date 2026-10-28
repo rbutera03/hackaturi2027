@@ -10,24 +10,26 @@ const PlaceholderImage = ({ name }) => (
   </div>
 );
 
-const WinnerCard = ({ winner }) => {
+const WinnerCard = ({ winner, showImage = true }) => {
   const [imgError, setImgError] = useState(false);
 
   return (
     <article className="winner-card">
       {/* ── Winner Image ────────────────────────────────────────────────── */}
-      <div className="winner-card-image-wrap">
-        {winner.image && !imgError ? (
-          <img
-            src={winner.image}
-            alt={`${winner.projectName} project screenshot`}
-            className="winner-card-image"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <PlaceholderImage name={winner.projectName} />
-        )}
-      </div>
+      {showImage && (
+        <div className="winner-card-image-wrap">
+          {winner.image && !imgError ? (
+            <img
+              src={winner.image}
+              alt={`${winner.projectName} project screenshot`}
+              className="winner-card-image"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <PlaceholderImage name={winner.projectName} />
+          )}
+        </div>
+      )}
       {/* ── Winner Details + Team + Devpost ────────────────────────────── */}
       <div className="winner-card-body">
         <div className="winner-card-tracks">
@@ -44,8 +46,8 @@ const WinnerCard = ({ winner }) => {
             <span className="winner-card-team-label">Team</span>
             <span className="winner-card-team-members">{winner.teamMembers.join(' · ')}</span>
           </div>
-          <a href={winner.devpostUrl} target="_blank" rel="noopener noreferrer" className="winner-card-devpost-link">
-            View on Devpost
+          <a href={winner.projectUrl || winner.devpostUrl} target="_blank" rel="noopener noreferrer" className="winner-card-devpost-link">
+            {winner.linkLabel || 'View on Devpost'}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
               <polyline points="15 3 21 3 21 9" />
@@ -63,6 +65,7 @@ const Winners = ({
   subtitle = '',
   winnersData = [],
   winnersAnnounced = true,
+  showImages = true,
 }) => {
   return (
     <div className="winners-section">
@@ -82,7 +85,7 @@ const Winners = ({
       ) : (
         <div className="winners-grid">
           {winnersData.map((winner) => (
-            <WinnerCard key={winner.projectName} winner={winner} />
+            <WinnerCard key={winner.projectName} winner={winner} showImage={showImages} />
           ))}
         </div>
       )}

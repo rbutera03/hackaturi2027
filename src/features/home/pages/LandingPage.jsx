@@ -11,12 +11,12 @@ import './LandingPage.css';
 // Update these values each year before switching SITE_HIDDEN back to true.
 const LANDING_CONFIG = {
   eventName:    'Hack@URI 2027',
-  tagline:      'Hack@URI Rapid Build!',
-  description:  'We are excited to announce our second ever Mini Hack Event: Hack@URI Rapid Build!',
-  eventDates:   'Learn more about Hack@URI Rapid Build below!',
+  tagline:      'Big updates are coming soon! Stay tuned to our website and socials!',
+  description:  'Thank you to everyone who came out to Hack@URI Rapid Build! Check out the photos, winners, and every project built on the day.',
+  eventDates:   '',
 
-  topLinkLabel: 'Hack@URI Rapid Build →',
-  topLinkUrl:   '#rapid-build',
+  topLinkLabel: 'Rapid Build 2026 Recap →',
+  topLinkUrl:   ARCHIVE_NAV_ITEMS.find(item => item.id === '#archive-rapid-build-2026')?.id || '#archive-rapid-build-2026',
 
   bottomCtaCopy:  'While we prepare for Hack@URI 2027, take a look back at Hack@URI 2026 photos, winners, and projects.',
   bottomLinkLabel: 'Hack@URI 2026 Photos, Winners, and Projects →',
