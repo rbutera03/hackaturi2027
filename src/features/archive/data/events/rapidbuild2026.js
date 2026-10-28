@@ -36,6 +36,23 @@ const RAPID_BUILD_2026 = {
         projectUrl: 'https://www.mlh.com/events/hack-uri-rapid-build/submissions/01a14b54-a1dc-f1ff-60d7-48466532b844',
         linkLabel: 'View on MLH',
       },
+      {
+        projectName: 'Gemma Quest',
+        teamMembers: ['Eric L.'],
+        description: 'An AI-powered text adventure inspired by old-school choose-your-own-adventure games, with Gemma narrating the story as you play.',
+        tracks: ['⭐ Honorable Mention'],
+        projectUrl: 'https://www.mlh.com/events/hack-uri-rapid-build/submissions/01a14b59-9821-d46e-074a-e4ab97337ce0',
+        linkLabel: 'View on MLH',
+      },
+      {
+        projectName: 'Mote',
+        teamMembers: ['Joshua M.', 'Jesse H.', 'DJ D.'],
+        description: 'A local AI assistant for Windows that lives at your cursor and works across every app. Ask questions, analyze what is on screen, attach files, use voice input, and trigger safe desktop actions, all powered by open-weight models running on-device through Ollama.',
+        tracks: ['⭐ Honorable Mention'],
+        projectUrl: 'https://www.mlh.com/events/hack-uri-rapid-build/submissions/01a14b56-4f9d-66a6-f46b-be458cf20eb4',
+        linkLabel: 'View on MLH',
+      },
+
     ],
   },
 };

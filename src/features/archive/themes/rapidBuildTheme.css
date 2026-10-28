@@ -57,6 +57,12 @@
   min-height: 420px;
 }
 
+/* Out of flow so each photo's natural size can't change the frame's height. */
+.archive-theme--rapid-build .archive-carousel-img {
+  position: absolute;
+  inset: 0;
+}
+
 @media (max-width: 900px) {
   .archive-theme--rapid-build .archive-intro {
     grid-template-columns: 1fr;
