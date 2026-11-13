@@ -1,0 +1,101 @@
+/* RegistrationPrompts.css — registration popup and floating card */
+
+/* ── Popup ────────────────────────────────────────────────────────────────── */
+
+.reg-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--page-gutter);
+  background: var(--color-scrim);
+  animation: reg-fade 0.25s ease-out;
+}
+
+.reg-popup {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: min(100%, 460px);
+  padding-top: 44px;
+  background: var(--color-surface-solid);
+  text-align: center;
+  animation: reg-pop 0.35s var(--ease-out);
+}
+
+.reg-popup h2 {
+  font-size: clamp(1.4rem, 4vw, 1.8rem);
+}
+
+.reg-days {
+  color: var(--color-accent-warm);
+  font-weight: 600;
+}
+
+.reg-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+}
+
+.reg-close:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-heading);
+}
+
+/* ── Floating card ────────────────────────────────────────────────────────── */
+
+.reg-card {
+  position: fixed;
+  right: var(--page-gutter);
+  bottom: var(--page-gutter);
+  z-index: var(--z-floating);
+  max-width: min(280px, calc(100vw - var(--page-gutter) * 2));
+  border: 1px solid var(--color-accent-warm);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-solid);
+  box-shadow: var(--shadow-card-hover);
+  animation: reg-pop 0.4s var(--ease-out);
+}
+
+.reg-card a {
+  display: grid;
+  gap: 2px;
+  padding: 14px 52px 14px 16px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.reg-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.reg-card a:hover .reg-card-cta {
+  text-decoration: underline;
+}
+
+@keyframes reg-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes reg-pop {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+}

@@ -1,272 +1,219 @@
 /* ==========================================================================
-   ScheduleCalendar.css — shared calendar grid + legend styles
-   Used by ScheduleSection + SchedulePage.
-   Depends on: shared.css (slideDown keyframe, font vars)
+   ScheduleCalendar.css — legend and day-by-day calendar.
+   Each event tile is coloured by --event-color, set from the event's type
+   (EVENT_TYPES in content/schedule.js). Tiles use white text.
    ========================================================================== */
 
-/* ==========================================================================
-   1. SCHEDULE COLUMNS (two-day split)
-   ========================================================================== */
-
-.schedule-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-}
-
-.calendar-column {
-  background: rgba(246, 233, 200, 0.9);
-  border: 3px solid #0C3A40;
-  border-radius: 25px;
-  padding: 25px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 25px rgba(47, 37, 32, 0.1);
-  transition: all 0.3s ease;
-}
-
-.calendar-column.is-collapsed { min-height: auto; padding-bottom: 25px; }
-.calendar-column.is-expanded  { height: auto; }
-
-/* Day header */
-.calendar-header {
+.cal-tip {
+  margin-bottom: 16px;
   text-align: center;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid rgba(12, 58, 64, 0.2);
+  color: var(--color-text-muted);
 }
 
-.calendar-header.clickable {
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  padding: 10px;
-  border-radius: 15px;
-  user-select: none;
-  transition: background-color 0.2s ease;
+.cal-tip svg {
+  vertical-align: -2px;
+  color: var(--color-accent);
 }
 
-.calendar-header.clickable:hover {
-  background: rgba(12, 58, 64, 0.05);
-}
+/* ── Legend ───────────────────────────────────────────────────────────────── */
 
-.calendar-header h2 {
-  color: #0C3A40;
-  font-size: 1.6em;
-  margin: 0;
-  font-weight: 700;
-}
-
-.expand-icon-mobile {
-  color: #0C3A40;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  opacity: 0.7;
-}
-
-/* ==========================================================================
-   2. CALENDAR GRID & TIME SLOTS
-   ========================================================================== */
-
-.calendar-grid {
-  display: grid;
-  gap: 8px;
-  background: transparent;
-  animation: slideDown 0.4s ease-out; /* slideDown keyframe lives in shared.css */
-}
-
-.calendar-slot {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  min-height: 70px;
-  background: rgba(12, 58, 64, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(12, 58, 64, 0.1);
-  overflow: hidden;
-}
-
-.time-label {
-  background: #0C3A40;
-  color: #F6E9C8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.85em;
-}
-
-.events-container {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* ==========================================================================
-   3. EVENT TILES
-   ========================================================================== */
-
-.calendar-event {
-  padding: 12px 15px;
-  border-radius: 10px;
-  color: white;
-  font-size: 0.85em;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.calendar-event:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-.event-title {
-  font-weight: 700;
-  margin-bottom: 4px;
-  line-height: 1.3;
-}
-
-.event-location {
-  font-size: 0.8em;
-  opacity: 0.95;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-.event-type-badge {
-  display: inline-block;
-  background: rgba(0, 0, 0, 0.15);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.7em;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-/* Full-width "hacking begins / ends" milestone row */
-.hacking-milestone-container {
-  grid-column: 1 / -1;
-  margin: 15px 0;
-  width: 100%;
-}
-
-.hacking-hero {
-  width: 100%;
-  padding: 10px !important;
-  text-align: center;
-  font-size: 1.1rem !important;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  border: 3px solid #0C3A40 !important;
-  box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3) !important;
-}
-
-.hacking-hero .event-title {
-  font-size: 1.4rem;
-  margin-bottom: 3px;
-}
-
-/* ==========================================================================
-   4. LEGEND
-   ========================================================================== */
-
-.schedule-legend {
-  margin: 0 auto 25px;
-  max-width: 700px;
-  background: rgba(246, 233, 200, 0.9);
-  padding: 15px 20px;
-  border-radius: 15px;
-  border: 2px solid #0C3A40;
-  box-shadow: 0 4px 15px rgba(47, 37, 32, 0.08);
-}
-
-.schedule-legend h3 {
-  color: #0C3A40;
-  margin-bottom: 12px;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.legend-items {
+.cal-legend ul {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 15px;
+  gap: 8px 18px;
+  margin-bottom: clamp(18px, 3vw, 28px);
+  padding: 12px 18px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  font-size: 0.9rem;
 }
 
-.legend-item {
-  display: flex;
+.cal-legend li {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.legend-color {
+.cal-legend-swatch {
   width: 14px;
   height: 14px;
-  border-radius: 3px;
-  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
 }
 
-.legend-label {
-  color: #2f2520;
-  font-size: 0.85rem;
+/* ── Day columns ──────────────────────────────────────────────────────────── */
+
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  align-items: start;
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+.cal-day {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.cal-day-heading button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 20px;
+  background: var(--color-surface-strong);
+  color: var(--color-heading);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-weight: 800;
+  text-align: left;
+}
+
+.cal-day-heading button:focus-visible {
+  outline-offset: -4px;
+}
+
+.cal-day-chevron {
+  flex: none;
+  color: var(--color-accent);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.cal-day-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.cal-grid {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.cal-grid[hidden] {
+  display: none;
+}
+
+/* One row per hour: time on the left, that hour's events on the right. */
+.cal-slot {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 44px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--color-border-soft);
+}
+
+.cal-time {
+  padding-top: 4px;
+  font-family: var(--font-accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.cal-events {
+  display: grid;
+  gap: 8px;
+}
+
+/* ── Event tiles ──────────────────────────────────────────────────────────── */
+
+.cal-event {
+  --event-color: var(--color-surface-solid);
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm);
+  background: var(--event-color);
+  color: #fff;
+  text-align: left;
+}
+
+.cal-event-title {
   font-weight: 600;
+  line-height: 1.3;
 }
 
-/* ==========================================================================
-   5. CLICKABLE WORKSHOP / SPEAKER CARDS
-   ========================================================================== */
+.cal-event-speaker {
+  margin-left: 8px;
+  vertical-align: -2px;
+}
 
-.calendar-event.is-clickable {
+.cal-event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.cal-event-meta svg {
+  vertical-align: -1px;
+}
+
+.cal-event-type {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.28);
+  font-family: var(--font-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Sessions with speaker details are buttons. */
+.cal-event.is-clickable {
   cursor: pointer;
-  position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, outline 0.15s ease;
+  transition:
+    transform var(--duration-fast) ease,
+    box-shadow var(--duration-base) ease;
 }
 
-.calendar-event.is-clickable:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-  outline: 2px solid rgba(255, 255, 255, 0.45);
+.cal-event.is-clickable:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(3, 5, 30, 0.45),
+    0 0 0 2px rgba(255, 255, 255, 0.55);
 }
 
-.calendar-event.is-clickable:active {
-  transform: scale(0.99);
+/* hero: true events (hacking starts, submissions due, …) */
+.cal-event--milestone {
+  justify-items: center;
+  padding: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--event-color) 60%, transparent);
+  text-align: center;
 }
 
-/* Small person icon shown on clickable cards */
-.event-click-hint {
-  margin-left: 6px;
-  font-size: 0.72em;
-  opacity: 0.85;
-  vertical-align: middle;
+.cal-event--milestone .cal-event-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-/* ==========================================================================
-   6. RESPONSIVE
-   ========================================================================== */
+.cal-event--milestone .cal-event-meta {
+  justify-content: center;
+}
 
-@media (max-width: 768px) {
-  .schedule-columns {
+@media (max-width: 480px) {
+  .cal-slot {
     grid-template-columns: 1fr;
-    gap: 25px;
+    gap: 4px;
   }
 
-  .calendar-slot {
-    grid-template-columns: 70px 1fr;
+  .cal-grid {
+    padding: 10px;
   }
 }
-
-@media (max-width: 600px) {
-  .legend-items { gap: 10px 15px; }
-}
-

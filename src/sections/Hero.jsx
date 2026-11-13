@@ -1,119 +1,124 @@
-// src/features/home/HomeSection.jsx
-// Main homepage hero section with event branding, sponsor highlights, and CTA/countdown.
+// src/sections/Hero.jsx
+// The top of the home page: event name, date, tagline, countdown and main buttons,
+// beside the astronaut ram. All text comes from EVENT in content/site.js.
+//
+// - The Register button turns on by itself once the registration form has a
+//   url in content/getInvolved.js.
+// - Set HERO_CALLOUT in content/site.js to replace the countdown with a message
+//   (used after the event).
 
-import React from 'react';
-import pirateLogo from '../../assets/pirate_ram.svg';
-import starsSvg from '../../assets/stars-bg.svg';
-import CountdownTimer from './components/Countdown';
-import { ARCHIVE_NAV_ITEMS } from '../archive/data/events/index.js';
-import { RAPID_BUILD_HASH } from '../hack-day';
-import '../../shared/styles/shared.css';
-import './HomeSection.css';
-// Sponsor logos live in /public/images/sponsors (served from site root).
-const yconicLogo = '/images/sponsors/yconic-transparent.png';
-const monsterLogo = '/images/sponsors/monster.png';
-const themoveappLogo = '/images/sponsors/themoveapp.png';
+import React, { useEffect, useRef } from 'react';
+import { FaArrowRight, FaChevronDown } from 'react-icons/fa';
+import Countdown from '../components/Countdown.jsx';
+import { EVENT, HERO_CALLOUT } from '../content/site.js';
+import { REGISTRATION_URL } from '../content/getInvolved.js';
+import { MINI_EVENT, MINI_EVENT_HASH } from '../content/miniEvent.js';
+import spaceRam from '../assets/space-ram.webp';
+import './Hero.css';
 
-// ─── Home Hero Config ──────────────────────────────────────────────────────────
-const EVENT_DATE_DISPLAY = 'February 21-22, 2026';
-const EVENT_TITLE = 'Set Sail for Innovation: Hack@URI 2026';
+const Hero = () => {
+  const artRef = useRef(null);
 
-// Toggle between registration button and live countdown card.
-const SHOW_REGISTRATION_BUTTON = false;
-const REGISTRATION_LINK = 'https://forms.gle/7q3LSHYr7gqQ2CaZ9';
+  // The art leans a little toward the mouse. Skipped on touch screens and for
+  // visitors who prefer reduced motion.
+  useEffect(() => {
+    const art = artRef.current;
+    const canTilt =
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!art || !canTilt) return undefined;
 
-// Toggle between archive/projects CTA and live countdown card.
-const SHOW_PROJECT_GALLERY = true;
-const PROJECT_GALLERY_HREF = ARCHIVE_NAV_ITEMS.find(item => item.id === `#archive-${2026}`).id;
+    let frame = 0;
+    const onPointerMove = (event) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        art.style.setProperty('--tilt-x', (event.clientX / window.innerWidth - 0.5).toFixed(3));
+        art.style.setProperty('--tilt-y', (event.clientY / window.innerHeight - 0.5).toFixed(3));
+      });
+    };
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
-// Hack Day / Rapid Build overlay (opened via hash in App.jsx).
-const SHOW_HACK_DAY_BUTTON = true;
-const HACK_DAY_BUTTON_LABEL = 'Explore Hack Day →';
-
-// Hero sponsors shown directly below the event title.
-const HERO_SPONSORS = [
-  { label: 'Powered by', name: 'Yconic', logo: yconicLogo, url: 'https://yconic.ai/', className: 'yconic-logo' },
-  { label: 'Fueled by', name: 'Monster Energy', logo: monsterLogo, url: 'https://www.monsterenergy.com/en-us/', className: 'monster-logo' },
-  { label: 'Catered by', name: 'The Move App', logo: themoveappLogo, url: 'https://www.themoveapp.io/', className: 'themoveapp-logo' },
-];
-// ─────────────────────────────────────────────────────────────────────────────
-
-const HomeSection = () => {
   return (
-    <div className="pirate-hero">
-      <div className="hero-container">
-        {/* ── Left Hero Art ──────────────────────────────────────────────── */}
-        <div className="hero-left">
-          <div className="pirate-logo-wrap">
-            <img src={pirateLogo} alt="Hack@URI Pirate Logo" className="pirate-logo" />
+    <div className="hero">
+      <div className="hero-copy">
+        <p className="hero-eyebrow">
+          <span>{EVENT.dateDisplay}</span>
+          <span>{EVENT.venue}</span>
+        </p>
+
+        <h1 className="hero-title">
+          {EVENT.name} <span className="text-gradient">{EVENT.year}</span>
+        </h1>
+        <p className="hero-tagline">{EVENT.tagline}</p>
+        <p className="hero-description">{EVENT.description}</p>
+
+        {HERO_CALLOUT ? (
+          <div className="hero-callout card">
+            <p>{HERO_CALLOUT.text}</p>
+            {HERO_CALLOUT.href && (
+              <a className="btn btn--secondary" href={HERO_CALLOUT.href}>
+                {HERO_CALLOUT.linkLabel} <FaArrowRight aria-hidden="true" />
+              </a>
+            )}
           </div>
-        </div>
+        ) : (
+          <Countdown />
+        )}
 
-        {/* ── Right Hero Content ─────────────────────────────────────────── */}
-        <div className="hero-right">
-          <header className="hero-copy">
-            <h1 className="hero-title">{EVENT_TITLE}</h1>
-            {HERO_SPONSORS.map((sponsor) => (
-              <div key={sponsor.name} className="powered-by">
-                <h4>{sponsor.label}</h4>
-                {sponsor.url ? (
-                  <a href={sponsor.url} target="_blank" rel="noopener noreferrer">
-                    <img src={sponsor.logo} alt={sponsor.name} className={sponsor.className} />
-                  </a>
-                ) : (
-                  <img src={sponsor.logo} alt={sponsor.name} className={sponsor.className} />
-                )}
-              </div>
-            ))}
-          </header>
-
-          {/* ── Hero CTA Card (archive OR countdown) ─────────────────────── */}
-          {SHOW_PROJECT_GALLERY ? (
-            <div className="hero-gallery-card">
-              <p className="gallery-sub">
-              🎉 Check out the amazing projects from Hack@URI 2026! 🎉
-              </p>
-              <a href={PROJECT_GALLERY_HREF} className="btn view-projects">
-                Hack@URI 2026 Archive & Projects →
-              </a>
-            </div>
-          ) : (
-            <div className="hero-countdown">
-              <div className="countdown-date">{EVENT_DATE_DISPLAY}</div>
-              <CountdownTimer />
-            </div>
-          )}
-
-          {/* ── Hack Day / Rapid Build CTA ────────────────────────────────── */}
-          {SHOW_HACK_DAY_BUTTON && (
-            <div className="hero-cta hero-cta--hack-day">
-              <a href={RAPID_BUILD_HASH} className="btn hack-day">
-                {HACK_DAY_BUTTON_LABEL}
-              </a>
-            </div>
-          )}
-
-          {/* ── Optional Registration CTA ─────────────────────────────────── */}
-          {SHOW_REGISTRATION_BUTTON && (
-            <div className="hero-cta">
-              <a href={REGISTRATION_LINK} target="_blank" 
-              rel="noopener noreferrer" 
-              className="btn register"
-            >
-            Register Now!
+        <div className="hero-actions">
+          {REGISTRATION_URL ? (
+            <a className="btn btn--primary" href={REGISTRATION_URL} target="_blank" rel="noopener noreferrer">
+              Register now <FaArrowRight aria-hidden="true" />
             </a>
-            </div>
+          ) : (
+            <button type="button" className="btn" disabled>
+              Registration opening soon
+            </button>
+          )}
+          <a className="btn btn--secondary" href="#tracks">
+            Explore the tracks
+          </a>
+          {MINI_EVENT.enabled && (
+            <a className="btn btn--ghost" href={MINI_EVENT_HASH}>
+              {MINI_EVENT.name} <FaArrowRight aria-hidden="true" />
+            </a>
           )}
         </div>
       </div>
 
-      {/* ── Decorative Star Field ─────────────────────────────────────────── */}
-      {[1, 2, 3, 4, 5].map((n) => (
-        <img key={n} src={starsSvg} alt="" className={`decor-star star-${n}`} />
-      ))}
+      <div className="hero-art" ref={artRef}>
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="hero-orbit hero-orbit--outer" aria-hidden="true">
+          <span className="hero-planet hero-planet--pink" />
+          <span className="hero-planet hero-planet--cyan" />
+        </div>
+        <div className="hero-orbit hero-orbit--inner" aria-hidden="true">
+          <span className="hero-planet hero-planet--yellow" />
+        </div>
+        <div className="hero-ram-wrap">
+          <img
+            className="hero-ram"
+            src={spaceRam}
+            alt="The Hack@URI mascot: a ram in an astronaut helmet"
+            width="671"
+            height="816"
+            fetchPriority="high"
+          />
+        </div>
+      </div>
+
+      <a className="hero-scroll" href="#about">
+        <span className="visually-hidden">Scroll to learn more</span>
+        <FaChevronDown aria-hidden="true" />
+      </a>
     </div>
   );
 };
 
-export default HomeSection;
-
+export default Hero;

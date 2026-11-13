@@ -1,263 +1,114 @@
-// src/features/archive/ArchivePage.jsx
-// Full archive overlay for past events, including carousel, links, and winners grid.
+// src/pages/archive/ArchivePage.jsx
+// The page for one past event, opened with #archive-<id> (App.jsx): photo
+// slideshow, write-up, link to the project gallery, and the winners.
+//
+// The event's content is in content/archive/. If the event names a `theme`,
+// that theme's class is put on the page body so the event keeps the look it
+// had when it ran (see src/theme/archive/). The site header above it always
+// stays in the current site theme.
+//
+// Props:
+//   eventId         id of the event in content/archive/
+//   onClose         called by the Back button
+//   showSiteHeader  show the site header above the page (false on the landing page)
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FaChevronLeft, FaChevronRight, FaExternalLinkAlt } from 'react-icons/fa';
-import Winners from './components/Winners.jsx';
-import { ARCHIVE_EVENTS_BY_ID, DEFAULT_ARCHIVE_EVENT_ID } from './data/events/index.js';
-import '../../shared/styles/shared.css';
+import React, { useState } from 'react';
+import { FaArrowLeft, FaExternalLinkAlt } from 'react-icons/fa';
+import Header from '../../components/Header.jsx';
+import PageOverlay from '../../components/PageOverlay.jsx';
+import PhotoCarousel from '../../components/PhotoCarousel.jsx';
+import Winners from './Winners.jsx';
+import { getPhotosFromDirectory } from '../photoDirectory.js';
+import { ARCHIVE_EVENTS_BY_ID, DEFAULT_ARCHIVE_EVENT_ID } from '../../content/archive/index.js';
+import { ARCHIVE_THEMES } from '../../theme/archive/index.js';
+import { EVENT } from '../../content/site.js';
 import './ArchivePage.css';
-import '../hack-day/RapidBuildPage.css';
-import { ARCHIVE_THEMES } from './themes/index.js';
-import { Header } from '../layout';
-import { FaArrowLeft } from 'react-icons/fa';
 
-// Path keys only — public assets are served from the site root (do not import with ?url).
-const PUBLIC_PAST_EVENT_IMAGE_PATHS = Object.keys(
-  import.meta.glob('/public/images/past-events/**/*.{png,jpg,jpeg,webp,avif,gif,PNG,JPG,JPEG,WEBP,AVIF,GIF}'),
-);
+const ArchivePage = ({ eventId = DEFAULT_ARCHIVE_EVENT_ID, onClose, showSiteHeader = true }) => {
+  // The scrolling element, handed to the Header so it can hide/show as this page scrolls.
+  const [scrollRoot, setScrollRoot] = useState(null);
 
-// Important archive settings (timing, mode-specific UI labels/spacing).
-const ARCHIVE_PAGE_CONFIG = {
-  carouselAutoCycleMs: 10000,
-  landingTopPadding: 'clamp(22px, 4vh, 42px)',
-  returnToLandingLabel: ' Back to Main Site',
-};
-
-// Normalize provided directory strings to a canonical "/path/" form for matching.
-const normalizeDirectoryPath = (path = '') => {
-  const trimmed = path.trim();
-  if (!trimmed) return '';
-  const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
-  return withLeadingSlash.endsWith('/') ? withLeadingSlash : `${withLeadingSlash}/`;
-};
-
-const toPublicUrl = (filePath) => filePath.replace(/^\/public/, '') || filePath;
-
-// Resolve all image URLs under the configured archive photo directory.
-const getImagesFromPhotoDirectory = (photoDirectory) => {
-  const normalizedDir = normalizeDirectoryPath(photoDirectory);
-  if (!normalizedDir) return [];
-
-  return PUBLIC_PAST_EVENT_IMAGE_PATHS
-    .filter((filePath) => filePath.startsWith(normalizedDir))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }))
-    .map(toPublicUrl)
-    .filter(Boolean);
-};
-
-const ArchivePage = ({
-  eventId = DEFAULT_ARCHIVE_EVENT_ID,
-  onClose,
-  scrollToSection,
-  mode = 'main',
-  onReturnToLanding,
-}) => {
-  const overlayRef = useRef(null);
-  const isLandingMode = mode === 'landing';
-  const [scrollRootElement, setScrollRootElement] = useState(null);
-  // Keep both ref and state in sync so Header can subscribe to overlay scroll.
-  const setOverlayNode = useCallback((node) => {
-    overlayRef.current = node;
-    setScrollRootElement(node);
-  }, []);
   const event = ARCHIVE_EVENTS_BY_ID[eventId] || ARCHIVE_EVENTS_BY_ID[DEFAULT_ARCHIVE_EVENT_ID];
   const theme = ARCHIVE_THEMES[event.theme];
   const ThemeDecor = theme?.Decor;
+
+  // Photos come from the event's folder; `heroImages` is the fallback list.
+  const directoryPhotos = getPhotosFromDirectory(event.photoDirectory);
+  const photoUrls = directoryPhotos.length > 0 ? directoryPhotos : (event.heroImages || []).filter(Boolean);
+  const photos = photoUrls.map((src, index) => ({ src, alt: `${event.pageTitle}, photo ${index + 1}` }));
+
   const photoLinks = event.links?.photos || [];
-  const directoryImages = getImagesFromPhotoDirectory(event.photoDirectory);
-
-  // Prefer loading hero images from a repo directory; fallback to explicit list.
-  const heroImages = directoryImages.length > 0
-    ? directoryImages
-    : (event.heroImages || []).filter(Boolean);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  // Move carousel backward with wraparound at the first image.
-  const goToPreviousImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + heroImages.length) % heroImages.length);
-  };
-  // Move carousel forward with wraparound at the last image.
-  const goToNextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-  };
-
-  // Auto-cycle through the images
-  useEffect(() => {
-    if (heroImages.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
-    }, ARCHIVE_PAGE_CONFIG.carouselAutoCycleMs);
-
-    return () => clearInterval(interval);
-  }, [heroImages.length]);
+  const galleryUrl = event.links?.galleryUrl ?? event.links?.devpostUrl;
 
   return (
-    <div
-      ref={setOverlayNode}
-      className={[
-        'archive-page-overlay',
-        isLandingMode ? 'archive-page-overlay--landing' : 'archive-page-overlay--main',
-        theme?.className,
-      ].filter(Boolean).join(' ')}
-      style={{ '--archive-landing-top-padding': ARCHIVE_PAGE_CONFIG.landingTopPadding }}
-    >
-      {/* ── Archive Header (main mode only) ─────────────────────────────── */}
-      {!isLandingMode && (
-        <Header
-          scrollToSection={scrollToSection}
-          scrollContainerRef={overlayRef}
-          scrollRootElement={scrollRootElement}
-        />
-      )}
-      <div className="archive-page-inner">
-        {/* ── Landing Mode Controls ──────────────────────────────────────── */}
-        {isLandingMode && (
-          <div className="archive-landing-controls">
-            <button
-              type="button"
-              className="archive-return-landing-btn"
-              onClick={() => {
-                onClose?.();
-                onReturnToLanding?.();
-              }}
-            >
-              <FaArrowLeft />
-              {ARCHIVE_PAGE_CONFIG.returnToLandingLabel}
-            </button>
-          </div>
-        )}
-        {ThemeDecor && <ThemeDecor />}
-        {/* ── Archive Intro Layout ───────────────────────────────────────── */}
-        <div className="archive-intro">
-          {/* ── Left Column: Event Gallery ───────────────────────────────── */}
-          <div className="archive-intro-left">
-            <div className="archive-carousel">
-              {heroImages.length > 0 ? (
-                <>
-                  <img
-                    key={currentImageIndex} /* Forces re-render for animation */
-                    src={heroImages[currentImageIndex]}
-                    alt={`${event.pageTitle} — photo ${currentImageIndex + 1}`}
-                    className="archive-carousel-img fade-in"
-                  />
-                  {heroImages.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        className="archive-carousel-arrow archive-carousel-arrow--left"
-                        onClick={goToPreviousImage}
-                        aria-label="Previous photo"
-                      >
-                        <FaChevronLeft />
-                      </button>
-                      <button
-                        type="button"
-                        className="archive-carousel-arrow archive-carousel-arrow--right"
-                        onClick={goToNextImage}
-                        aria-label="Next photo"
-                      >
-                        <FaChevronRight />
-                      </button>
-                    </>
-                  )}
-                </>
-              ) : (
-                <div className="archive-event-image-placeholder">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                  <span>No Event Photos</span>
-                </div>
-              )}
+    <PageOverlay label={event.pageTitle} onNode={setScrollRoot}>
+      {showSiteHeader && <Header current="archive" scrollRoot={scrollRoot} solid />}
 
-              {/* ── Carousel Dot Indicators ──────────────────────────────── */}
-              {heroImages.length > 1 && (
-                <div className="archive-carousel-dots">
-                  {heroImages.map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={`archive-dot ${idx === currentImageIndex ? 'active' : ''}`}
-                      onClick={() => setCurrentImageIndex(idx)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+      <div className={`archive-body${theme ? ` ${theme.className}` : ''}${showSiteHeader ? ' archive-body--below-header' : ''}`}>
+        <div className="archive-inner">
+          {/* Optional decorations from the event's theme, drawn behind the content. */}
+          {ThemeDecor && <ThemeDecor />}
 
-            {/* ── Photo Gallery Links ────────────────────────────────────── */}
-            {photoLinks.length > 0 && (
-              <div className="archive-link-body">
+          <button type="button" className="back-btn archive-back" onClick={onClose}>
+            <FaArrowLeft aria-hidden="true" /> Back to {EVENT.title}
+          </button>
+
+          <div className="archive-intro">
+            {/* ── Photos ───────────────────────────────────────────────── */}
+            <div className="archive-photos">
+              <PhotoCarousel photos={photos} emptyLabel="No event photos" />
+
+              {photoLinks.length > 0 && (
                 <div className="archive-photo-links">
                   {photoLinks.map((link) => (
-                    <a
-                      key={link.url}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="archive-photo-pill"
-                    >
+                    <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer" className="archive-photo-pill">
                       {link.label}
                     </a>
                   ))}
                 </div>
-                {event.photoCredit && (
-                  <p className="archive-photo-credit">
-                    Photo credit: <span>{event.photoCredit}</span>
-                  </p>
-                )}
-              </div>
-            )}
-            {event.photoCaption && (
-              <p className="archive-subtitle archive-photo-caption">{event.photoCaption}</p>
-            )}
-          </div>
-
-          {/* ── Right Column: Event Details + Links ─────────────────────── */}
-          <div className="archive-intro-right">
-            <div className="archive-intro-text">
-            <h1 className="archive-intro-title">{event.pageTitle}</h1>
-              {event.pageSubtitle && (
-                <p className="archive-subtitle">{event.pageSubtitle}</p>
               )}
-              {event.pageDescription && (
-                <p className="archive-subtitle archive-description">{event.pageDescription}</p>
+              {event.photoCredit && (
+                <p className="archive-photo-credit">
+                  Photo credit: <span>{event.photoCredit}</span>
+                </p>
               )}
+              {event.photoCaption && <p className="archive-text archive-photo-caption">{event.photoCaption}</p>}
             </div>
 
-            <div className="archive-intro-links">
-              <a
-                href={event.links?.galleryUrl ?? event.links?.devpostUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="archive-link-card"
-              >
-                <div className="archive-link-icon">
-                  <FaExternalLinkAlt />
-                </div>
-                <div className="archive-link-body">
-                  <h2>{event.links?.galleryTitle ?? 'View all projects on Devpost'}</h2>
-                  <p>{event.links?.galleryDescription ?? 'Browse every submission, category winner, and honorable mention.'}</p>
-                </div>
-              </a>
+            {/* ── Write-up and project gallery link ────────────────────── */}
+            <div className="archive-summary">
+              <h1 className="archive-title">{event.pageTitle}</h1>
+              {event.pageSubtitle && <p className="archive-text">{event.pageSubtitle}</p>}
+              {event.pageDescription && <p className="archive-text">{event.pageDescription}</p>}
+
+              {galleryUrl && (
+                <a href={galleryUrl} target="_blank" rel="noopener noreferrer" className="archive-gallery-link">
+                  <span className="archive-gallery-icon" aria-hidden="true">
+                    <FaExternalLinkAlt />
+                  </span>
+                  <span>
+                    <strong>{event.links?.galleryTitle ?? 'View all projects on Devpost'}</strong>
+                    <span>
+                      {event.links?.galleryDescription ?? 'Browse every submission, category winner, and honorable mention.'}
+                    </span>
+                  </span>
+                </a>
+              )}
             </div>
           </div>
+
+          {event.winners && (
+            <Winners
+              title={event.winners.title}
+              subtitle={event.winners.subtitle}
+              winners={event.winners.items}
+              announced={event.winners.announced}
+              showImages={event.winners.showImages ?? true}
+            />
+          )}
         </div>
-
-        {/* ── Winners Section ─────────────────────────────────────────────── */}
-        <section className="archive-winners-wrapper">
-          <Winners
-            title={event.winners?.title}
-            subtitle={event.winners?.subtitle}
-            winnersData={event.winners?.items}
-            winnersAnnounced={event.winners?.announced}
-            showImages={event.winners?.showImages ?? true}
-          />
-        </section>
       </div>
-    </div>
+    </PageOverlay>
   );
 };
 

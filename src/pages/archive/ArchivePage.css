@@ -1,454 +1,162 @@
 /* ==========================================================================
-   ArchivePage.css — Full-page archive overlay for past events
+   ArchivePage.css — layout of a past event's page.
+
+   Colours here use the same role tokens as the rest of the site (tokens.css).
+   An archive theme (src/theme/archive/*.css) re-declares those tokens on
+   .archive-body, which is how one layout can wear each event's own colours.
+   Two extra knobs exist just for archive themes:
+     --archive-bg           page background (default: none, the stars show through)
+     --archive-card-border  border of the winner cards
    ========================================================================== */
 
-/* ==========================================================================
-   1. OVERLAY SHELL + ANIMATION
-   ========================================================================== */
+.archive-body {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--archive-bg, transparent);
+  color: var(--color-text);
+  overflow: hidden;
+}
 
-   .archive-page-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    background: #F6E9C8;
-    overflow-y: auto;
-    animation: slideInFromRightArchive 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Predictable stack: body (0) < wave (50) < header (100) — avoids scrollable UI painting over the wave */
-    isolation: isolate;
-  }
+.archive-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px var(--page-gutter) var(--section-space);
+}
 
-  /* Same wave stack as .app::before (shared.css) so archive matches the main header treatment */
-  .archive-page-overlay::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 300px;
-    background:
-      linear-gradient(to bottom,
-        #0a4e4e 0%,
-        #0a4e4e 50px,
-        transparent 50px
-      ),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 300' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,64 C120,40 200,80 360,72 C520,64 620,16 780,32 C940,48 1060,96 1220,88 C1380,80 1440,56 1440,56 L1440 0 0 0z' fill='%23083337'/%3E%3Cpath d='M0,88 C140,72 220,110 380,90 C540,70 640,40 800,60 C960,80 1080,120 1240,100 C1400,80 1440,72 1440,72 L1440 0 0 0z' fill='%230B4F4F' opacity='0.95'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: 0 50px;
-    pointer-events: none;
-    /* Above inner content (scroll slides under), below .site-header — matches .app::before z-index */
-    z-index: 50;
-    transform: scaleX(1.1);
-    transform-origin: top center;
-    transition: transform 200ms ease, opacity 200ms ease, visibility 200ms ease;
-  }
+/* Leaves room for the site header when it is shown above the page. */
+.archive-body--below-header .archive-inner {
+  padding-top: calc(var(--header-height) + 28px);
+}
 
-  .archive-page-overlay--landing::before {
-    content: none;
-  }
+.archive-back {
+  margin-bottom: clamp(20px, 4vw, 36px);
+}
 
-  .archive-page-overlay.archive-scrolled::before {
-    transform: scaleX(1.1) translateY(-100%) !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-  
-  @keyframes slideInFromRightArchive {
-    from { transform: translateX(100%); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
-  }
-  
-  .archive-page-inner {
-    min-height: 100vh;
-    position: relative;
-    z-index: 0;
-    /* Match .main-content — clear sticky header + wave so body doesn’t sit under the nav. */
-    box-sizing: border-box;
-    width: 100%;
-    padding: clamp(120px, 12vh, 180px) 15px 15px;
-  }
+/* ── Intro: photos beside the write-up ────────────────────────────────────── */
 
-  .archive-page-overlay--landing .archive-page-inner {
-    padding-top: var(--archive-landing-top-padding, clamp(22px, 4vh, 42px));
-  }
-
-  .archive-page-overlay .archive-page-inner .archive-landing-controls {
-    max-width: 1200px;
-    margin: 0 auto 24px;
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  .archive-return-landing-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, var(--teal-border) 0%, var(--teal-nav) 100%);
-    color: var(--parchment);
-    border: 2px solid var(--gold-light);
-    padding: 10px 22px;
-    font-size: 1rem;
-    font-weight: 700;
-    border-radius: 50px;
-    cursor: pointer;
-    margin-bottom: 30px;
-    font-family: var(--font-main);
-    box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
-    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .archive-return-landing-btn:hover {
-    background: linear-gradient(135deg, var(--brown-dark) 0%, #4a3a30 100%);
-    color: var(--gold);
-    transform: translateX(-3px);
-    box-shadow: 0 12px 28px rgba(12, 58, 64, 0.28);
-  }
-
-  /* Full-bleed nav; sticky inside overlay (sibling of padded inner, not inset by horizontal padding). */
-  .archive-page-overlay .site-header {
-    position: sticky;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: none;
-    z-index: 100;
-    box-sizing: border-box;
-  }
-  
-  /* ==========================================================================
-     2. HEADER / INTRO
-     ========================================================================== */
-  
-  .archive-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #0C3A40;
-    color: #F6E9C8;
-    border: none;
-    padding: 10px 22px;
-    font-size: 1rem;
-    font-weight: 700;
-    border-radius: 50px;
-    cursor: pointer;
-    margin-bottom: 30px;
-    font-family: var(--font-main);
-    transition: background 0.2s ease, transform 0.2s ease;
-  }
-  
-  .archive-back-btn:hover {
-    background: #0f4c54;
-    transform: translateX(-3px);
-  }
-  
-  /* ==========================================================================
-     3. TWO-COLUMN INTRO LAYOUT
-     ========================================================================== */
-  
 .archive-intro {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 50px;
-  align-items: stretch;
-  max-width: 1200px;
-  margin: 0 auto 48px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 4vw, 50px);
+  margin-bottom: clamp(36px, 6vw, 64px);
 }
-  
-  /* LEFT COLUMN — Image Carousel */
-  .archive-intro-left {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .archive-carousel {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: var(--shadow-card);
-    background: linear-gradient(135deg, rgba(12, 58, 64, 0.06) 0%, rgba(12, 58, 64, 0.12) 100%);
-  }
-  
-  .archive-carousel-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
 
-  .archive-carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 38px;
-    height: 38px;
-    border-radius: 999px;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.45);
-    color: #fff;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.2s ease;
-    z-index: 2;
-  }
+.archive-photos {
+  display: grid;
+  gap: 12px;
+}
 
-  .archive-carousel-arrow:hover {
-    background: rgba(0, 0, 0, 0.65);
-    transform: translateY(-50%) scale(1.05);
-  }
+.archive-photo-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
 
-  .archive-carousel-arrow:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-  }
+.archive-photo-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform var(--duration-fast) ease,
+    border-color var(--duration-base) ease;
+}
 
-  .archive-carousel-arrow--left {
-    left: 12px;
-  }
+.archive-photo-pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
 
-  .archive-carousel-arrow--right {
-    right: 12px;
-  }
-  
-  .fade-in {
-    animation: fadeIn 0.6s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0.6; transform: scale(1.02); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  
-  .archive-carousel-dots {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 6px 12px;
-    border-radius: 20px;
-  }
-  
-  .archive-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  .archive-dot.active {
-    background: #ffffff;
-  }
-  
-  /* Placeholder when no image is provided */
-  .archive-event-image-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--teal-dark);
-    opacity: 0.6;
-  }
-  
-  .archive-event-image-placeholder svg {
-    width: 28px;
-    height: 28px;
-    opacity: 0.7;
-  }
-  
-  .archive-event-image-placeholder span {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  
-  /* RIGHT COLUMN — Text & Links */
-  .archive-intro-right {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    justify-content: center;
-  }
-  
-  .archive-intro-text {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .archive-intro-title {
-    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-    font-weight: 800;
-  margin: 0 auto 16px;
-    color: var(--brown-dark);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
-  
-  .archive-subtitle {
-    font-size: 1rem;
-    color: #2f2520;
-    opacity: 0.8;
-    margin: 0;
-    line-height: 1.6;
-    text-align: center;
-  }
-  
-  .archive-description {
-    margin-top: 8px;
-  }
-  
-  /* ==========================================================================
-     4. BLENDED LINK CARDS
-     ========================================================================== */
-  
-  .archive-intro-links {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    border-top: 2px solid rgba(12, 58, 64, 0.1);
-    padding-top: 24px;
-  }
-  
-  .archive-link-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 12px 0;
-    color: inherit;
-    text-decoration: none;
-    background: transparent;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-  }
-  
-  .archive-link-card--photos {
-    align-items: flex-start;
-    flex-direction: row;
-  }
-  
-  .archive-link-card:hover {
-    transform: translateX(4px);
-    opacity: 0.85;
-  }
-  
-  .archive-link-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(12, 58, 64, 0.08);
-    color: var(--teal-dark);
-    flex-shrink: 0;
-    transition: background 0.2s ease;
-  }
-  
-  .archive-link-card:hover .archive-link-icon {
-    background: var(--teal-dark);
-    color: var(--gold);
-  }
-  
-  .archive-link-body h2 {
-    font-size: 1.1rem;
-    margin: 0 0 4px;
-    color: var(--brown-dark);
-    text-align: center;
-  }
-  
-  .archive-link-body p {
-    margin: 0;
-    font-size: 0.95rem;
-    opacity: 0.75;
-    text-align: center;
-  }
-  
-  /* ==========================================================================
-     5. PHOTO GALLERY LINKS + CREDIT
-     ========================================================================== */
-  
-  .archive-photo-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-    justify-content: center;
-  }
-  
-  .archive-photo-pill {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(12, 58, 64, 0.08);
-    color: var(--teal-dark);
-    border: 1px solid rgba(12, 58, 64, 0.25);
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-    text-align: center;
-  }
-  
-  .archive-photo-pill:hover {
-    background: rgba(12, 58, 64, 0.12);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(12, 58, 64, 0.2);
-  }
-  
-  .archive-photo-credit {
-    margin-top: 12px;
-    padding-top: 10px;
-    font-size: 0.8rem;
-    color: #5b4a3d;
-    opacity: 0.9;
-    text-align: center;
-  }
-  
-  .archive-photo-caption {
-    margin-top: 16px;
-  }
+.archive-photo-credit {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
 
-  .archive-photo-credit span {
-    font-weight: 600;
-    text-align: center;
-  }
-  
-  /* ==========================================================================
-     6. WINNERS SECTION WRAPPER
-     ========================================================================== */
-  
-  .archive-winners-wrapper {
-    margin-top: 18px;
-  }
-  
-  /* ==========================================================================
-     7. RESPONSIVE
-     ========================================================================== */
-  
-  @media (max-width: 900px) {
-    .archive-intro {
-      grid-template-columns: 1fr;
-      gap: 32px;
-    }
+.archive-photo-credit span {
+  font-weight: 600;
+}
 
-    .archive-intro-right {
-      justify-content: flex-start;
-    }
+.archive-photo-caption {
+  text-align: center;
+}
+
+.archive-summary {
+  display: grid;
+  gap: 16px;
+}
+
+.archive-title {
+  font-size: clamp(1.9rem, 3.8vw, 2.7rem);
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.archive-text {
+  color: var(--color-text);
+}
+
+/* Link to the full project gallery */
+.archive-gallery-link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 2px solid var(--color-border-soft);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.archive-gallery-link strong,
+.archive-gallery-link span span {
+  display: block;
+}
+
+.archive-gallery-link strong {
+  font-size: 1.1rem;
+}
+
+.archive-gallery-link:hover {
+  color: var(--color-text);
+  transform: translateX(4px);
+}
+
+.archive-gallery-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-surface-soft);
+  color: var(--color-accent);
+  transition:
+    background var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.archive-gallery-link:hover .archive-gallery-icon {
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+}
+
+@media (max-width: 900px) {
+  .archive-intro {
+    grid-template-columns: 1fr;
   }
-  
-  @media (max-width: 600px) {
-    .archive-link-card {
-      align-items: flex-start;
-    }
-  }
+}

@@ -1,0 +1,76 @@
+/* ==========================================================================
+   pirate-2026.css — the cream / teal / gold "pirate" look of Hack@URI 2026.
+
+   FROZEN: this is a past event's theme. It is applied only to the body of the
+   archive page that asks for it (theme: 'pirate-2026'), by re-declaring the
+   site's colour tokens inside this class. Leave it alone when re-theming the
+   site for a new year.
+   ========================================================================== */
+
+.archive-theme--pirate-2026 {
+  color-scheme: light;
+
+  /* Archive-only knobs (see pages/archive/ArchivePage.css) */
+  --archive-bg: #f6e9c8;
+  --archive-card-border: 3px solid #0c3a40;
+
+  /* Page and surfaces */
+  --color-bg: #f6e9c8;
+  --color-surface: rgba(246, 233, 200, 0.9);
+  --color-surface-solid: #f6e9c8;
+  --color-surface-strong: #0c3a40;
+  --color-surface-soft: rgba(12, 58, 64, 0.08);
+  --color-border: #0c3a40;
+  --color-border-soft: rgba(12, 58, 64, 0.22);
+
+  /* Text */
+  --color-heading: #2f2520;
+  --color-text: #48392f;
+  --color-text-muted: #5b4a3d;
+  --color-link: #073d3c;
+  --color-link-hover: #8b4513;
+  --color-on-accent: #f6e9c8;
+  --color-on-primary: #f9e9c0;
+
+  /* Accents */
+  --color-accent: #073d3c;
+  --color-accent-warm: #8b4513;
+  --color-focus: #8b4513;
+
+  /* Buttons */
+  --gradient-primary: linear-gradient(135deg, #0c3a40 0%, #0a4e4e 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #2f2520 0%, #4a3a30 100%);
+  --gradient-heading: linear-gradient(90deg, #0c3a40, #8b4513);
+
+  /* Shape and depth */
+  --radius-md: 16px;
+  --radius-lg: 25px;
+  --shadow-card: 0 8px 25px rgba(47, 37, 32, 0.1);
+  --shadow-card-hover: 0 12px 30px rgba(47, 37, 32, 0.15);
+  --shadow-glow: 0 0 0 transparent;
+}
+
+/* ── Details specific to this event ───────────────────────────────────────── */
+
+/* Teal pill with a gold rim */
+.archive-theme--pirate-2026 .archive-back {
+  border: 2px solid #cbb979;
+  background: var(--gradient-primary);
+  color: #f9e9c0;
+  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
+}
+
+.archive-theme--pirate-2026 .archive-back:hover {
+  border-color: #cbb979;
+  background: var(--gradient-primary-hover);
+  color: #c3a873;
+}
+
+.archive-theme--pirate-2026 .winners-title {
+  text-shadow: 2px 2px 4px rgba(47, 37, 32, 0.1);
+}
+
+.archive-theme--pirate-2026 .project-card-link {
+  background: #073d3c;
+  color: #c3a873;
+}

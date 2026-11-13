@@ -1,135 +1,110 @@
-// Single source of truth for the Rapid Build overlay page.
-// Update copy, links, projects, photos, and FAQs here each cycle.
+// src/content/miniEvent.js
+// Everything on the mini-event page: the small one-day hackathon we run each
+// fall while the main site is still hidden behind the landing page.
+//
+// HOW IT IS USED
+//   enabled: true   The landing page features the event, and #mini-event opens
+//                   its page (src/pages/mini-event/).
+//   enabled: false  Nothing about it is shown. Old links to the page
+//                   (#mini-event, #rapid-build) open the recap named in
+//                   `recapArchiveId` instead.
+//
+// EACH FALL
+//   1. Update the details below (date, buttons, schedule, FAQ, ...).
+//   2. Set `enabled: true`.
+//   After the event: add a recap to content/archive/ (see the notes in
+//   content/archive/index.js), point `recapArchiveId` at it, and set
+//   `enabled: false`.
+//
+// The page is drawn in the current site theme. Any section whose list is empty
+// (schedule items, projects, FAQ) is left off the page, so you can publish the
+// basics first and fill in the rest later.
+//
+// The details below are from Rapid Build 2026, kept as a starting point.
 
-export const RAPID_BUILD_HASH = '#rapid-build';
+// Link that opens the page. Older links to #rapid-build keep working.
+export const MINI_EVENT_HASH = '#mini-event';
+export const MINI_EVENT_HASHES = [MINI_EVENT_HASH, '#rapid-build'];
 
-/** Treasure-map journey markers — one per major section, top to bottom */
-export const MAP_STOPS = [
-  { id: 'hero',     label: 'Set Sail',         icon: '⚓' },
-  { id: 'details',  label: 'Plot the Course',  icon: '🧭' },
-  { id: 'photos',   label: 'Past Voyages',     icon: '📷' },
-  { id: 'projects', label: 'Buried Treasure',  icon: '💎' },
-  { id: 'faq',      label: "Captain's Log",    icon: '📜' },
-  { id: 'cta',      label: 'X Marks the Spot', icon: '❌' },
-];
+export const MINI_EVENT = {
+  enabled: false,
 
-/** Background star positions on the Rapid Build overlay */
-export const RB_STARS = [
-  { n: 1, size: 'lg', top: '5%', left: '4%' },
-  { n: 2, size: 'md', top: '8%', right: '6%' },
-  { n: 3, size: 'sm', top: '14%', left: '11%' },
-  { n: 4, size: 'lg', top: '19%', right: '13%' },
-  { n: 5, size: 'md', top: '26%', left: '2%' },
-  { n: 6, size: 'sm', top: '31%', right: '4%' },
-  { n: 7, size: 'md', top: '37%', left: '9%' },
-  { n: 8, size: 'lg', top: '43%', right: '10%' },
-  { n: 9, size: 'sm', top: '49%', left: '3%' },
-  { n: 10, size: 'md', top: '54%', right: '7%' },
-  { n: 11, size: 'sm', top: '59%', left: '15%' },
-  { n: 12, size: 'lg', top: '64%', right: '15%' },
-  { n: 13, size: 'md', top: '69%', left: '6%' },
-  { n: 14, size: 'sm', top: '74%', right: '3%' },
-  { n: 15, size: 'md', top: '78%', left: '13%' },
-  { n: 16, size: 'sm', top: '82%', right: '11%' },
-  { n: 17, size: 'lg', top: '86%', left: '2%' },
-  { n: 18, size: 'md', top: '11%', left: '22%' },
-  { n: 19, size: 'sm', top: '22%', right: '20%' },
-  { n: 20, size: 'md', top: '35%', left: '20%' },
-  { n: 21, size: 'sm', top: '47%', right: '19%' },
-  { n: 22, size: 'lg', top: '58%', left: '19%' },
-  { n: 23, size: 'md', top: '71%', right: '22%' },
-  { n: 24, size: 'sm', top: '91%', right: '8%' },
-  { n: 25, size: 'md', top: '17%', right: '26%' },
-  { n: 26, size: 'sm', top: '44%', left: '24%' },
-  { n: 27, size: 'md', top: '67%', right: '25%' },
-  { n: 28, size: 'sm', top: '93%', left: '10%' },
-];
+  // id of the archive event (content/archive/) shown instead while disabled.
+  recapArchiveId: 'rapid-build-2026',
 
-const DONATE_URL = 'https://hcb.hackclub.com/donations/start/hack-uri';
+  // ── The basics ────────────────────────────────────────────────────────────
+  name: 'Hack@URI Rapid Build',
+  description:
+    'A fast-paced, single-day mini-hackathon hosted by Hack@URI. Build, prototype, and pitch a project in under 9 hours.',
+  date: 'October 17, 2026',
+  time: '8:00 AM - 5:00 PM',
+  location: 'Ballentine Hall, 7 Lippitt Road, Kingston, RI 02881',
 
-/** Shared CTAs — rendered in the hero and bottom CTA section */
-export const RAPID_BUILD_CTAS = [
-  {
-    id: 'apply',
-    label: 'MLH Page',
-    url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
-    variant: 'primary',
-    external: true,
-  },
-  {
-    id: 'discord',
-    label: 'Join the Discord!',
-    url: 'https://discord.gg/chABaXyTT',
-    variant: 'secondary',
-    external: true,
-  },
-  /*{
-    id: 'judge',
-    label: 'Judge Application',
-    url: 'https://docs.google.com/forms/d/e/1FAIpQLScnDVY9nGMoVpF7vuINR2ltyv4S0wMAVP0Q2XGOnhp_i9aviw/viewform',
-    variant: 'secondary',
-    external: false,
-  },
-  {
-    id: 'sponsor',
-    label: 'Sponsor This Event',
-    url: DONATE_URL,
-    variant: 'secondary',
-    external: true,
-  },*/
-];
+  // Buttons shown at the top and bottom of the page.
+  // variant: 'primary' (filled) or 'secondary' (outlined).
+  buttons: [
+    {
+      label: 'MLH Page',
+      url: 'https://events.mlh.com/events/14572-hack-uri-rapid-build',
+      variant: 'primary',
+    },
+    {
+      label: 'Join the Discord!',
+      url: 'https://discord.gg/chABaXyTT',
+      variant: 'secondary',
+    },
+  ],
 
-export const RAPID_BUILD_PAGE = {
-  hero: {
-    title: 'Hack@URI Rapid Build',
-    description:
-      'A fast-paced, single-day mini-hackathon hosted by Hack@URI — build, prototype, and pitch a project in under 9 hours.',
+  // Labels on the "journey" trail that runs down the side of the page.
+  // Icons: rocket, compass, camera, gem, scroll, flag
+  // (the list is STOP_ICONS in src/pages/mini-event/MiniEventPage.jsx).
+  stops: {
+    hero: { label: 'Launch Pad', icon: 'rocket' },
+    details: { label: 'Flight Plan', icon: 'compass' },
+    photos: { label: 'Past Missions', icon: 'camera' },
+    projects: { label: 'Discoveries', icon: 'gem' },
+    faq: { label: 'Mission Log', icon: 'scroll' },
+    cta: { label: 'Liftoff', icon: 'flag' },
   },
 
-  eventDetails: {
-    sectionTitle: 'Event Details',
-    date: 'October 17, 2026',
-    time: '8:00 AM - 5:00 PM',
-    location: 'Ballentine Hall, 7 Lippitt Road, Kingston, RI 02881',
-    scheduleTypes: [
-      { id: 'kickoff', label: 'Kickoff' },
-      { id: 'hacking', label: 'Hacking' },
-      { id: 'workshop', label: 'Workshops' },
-      { id: 'fun', label: 'Food & Fun' },
-      { id: 'judging', label: 'Judging & Awards' },
+  // ── Schedule ──────────────────────────────────────────────────────────────
+  schedule: {
+    title: 'Event Details',
+    // Kinds of schedule item. `accent` is one of the theme's accent colours:
+    // cyan, blue, purple, pink, yellow, mint.
+    types: [
+      { id: 'kickoff', label: 'Kickoff', accent: 'yellow' },
+      { id: 'hacking', label: 'Hacking', accent: 'cyan' },
+      { id: 'workshop', label: 'Workshops', accent: 'purple' },
+      { id: 'fun', label: 'Food & Fun', accent: 'mint' },
+      { id: 'judging', label: 'Judging & Awards', accent: 'pink' },
     ],
-    schedule: [
+    // In the order they happen. `emoji`, `location` and `description` are
+    // optional; `highlight: true` makes an item stand out.
+    items: [
       {
-        start: '08:00',
-        end: '08:45',
-        time: '8:00–8:45 AM',
+        time: '8:00 - 8:45 AM',
         title: 'Check-In + Breakfast',
         type: 'fun',
         location: 'Lobby',
         description: 'Check in, grab breakfast, and get settled before the day begins.',
       },
       {
-        start: '08:45',
-        end: '09:15',
-        time: '8:45–9:15 AM',
+        time: '8:45 - 9:15 AM',
         title: 'Opening Ceremony + Challenge Kickoff',
         type: 'kickoff',
         location: 'Rm 114',
         description: 'Meet the organizers, learn about the challenge, and get the rundown for the day.',
       },
       {
-        start: '09:15',
-        end: '09:30',
-        time: '9:15–9:30 AM',
+        time: '9:15 - 9:30 AM',
         title: 'Team Formation',
         type: 'kickoff',
         location: 'Lobby & 114',
         description: 'Find your teammates, brainstorm, and decide what you want to build.',
       },
       {
-        start: '09:45',
-        end: '12:30',
-        time: '9:45 AM–12:30 PM',
+        time: '9:45 AM - 12:30 PM',
         title: 'Hacking Begins',
         type: 'hacking',
         emoji: '💻',
@@ -138,9 +113,7 @@ export const RAPID_BUILD_PAGE = {
         highlight: true,
       },
       {
-        start: '10:00',
-        end: '11:00',
-        time: '10:00–11:00 AM',
+        time: '10:00 - 11:00 AM',
         title: 'Workshop: Hackathon Survival Guide',
         type: 'workshop',
         emoji: '🔧',
@@ -148,9 +121,7 @@ export const RAPID_BUILD_PAGE = {
         description: 'Learn new skills, get inspired, and pick up tips to help bring your hackathon idea to life.',
       },
       {
-        start: '12:30',
-        end: '13:30',
-        time: '12:30–1:30 PM',
+        time: '12:30 - 1:30 PM',
         title: 'Lunch + Games',
         type: 'fun',
         emoji: '🍕🎲',
@@ -158,9 +129,7 @@ export const RAPID_BUILD_PAGE = {
         description: 'Take a break, grab some food, and enjoy games like Uno, Jenga, and puzzles.',
       },
       {
-        start: '13:30',
-        end: '14:00',
-        time: '1:30–2:00 PM',
+        time: '1:30 - 2:00 PM',
         title: 'Mini Workshop: Career Building 101',
         type: 'workshop',
         emoji: '🔧',
@@ -168,9 +137,7 @@ export const RAPID_BUILD_PAGE = {
         description: 'Take a quick break from your project and learn something new.',
       },
       {
-        start: '14:00',
-        end: '14:15',
-        time: '2:00–2:15 PM',
+        time: '2:00 - 2:15 PM',
         title: 'Type Racer Challenge',
         type: 'fun',
         emoji: '⌨️⚡',
@@ -178,9 +145,7 @@ export const RAPID_BUILD_PAGE = {
         description: 'Put your typing speed to the test!',
       },
       {
-        start: '14:15',
-        end: '15:30',
-        time: '2:15–3:30 PM',
+        time: '2:15 - 3:30 PM',
         title: 'Final Hacking Session',
         type: 'hacking',
         emoji: '🚀',
@@ -188,8 +153,6 @@ export const RAPID_BUILD_PAGE = {
         description: 'Finish your project, polish your work, and get your submission ready.',
       },
       {
-        start: '15:30',
-        end: '15:30',
         time: '3:30 PM',
         title: 'Project Submission Deadline',
         type: 'judging',
@@ -198,18 +161,14 @@ export const RAPID_BUILD_PAGE = {
         highlight: true,
       },
       {
-        start: '15:35',
-        end: '15:45',
-        time: '3:35–3:45 PM',
+        time: '3:35 - 3:45 PM',
         title: 'Prepare Presentation for Judging',
         type: 'judging',
         emoji: '🎤',
         location: '101 & 102',
       },
       {
-        start: '15:50',
-        end: '16:50',
-        time: '3:50–4:50 PM',
+        time: '3:50 - 4:50 PM',
         title: 'Judging + Presentations',
         type: 'judging',
         emoji: '🎤',
@@ -218,9 +177,7 @@ export const RAPID_BUILD_PAGE = {
         highlight: true,
       },
       {
-        start: '16:50',
-        end: '17:00',
-        time: '4:50–5:00 PM',
+        time: '4:50 - 5:00 PM',
         title: 'Awards + Group Photo',
         type: 'judging',
         emoji: '🏆📸',
@@ -230,96 +187,68 @@ export const RAPID_BUILD_PAGE = {
     ],
   },
 
+  // ── Photos from a past year ───────────────────────────────────────────────
   photos: {
-    sectionTitle: 'Hack Day 2025',
-    sectionSubtitle: 'Photos from last year\'s Hack Day!',
-    // Drop images in this folder to auto-populate the carousel.
+    title: 'Hack Day 2025',
+    subtitle: "Photos from last year's Hack Day!",
+    // Every image in this folder is shown. Add or remove files to change the slideshow.
     photoDirectory: '/public/images/past-events/hackday2025',
-    // Filename order for the carousel. Unlisted files still appear after these.
-    photoOrder: [
-      'opening2.jpeg',
-      'workshop.jpeg',
-      'working.jpg',
-      'all.jpg',
-    ],
-    items: [
-      {
-        src: '/images/past-events/hackday2025/all.jpg',
-        alt: 'Hack Day 2025 — group photo',
-        caption: 'The full Hack Day 2025 crew',
-      },
-      {
-        src: '/images/past-events/hackday2025/openening1.jpeg',
-        alt: 'Hack Day 2025 — opening remarks',
-        caption: 'Opening the day',
-      },
-      {
-        src: '/images/past-events/hackday2025/opening2.jpeg',
-        alt: 'Hack Day 2025 — kickoff',
-        caption: 'Kickoff and welcome',
-      },
-      {
-        src: '/images/past-events/hackday2025/organizers.jpg',
-        alt: 'Hack Day 2025 — organizers',
-        caption: 'Hack Day 2025 organizers',
-      },
-      {
-        src: '/images/past-events/hackday2025/working.jpg',
-        alt: 'Hack Day 2025 — teams building',
-        caption: 'Teams building throughout the day',
-      },
-      {
-        src: '/images/past-events/hackday2025/workshop.jpeg',
-        alt: 'Hack Day 2025 — workshop',
-        caption: 'Workshop session',
-      },
-    ],
+    // Files to show first, in this order. The rest follow alphabetically.
+    photoOrder: ['opening2.jpeg', 'workshop.jpeg', 'working.jpg', 'all.jpg'],
+    // Optional captions, by file name without its extension.
+    captions: {
+      all: 'A Successful Hack Day 2025!',
+      opening2: 'Opening Remarks and Kickoff!',
+      working: 'Teams working throughout the day!',
+      workshop: 'First Time Hackers Workshop!',
+    },
   },
 
+  // ── Projects from a past year ─────────────────────────────────────────────
   projects: {
-    sectionTitle: 'Past Hack Day Projects',
-    sectionSubtitle: 'Standout builds from last year\'s Mini HackDay — explore even more on Devpost!',
-    galleryCta: {
-      label: "See the Full Project Gallery",
-      url: 'https://hack-uri-mini-hackday.devpost.com/project-gallery',
-    },
+    title: 'Past Hack Day Projects',
+    subtitle: "Standout builds from last year's Mini HackDay. Explore even more on Devpost!",
+    galleryLabel: 'See the Full Project Gallery',
+    galleryUrl: 'https://hack-uri-mini-hackday.devpost.com/project-gallery',
+    // `tracks` are shown as badges; `featured: true` adds a Winner ribbon.
     items: [
       {
-        id: 'claroma',
-        title: 'Claroma',
+        projectName: 'Claroma',
         description:
           'A VR anatomy app that lets users explore 3D models of the skeleton, muscles, and heart, then uses Gemini Vision to explain any region they point to.',
         teamMembers: ['Sansrit Paudel', 'Priyankan Kiru'],
         tracks: [],
-        image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/855/878/datas/medium.png',
-        devpostUrl: 'https://devpost.com/software/claroma',
+        image:
+          'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/855/878/datas/medium.png',
+        projectUrl: 'https://devpost.com/software/claroma',
       },
       {
-        id: 'home-feature-analyzer',
-        title: 'Home Feature Analyzer',
+        projectName: 'Home Feature Analyzer',
         description:
           'A Gemini-powered tool that scans property photos, extracts key selling features, and auto-generates a marketing-ready sales pitch for real estate listings.',
         teamMembers: ['Tunde Fakolujo', 'Angel Bencosme'],
         tracks: ['Best use of Gemini API'],
         featured: true,
         image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_photos/003/856/271/datas/medium.png',
-        devpostUrl: 'https://devpost.com/software/home-feature-analyzer',
+        projectUrl: 'https://devpost.com/software/home-feature-analyzer',
       },
       {
-        id: 'foursight',
-        title: 'FourSight',
+        projectName: 'FourSight',
         description:
           'Turns a university degree-requirements document into a prerequisite-compliant 4-year course schedule so students can see a guaranteed path to graduation.',
         teamMembers: ['Peter Card', 'Jackson Torres', 'Junrong Liu'],
         tracks: [],
-        image: 'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/856/197/datas/medium.png',
-        devpostUrl: 'https://devpost.com/software/foursight-3szqbg',
+        image:
+          'https://d112y698adiu2z.cloudfront.net/photos/production/software_thumbnail_photos/003/856/197/datas/medium.png',
+        projectUrl: 'https://devpost.com/software/foursight-3szqbg',
       },
     ],
   },
 
-  faqs: {
-    sectionTitle: 'FAQ',
+  // ── FAQ ───────────────────────────────────────────────────────────────────
+  // Same format as content/faq.js: each item has an `answer`, `bullets`, or both.
+  faq: {
+    title: 'FAQ',
     items: [
       {
         question: 'What is Hack@URI Rapid Build?',
@@ -353,9 +282,9 @@ export const RAPID_BUILD_PAGE = {
     ],
   },
 
+  // ── Closing call to action (uses `buttons` from above) ────────────────────
   cta: {
-    sectionTitle: 'Be Part of the Adventure!',
-    sectionSubtitle: 'Register now, volunteer as a judge, or help sponsor the event!',
-    buttons: RAPID_BUILD_CTAS,
+    title: 'Be Part of the Adventure!',
+    subtitle: 'Sign up, join the Discord, and bring a friend!',
   },
 };

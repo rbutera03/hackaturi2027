@@ -1,206 +1,128 @@
-// Reusable "Up Next" widget — shows events happening right now and events
-// scheduled at the next upcoming time slot (handles multiple simultaneous events).
-//
-// Workshop and beginner events with speaker data are clickable and open
-// the WorkshopModal for speaker bio + session description.
+// src/sections/schedule/UpNext.jsx
+// Live "Happening now / Up next" card. It reads the schedule and the visitor's
+// clock, so it only appears while there is something on now or still to come.
+// Sessions with a speaker entry open the speaker popup (WorkshopModal).
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { FaMapMarkerAlt, FaClock, FaHourglassHalf } from 'react-icons/fa';
-import './UpNext.css';
-
+import React, { useEffect, useMemo, useState } from 'react';
+import { FaClock, FaHourglassHalf, FaMapMarkerAlt, FaUserCircle } from 'react-icons/fa';
+import { SCHEDULE } from '../../content/schedule.js';
 import {
-  SCHEDULE,
-  parseEventDateTime,
   formatCountdown,
   formatEndTime,
   getEventTypeColor,
-  getSpeakerByTitle,
-} from '../data/scheduleData.js';
+  getEventTypeLabel,
+  hasSpeakerDetails,
+  parseEventDateTime,
+} from './scheduleUtils.js';
 import WorkshopModal from './WorkshopModal.jsx';
+import './UpNext.css';
 
-// ─── Up Next Config Controls ─────────────────────────────────────────────────
-const CLICKABLE_TYPES = ['workshop', 'beginner', 'cyber'];
-// ─────────────────────────────────────────────────────────────────────────────
+// Every event with real start and end times, in schedule order.
+const ALL_EVENTS = Object.entries(SCHEDULE).flatMap(([dayKey, day]) =>
+  day.events.map((event) => {
+    const start = parseEventDateTime(day.date, event.time, dayKey);
+    const end = event.duration ? new Date(start.getTime() + event.duration * 60 * 1000) : start;
+    return { ...event, day: day.date, start, end };
+  })
+);
+
+const EventRow = ({ event, onSelect }) => {
+  const isClickable = hasSpeakerDetails(event);
+  const Tag = isClickable ? 'button' : 'div';
+  const endTime = formatEndTime(event.start, event.duration);
+  return (
+    <li>
+      <Tag
+        className={`upnext-event${isClickable ? ' is-clickable' : ''}`}
+        {...(isClickable ? { type: 'button', onClick: () => onSelect(event) } : {})}
+      >
+        <span className="upnext-event-info">
+          <span className="upnext-event-title">
+            {event.event}
+            {isClickable && <FaUserCircle aria-label="(speaker details available)" />}
+          </span>
+          <span className="upnext-event-meta">
+            <span>
+              <FaClock aria-hidden="true" /> {event.time}
+              {endTime ? ` – ${endTime}` : ''}
+            </span>
+            {event.location && (
+              <span>
+                <FaMapMarkerAlt aria-hidden="true" /> {event.location}
+              </span>
+            )}
+          </span>
+        </span>
+        <span className="upnext-event-type" style={{ background: getEventTypeColor(event.type) }}>
+          {getEventTypeLabel(event.type)}
+        </span>
+      </Tag>
+    </li>
+  );
+};
 
 const UpNext = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [now, setNow] = useState(() => new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Re-evaluate "now" and countdown every second.
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Flat list of all events with parsed start + end Date objects
-  const allEvents = useMemo(() => {
-    return Object.entries(SCHEDULE).flatMap(([dayKey, dayData]) =>
-      dayData.events.map((event) => {
-        const startDate = parseEventDateTime(dayData.date, event.time, dayKey);
-        const endDate = event.duration ? new Date(startDate.getTime() + event.duration * 60 * 1000) : startDate;
-        return { ...event, day: dayData.date, dateTime: startDate, endDateTime: endDate };
-      })
-    );
-  }, []);
-
-  // Events whose window overlaps right now (started but not yet ended)
-  const nowEvents = useMemo(() => {
-    return allEvents.filter((e) => e.dateTime <= currentTime && e.endDateTime > currentTime && e.duration > 0);
-  }, [allEvents, currentTime]);
-
-  // The next batch: earliest future start time, all events at that same time
-  const nextEvents = useMemo(() => {
-    const upcoming = allEvents.filter((e) => e.dateTime > currentTime);
-    if (upcoming.length === 0) return [];
-    const earliest = upcoming[0].dateTime.getTime();
-    return upcoming.filter((e) => e.dateTime.getTime() === earliest);
-  }, [allEvents, currentTime]);
-
-  const timeUntil = nextEvents.length > 0 ? nextEvents[0].dateTime - currentTime : 0;
-
-  // Open workshop modal only when that event has speaker profile data.
-  const handleEventClick = (ev) => {
-    if (!CLICKABLE_TYPES.includes(ev.type)) return;
-    if (!getSpeakerByTitle(ev.event)) return;
-    setSelectedEvent(ev);
-  };
+  // Rounded to the minute so the lists are not rebuilt every second.
+  const minute = Math.floor(now.getTime() / 60000);
+  const { nowEvents, nextEvents } = useMemo(() => {
+    const time = minute * 60000;
+    const upcoming = ALL_EVENTS.filter((event) => event.start.getTime() > time);
+    const nextStart = upcoming.length > 0 ? Math.min(...upcoming.map((event) => event.start.getTime())) : null;
+    return {
+      nowEvents: ALL_EVENTS.filter((event) => event.duration > 0 && event.start.getTime() <= time && event.end.getTime() > time),
+      // Everything that starts at the next start time (several sessions can share a slot).
+      nextEvents: upcoming.filter((event) => event.start.getTime() === nextStart),
+    };
+  }, [minute]);
 
   if (nowEvents.length === 0 && nextEvents.length === 0) return null;
 
   return (
     <>
-      {/* ── Up Next Card Container ──────────────────────────────────────── */}
-      <div className="next-event-section">
-        <div className="next-event-card">
-          {/* ── Happening Now ─────────────────────────────────────────── */}
-          {nowEvents.length > 0 && (
-            <>
-              <div className="next-event-label now-label">
-                <span className="pulse-icon pulse-icon--green" />
-                {nowEvents.length > 1 ? `HAPPENING NOW — ${nowEvents.length} EVENTS` : 'HAPPENING NOW'}
-              </div>
+      <div className="upnext card">
+        {nowEvents.length > 0 && (
+          <section>
+            <h3 className="upnext-label upnext-label--now">
+              <span className="upnext-dot" aria-hidden="true" />
+              Happening now
+            </h3>
+            <ul className="upnext-list">
+              {nowEvents.map((event) => (
+                <EventRow key={`${event.day}-${event.time}-${event.event}`} event={event} onSelect={setSelectedEvent} />
+              ))}
+            </ul>
+          </section>
+        )}
 
-              <div className="next-events-list">
-                {nowEvents.map((ev, i) => {
-                  const isClickable = CLICKABLE_TYPES.includes(ev.type) && getSpeakerByTitle(ev.event);
-                  const endTime = formatEndTime(ev.dateTime, ev.duration);
-                  return (
-                    <div
-                      key={i}
-                      className={`next-event-content${isClickable ? ' upnext-clickable' : ''}`}
-                      style={
-                        i > 0
-                          ? {
-                              borderTop: '1px solid rgba(246,233,200,0.2)',
-                              paddingTop: '12px',
-                              marginTop: '12px',
-                            }
-                          : {}
-                      }
-                      onClick={() => handleEventClick(ev)}
-                      title={isClickable ? 'Click for speaker details' : undefined}
-                    >
-                      <div className="next-event-info">
-                        <h4>
-                          {ev.event}
-                          {isClickable && <span className="upnext-click-hint">👤</span>}
-                        </h4>
-                        <div className="next-event-details">
-                          <span>
-                            <FaClock /> {ev.time}
-                            {endTime ? ` – ${endTime}` : ''}
-                          </span>
-                          <span>
-                            <FaMapMarkerAlt /> {ev.location}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="next-event-right-col">
-                        <div className="next-event-type" style={{ backgroundColor: getEventTypeColor(ev.type) }}>
-                          {ev.type}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Divider between sections */}
-              {nextEvents.length > 0 && <div className="upnext-section-divider" />}
-            </>
-          )}
-
-          {/* ── Up Next ───────────────────────────────────────────────── */}
-          {nextEvents.length > 0 && (
-            <>
-              <div className="next-event-label">
-                <span className="pulse-icon" />
-                {nextEvents.length > 1
-                  ? `UP NEXT — ${nextEvents.length} EVENTS AT ${nextEvents[0].time}`
-                  : 'UP NEXT'}
-              </div>
-
-              <div className="countdown-display" style={{ marginBottom: '12px' }}>
-                <FaHourglassHalf className="hourglass" />
-                <span>
-                  Starts in: <strong>{formatCountdown(timeUntil)}</strong>
-                </span>
-              </div>
-
-              <div className="next-events-list">
-                {nextEvents.map((ev, i) => {
-                  const isClickable = CLICKABLE_TYPES.includes(ev.type) && getSpeakerByTitle(ev.event);
-                  const endTime = formatEndTime(ev.dateTime, ev.duration);
-                  return (
-                    <div
-                      key={i}
-                      className={`next-event-content${isClickable ? ' upnext-clickable' : ''}`}
-                      style={
-                        i > 0
-                          ? {
-                              borderTop: '1px solid rgba(246,233,200,0.2)',
-                              paddingTop: '12px',
-                              marginTop: '12px',
-                            }
-                          : {}
-                      }
-                      onClick={() => handleEventClick(ev)}
-                      title={isClickable ? 'Click for speaker details' : undefined}
-                    >
-                      <div className="next-event-info">
-                        <h4>
-                          {ev.event}
-                          {isClickable && <span className="upnext-click-hint">👤</span>}
-                        </h4>
-                        <div className="next-event-details">
-                          <span>
-                            <FaClock /> {ev.time}
-                            {endTime ? ` – ${endTime}` : ''}
-                          </span>
-                          <span>
-                            <FaMapMarkerAlt /> {ev.location}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="next-event-right-col">
-                        <div className="next-event-type" style={{ backgroundColor: getEventTypeColor(ev.type) }}>
-                          {ev.type}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
+        {nextEvents.length > 0 && (
+          <section>
+            <h3 className="upnext-label">
+              <span className="upnext-dot" aria-hidden="true" />
+              Up next
+              <span className="upnext-countdown">
+                <FaHourglassHalf aria-hidden="true" /> starts in {formatCountdown(nextEvents[0].start - now)}
+              </span>
+            </h3>
+            <ul className="upnext-list">
+              {nextEvents.map((event) => (
+                <EventRow key={`${event.day}-${event.time}-${event.event}`} event={event} onSelect={setSelectedEvent} />
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
 
-      {/* ── Workshop Speaker Modal ───────────────────────────────────────── */}
       {selectedEvent && <WorkshopModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </>
   );
 };
 
 export default UpNext;
-

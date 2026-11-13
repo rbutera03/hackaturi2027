@@ -1,148 +1,95 @@
-// src/features/home/pages/LandingPage.jsx
-// Pre-launch landing experience shown while the main site is hidden in App-level config.
+// src/pages/LandingPage.jsx
+// The "coming soon" page visitors see while SITE_FLAGS.siteHidden is true
+// (content/site.js). It shows the event name, date and countdown, links to past
+// events, and, when the fall mini-event is switched on (content/miniEvent.js),
+// a card featuring it.
+//
+// The wording is LANDING in content/site.js.
+//
+// Props:
+//   onRevealSite  called by the small Preview button; App.jsx then asks for the
+//                 access code and shows the full site to organizers.
 
 import React from 'react';
-import pirateLogo from '../../../assets/pirate_ram.svg';
-import starsSvg from '../../../assets/stars-bg.svg';
-import { ARCHIVE_NAV_ITEMS } from '../../archive/data/events/index.js';
+import { FaArrowRight, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import Countdown from '../components/Countdown.jsx';
+import SocialLinks from '../components/SocialLinks.jsx';
+import { EVENT, LANDING } from '../content/site.js';
+import { MINI_EVENT, MINI_EVENT_HASH } from '../content/miniEvent.js';
+import spaceRam from '../assets/space-ram.webp';
 import './LandingPage.css';
 
-// ─── Landing Page Content ─────────────────────────────────────────────────────
-// Update these values each year before switching SITE_HIDDEN back to true.
-const LANDING_CONFIG = {
-  eventName:    'Hack@URI 2027',
-  tagline:      'Big updates are coming soon! Stay tuned to our website and socials!',
-  description:  'Thank you to everyone who came out to Hack@URI Rapid Build! Check out the photos, winners, and every project built on the day.',
-  eventDates:   '',
+const LandingPage = ({ onRevealSite }) => (
+  <main className="landing">
+    <div className="landing-inner">
+      <div className="landing-art">
+        <div className="landing-glow" aria-hidden="true" />
+        <img
+          className="landing-ram"
+          src={spaceRam}
+          alt="The Hack@URI mascot: a ram in an astronaut helmet"
+          width="671"
+          height="816"
+          fetchPriority="high"
+        />
+      </div>
 
-  topLinkLabel: 'Rapid Build 2026 Recap →',
-  topLinkUrl:   ARCHIVE_NAV_ITEMS.find(item => item.id === '#archive-rapid-build-2026')?.id || '#archive-rapid-build-2026',
+      <div className="card landing-card">
+        <h1 className="landing-title">
+          {EVENT.name} <span className="text-gradient">{EVENT.year}</span>
+        </h1>
+        <p className="landing-tagline">{EVENT.tagline}</p>
 
-  bottomCtaCopy:  'While we prepare for Hack@URI 2027, take a look back at Hack@URI 2026 photos, winners, and projects.',
-  bottomLinkLabel: 'Hack@URI 2026 Photos, Winners, and Projects →',
-  bottomLinkUrl: ARCHIVE_NAV_ITEMS.find(item => item.id === '#archive-2026')?.id || '#archive-2026',
+        <ul className="landing-facts">
+          <li>
+            <FaCalendarAlt aria-hidden="true" /> {EVENT.dateDisplay}
+          </li>
+          <li>
+            <FaMapMarkerAlt aria-hidden="true" /> {EVENT.venue}
+          </li>
+        </ul>
 
-  followUsText: 'Follow us for updates:',
-  socialLinks: [
-    { label: 'Instagram', url: 'https://www.instagram.com/hack.at.uri/' },
-    { label: 'LinkedIn', url: 'https://www.linkedin.com/company/hack-uri/posts/?feedView=all' },
-  ],
-};
+        <Countdown />
 
-// MLH Trust Badge — update the season year and utm_campaign each year
-const MLH_BADGE = {
-  href:     'https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2026-season&utm_content=white',
-  imageUrl: 'https://s3.amazonaws.com/logged-assets/trust-badge/2026/mlh-trust-badge-2026-white.svg',
-  alt:      'Major League Hacking 2026 Hackathon Season',
-};
-// ─────────────────────────────────────────────────────────────────────────────
+        <p className="landing-message">{LANDING.message}</p>
 
-// Props:
-//   onRevealSite — called by the admin preview button to trigger the reveal flow.
-const LandingPage = ({ onRevealSite }) => {
-  return (
-    <div className="landing-app">
-
-      {/* ── MLH Trust Badge ──────────────────────────────────────────────── */}
-      <a
-        id="mlh-trust-badge"
-        href={MLH_BADGE.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: 'block',
-          maxWidth: '100px',
-          minWidth: '60px',
-          position: 'fixed',
-          right: '50px',
-          top: '0',
-          width: '10%',
-          zIndex: '10000',
-        }}
-      >
-        <img src={MLH_BADGE.imageUrl} alt={MLH_BADGE.alt} style={{ width: '100%' }} />
-      </a>
-
-      <div className="landing-page">
-        <div className="landing-content">
-
-          {/* ── Left Hero Art ───────────────────────────────────────────── */}
-          <div className="landing-left">
-            <div className="pirate-logo-wrap">
-              <img src={pirateLogo} alt="Hack@URI Pirate Logo" className="pirate-logo" />
-            </div>
+        {/* Featured while the fall mini-event is switched on. */}
+        {MINI_EVENT.enabled && (
+          <div className="landing-mini">
+            <p className="pill">{LANDING.miniEventLabel}</p>
+            <h2 className="landing-mini-name">{MINI_EVENT.name}</h2>
+            <p className="landing-mini-when">{[MINI_EVENT.date, MINI_EVENT.time].filter(Boolean).join(' · ')}</p>
+            {MINI_EVENT.location && <p className="landing-mini-where">{MINI_EVENT.location}</p>}
+            <a className="btn btn--primary" href={MINI_EVENT_HASH}>
+              Event details <FaArrowRight aria-hidden="true" />
+            </a>
           </div>
+        )}
 
-          {/* ── Right Event Content ────────────────────────────────────── */}
-          <div className="landing-right">
-            <div className="landing-info panel-card">
-              <h1 className="landing-title">{LANDING_CONFIG.eventName}</h1>
-              <p className="landing-subtitle">{LANDING_CONFIG.tagline}</p>
-
-              <div className="landing-description">
-                <p>{LANDING_CONFIG.description}</p>
-                <p className="landing-dates">{LANDING_CONFIG.eventDates}</p>
-              </div>
-
-              <div className="preregistration-section">
-                <a
-                  href={LANDING_CONFIG.topLinkUrl}
-                  className="btn-primary preregistration-button"
-                >
-                  {LANDING_CONFIG.topLinkLabel}
+        {LANDING.links.length > 0 && (
+          <ul className="landing-links">
+            {LANDING.links.map((link) => (
+              <li key={link.href}>
+                <a className="btn btn--secondary" href={link.href}>
+                  {link.label} <FaArrowRight aria-hidden="true" />
                 </a>
-              </div>
+              </li>
+            ))}
+          </ul>
+        )}
 
-              <div className="organizer-cta-section">
-                <p className="organizer-cta-copy">
-                  {LANDING_CONFIG.bottomCtaCopy}
-                </p>
-                <a
-                  href={LANDING_CONFIG.bottomLinkUrl}
-                  className="btn-primary organizer-cta-button"
-                >
-                  {LANDING_CONFIG.bottomLinkLabel}
-                </a>
-              </div>
-
-              {/* ── Social Links ─────────────────────────────────────────── */}
-              <div className="landing-footer">
-                <p>{LANDING_CONFIG.followUsText}</p>
-                <div className="social-links">
-                  {LANDING_CONFIG.socialLinks.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <div className="landing-follow">
+          <p>{LANDING.followText}</p>
+          <SocialLinks />
         </div>
-
-        {[1, 2, 3, 4, 5].map((n) => (
-          <img key={n} src={starsSvg} alt="" className={`decor-star star-${n}`} />
-        ))}
-
-        {/* ── Admin Controls ─────────────────────────────────────────────
-            Intentionally subtle — lets organizers preview the full site
-            without revealing the button to casual visitors.
-            Clicking this triggers the access code prompt in App.jsx. */}
-        <div className="admin-controls">
-          <button className="admin-button subtle" onClick={onRevealSite}>
-            Preview
-          </button>
-        </div>
-
       </div>
     </div>
-  );
-};
+
+    {/* Deliberately low-key: lets organizers preview the full site. */}
+    <button type="button" className="landing-preview" onClick={onRevealSite}>
+      Preview
+    </button>
+  </main>
+);
 
 export default LandingPage;

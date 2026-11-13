@@ -1,337 +1,579 @@
 /* ==========================================================================
-   shared.css — Global styles shared across all pages
+   base.css — global styles and the shared building blocks every section uses.
+   Colours, fonts and spacing come from tokens.css; change them there.
+
+   1. Reset and document      6. Tabs and pills
+   2. Typography              7. Scroll reveal
+   3. App shell and sections  8. Full-page overlays
+   4. Cards                   9. MLH badge and small utilities
+   5. Buttons                10. Reduced motion
    ========================================================================== */
 
+@import './tokens.css';
 
 /* ==========================================================================
-   1. CSS VARIABLES (Design Tokens)
+   1. RESET AND DOCUMENT
    ========================================================================== */
 
-   :root {
-    /* Colors */
-    --cream:        #F6E9C8;
-    --parchment:    #F9E9C0;  /* slightly warmer cream, used in header/countdown text */
-    --teal-dark:    #073d3c;
-    --teal-nav:     #0a4e4e;  /* header/nav background */
-    --teal-mid:     #0b4f4f;
-    --teal-border:  #0C3A40;
-    --brown-dark:   #2f2520;
-    --brown-wood:   #8B4513;  /* countdown box, footer border accent */
-    --gold:         #C3A873;
-    --gold-light:   #CBB979;  /* header active pill, countdown numbers */
-    --text-dark:    #0C3A40;
-  
-    /* Typography */
-    --font-main: "Poppins", "Nunito", "Quicksand", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  
-    /* Spacing */
-    --radius-sm:  15px;
-    --radius-md:  20px;
-    --radius-lg:  25px;
-  
-    /* Shadows */
-    --shadow-card: 0 8px 25px rgba(47, 37, 32, 0.1);
-    --shadow-card-hover: 0 12px 30px rgba(47, 37, 32, 0.15);
-  }
-  
-  
-  /* ==========================================================================
-     2. RESET & BASE
-     ========================================================================== */
-  
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
-  
-  /* Prevent unwanted scroll-jumps on button clicks */
-  button {
-    scroll-behavior: auto !important;
-  }
-  
-  button:focus {
-    outline: none;
-  }
-  
-  
-  /* ==========================================================================
-     3. APP SHELL
-     ========================================================================== */
-  
-  .app {
-    font-family: var(--font-main);
-    margin: 0;
-    padding: 0;
-    background: var(--cream);
-    min-height: 100vh;
-    width: 100vw;
-    max-width: 100%;
-    overflow-x: hidden;
-    position: relative;
-  }
-  
-  /* Animated wave decoration behind header */
-  .app::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 300px;
-    background:
-      linear-gradient(to bottom,
-        #0a4e4e 0%,
-        #0a4e4e 50px,
-        transparent 50px
-      ),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 300' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,64 C120,40 200,80 360,72 C520,64 620,16 780,32 C940,48 1060,96 1220,88 C1380,80 1440,56 1440,56 L1440 0 0 0z' fill='%23083337'/%3E%3Cpath d='M0,88 C140,72 220,110 380,90 C540,70 640,40 800,60 C960,80 1080,120 1240,100 C1400,80 1440,72 1440,72 L1440 0 0 0z' fill='%230B4F4F' opacity='0.95'/%3E%3C/svg%3E");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: 0 50px;
-    pointer-events: none;
-    z-index: 50;
-    transform: scaleX(1.1);
-    transform-origin: top center;
-    transition: transform 200ms ease, opacity 200ms ease, visibility 200ms ease;
-  }
-  
-  /* Hide waves when header is scrolled (perfectly synced with header) */
-  .app.scrolled::before {
-    transform: scaleX(1.1) translateY(-100%) !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-/* Disable the top wave on landing mode only. */
-  .app.landing-mode::before {
-    content: none;
+html {
+  color-scheme: dark;
+  background: var(--color-bg);
+  scroll-behavior: smooth;
+  /* Keeps anchored sections clear of the fixed header. */
+  scroll-padding-top: calc(var(--header-height) + 12px);
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The page gradient is a fixed layer behind everything (cheaper to paint than
+   background-attachment: fixed, and it works on iOS). The starfield canvas sits
+   just above it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  height: 100lvh;
+  z-index: -2;
+  background: var(--gradient-page);
+  pointer-events: none;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* Keyboard focus is always visible. Mouse clicks do not show the ring. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--space-pink);
+  color: #fff;
+}
+
+/* ==========================================================================
+   2. TYPOGRAPHY
+   ========================================================================== */
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--color-heading);
+  font-weight: 800;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 6vw, 4.25rem);
+}
+h2 {
+  font-size: clamp(1.8rem, 4vw, 2.75rem);
+}
+h3 {
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 600;
+}
+h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--color-link);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+strong {
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   3. APP SHELL AND SECTIONS
+   ========================================================================== */
+
+.app {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.site-main {
+  display: block;
+}
+
+/* These only receive focus from scripts (skip link, opening an overlay). */
+.site-main:focus,
+.page-overlay:focus {
+  outline: none;
+}
+
+/* Every page section: <section class="section"><div class="section-inner">… */
+.section {
+  position: relative;
+  padding: var(--section-space) var(--page-gutter);
+}
+
+.section-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+.section-inner--narrow {
+  max-width: var(--content-narrow);
+}
+
+.section-heading {
+  max-width: 760px;
+  margin: 0 auto clamp(28px, 5vw, 52px);
+  text-align: center;
+}
+
+.section-eyebrow {
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
+  margin-bottom: 10px;
+}
+
+.section-title {
+  position: relative;
+  padding-bottom: 18px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 84px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-heading);
+  transform: translateX(-50%);
+}
+
+.section-lead {
+  margin-top: 18px;
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  color: var(--color-text);
+}
+
+/* ==========================================================================
+   4. CARDS
+   ========================================================================== */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow: var(--shadow-card);
+}
+
+/* Add to cards that are links/buttons or that should react to the pointer. */
+.card--interactive {
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) ease;
+}
+
+.card--interactive:hover,
+.card--interactive:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-card-hover), var(--shadow-glow);
+}
+
+/* ==========================================================================
+   5. BUTTONS
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.7em 1.5em;
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) ease,
+    box-shadow var(--duration-base) ease,
+    background var(--duration-base) ease,
+    color var(--duration-base) ease,
+    border-color var(--duration-base) ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn--primary {
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.4);
+}
+
+.btn--primary:hover {
+  background: var(--gradient-primary-hover);
+  color: var(--color-on-primary);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.55);
+}
+
+.btn--secondary {
+  background: rgba(255, 229, 102, 0.06);
+  border-color: var(--color-accent-warm);
+  color: var(--color-accent-warm);
+}
+
+.btn--secondary:hover {
+  background: var(--color-accent-warm);
+  color: var(--color-on-accent);
+}
+
+.btn--ghost {
+  background: var(--color-surface-soft);
+  border-color: var(--color-border-soft);
+  color: var(--color-text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.btn--small {
+  min-height: 40px;
+  padding: 0.45em 1.1em;
+  font-size: 0.9rem;
+}
+
+/* "Opening soon" and other unavailable actions. */
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  background: var(--color-surface-soft);
+  border: 2px dashed var(--color-border-soft);
+  color: var(--color-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==========================================================================
+   6. TABS AND PILLS
+   ========================================================================== */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+
+.tab {
+  min-height: 44px;
+  padding: 0.5em 1.15em;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    background var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease;
+}
+
+.tab:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+}
+
+.tab.is-active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0.8em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-accent);
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   7. SCROLL REVEAL  (see src/components/Reveal.jsx)
+   ========================================================================== */
+
+.reveal {
+  opacity: 0;
+}
+
+/* An animation (not a transition) so it never fights a card's own hover
+   transition, and "backwards" so it lets go of the element once it has played. */
+.reveal.is-visible {
+  opacity: 1;
+  animation: reveal-in 0.7s var(--ease-out) backwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
   }
-  
-  .main-content {
-    margin-top: clamp(120px, 12vh, 180px);
-  }
-  
-  
-  /* ==========================================================================
-     4. TYPOGRAPHY
-     ========================================================================== */
-  
-  h1 { font-size: 2.5em;  margin-bottom: 20px; }
-  h2 { font-size: 2em;    margin-bottom: 15px; }
-  h3 { font-size: 1.5em;  margin-bottom: 10px; }
-  
-  p {
-    font-size: 18px;
-    line-height: 1.6;
-    margin: 0 0 15px 0;
-  }
-  
-  /* Shared page title style (used on Connect, FAQ, Schedule, Sponsors, Team, Tracks) */
-  .page-title {
-    text-align: center;
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--brown-dark);
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: var(--font-main);
-  }
-  
-  
-  /* ==========================================================================
-     5. LAYOUT HELPERS
-     ========================================================================== */
-  
-  .section {
-    box-sizing: border-box;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .content {
-    margin-top: 10px;
-    border-radius: var(--radius-sm);
-    color: #fff;
-    text-align: center;
-    padding: 15px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  
-  
-  /* ==========================================================================
-     6. SHARED CARD / PANEL STYLE
-     Used on: Connect, FAQ, Schedule, Tracks (and similar panels)
-     ========================================================================== */
-  
-  .panel-card {
-    background: rgba(246, 233, 200, 0.9);
-    border: 3px solid var(--teal-border);
-    border-radius: var(--radius-lg);
-    padding: 35px;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-card);
-  }
-  
-  .panel-card:hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-  
-  
-  /* ==========================================================================
-     7. SHARED BUTTON STYLES
-     ========================================================================== */
-  
-  /* Primary CTA button (dark bg, gold text) */
-  .btn-primary {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--teal-border) 0%, var(--teal-mid) 100%);
-    color: #fff;
-    text-decoration: none;
-    padding: 15px 30px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-    text-align: center;
-  }
-  
-  .btn-primary:hover {
-    background: linear-gradient(135deg, var(--teal-mid) 0%, var(--teal-border) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(12, 58, 64, 0.3);
-    color: #fff;
-    text-decoration: none;
-  }
-  
-  .btn-primary:active {
+}
+
+/* ==========================================================================
+   8. FULL-PAGE OVERLAYS  (schedule page, mini-event page, archive pages)
+   The overlay scrolls on its own; the page underneath is hidden but keeps its
+   scroll position, so closing an overlay returns visitors where they were.
+   ========================================================================== */
+
+.page-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + 12px);
+}
+
+html.has-overlay,
+html.has-modal,
+html.has-modal .page-overlay {
+  overflow: hidden;
+}
+
+html.has-overlay .app > :not(.page-overlay, .starfield, .mlh-badge) {
+  visibility: hidden;
+}
+
+.page-overlay-inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(var(--header-height) + 24px) var(--page-gutter) var(--section-space);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 44px;
+  padding: 0.4em 1.1em;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    border-color var(--duration-base) ease,
+    color var(--duration-base) ease,
+    transform var(--duration-fast) ease;
+}
+
+.page-overlay-inner > .back-btn {
+  margin-bottom: clamp(20px, 4vw, 36px);
+}
+
+.back-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-heading);
+  transform: translateX(-2px);
+}
+
+/* ==========================================================================
+   9. MLH BADGE AND SMALL UTILITIES
+   ========================================================================== */
+
+.mlh-badge {
+  position: fixed;
+  top: 0;
+  right: var(--page-gutter);
+  z-index: var(--z-badge);
+  display: block;
+  width: var(--mlh-badge-width);
+  line-height: 0;
+}
+
+.mlh-badge img {
+  width: 100%;
+}
+
+/* Lets the header (and anything else) know there is no badge to avoid. */
+.app--no-badge {
+  --mlh-badge-width: 0px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: calc(var(--z-modal) + 1);
+  padding: 0.6em 1em;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-warm);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+  color: var(--color-on-accent);
+}
+
+/* Cyan-to-pink gradient lettering (the year in the hero, big numbers). */
+.text-gradient {
+  background: var(--gradient-heading);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Shared gentle float used by decorative art. */
+@keyframes float-y {
+  0%,
+  100% {
     transform: translateY(0);
   }
-  
-  /* Admin floating button */
-  .admin-controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
+  50% {
+    transform: translateY(-12px);
   }
-  
-  .admin-button {
-    padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 25px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+}
+
+/* ==========================================================================
+   10. REDUCED MOTION
+   Visitors who ask their device for less motion get a still page: no looping
+   animations, no scroll reveal, no smooth scrolling. The starfield also draws
+   a single still frame (see Starfield.jsx).
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html,
+  .page-overlay {
+    scroll-behavior: auto;
   }
-  
-  .admin-button:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
-  
-  
-  /* ==========================================================================
-     8. SOCIAL BUTTONS (shared between Team and Connect pages)
-     ========================================================================== */
-  
-  .social-btn svg {
-    font-size: 2em;
+
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1;
+    animation: none;
   }
-  
-  
-  /* ==========================================================================
-     9. DECORATIVE STARS
-     Shared animation + base star style used on About, FAQ, Home,
-     Schedule, Sponsors, Team, and Tracks pages.
-     Each page supplies its own star wrapper class + .star-1..5 positions.
-     ========================================================================== */
-  
-  /* Base star element — apply alongside each page's specific star class */
-  [class*="-star"],
-  .decor-star {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0.6;
-    animation: twinkle 3s ease-in-out infinite;
-    z-index: 2;
-  }
-  
-  @keyframes twinkle {
-    0%, 100% {
-      opacity: 0.3;
-      transform: scale(1) rotate(0deg);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.2) rotate(180deg);
-    }
-  }
-  
-  /* Staggered delays shared across all star sets */
-  .star-1 { animation-delay: 0s;   }
-  .star-2 { animation-delay: 0.6s; }
-  .star-3 { animation-delay: 1.2s; }
-  .star-4 { animation-delay: 1.8s; }
-  .star-5 { animation-delay: 2.4s; }
-  
-  
-  /* ==========================================================================
-     10. ANIMATIONS
-     ========================================================================== */
-  
-  @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-15px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  
-  @keyframes pulse {
-    0%   { transform: scale(0.95); box-shadow: 0 0 0 0   rgba(39, 174, 96, 0.7); }
-    70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(39, 174, 96, 0);   }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0   rgba(39, 174, 96, 0);   }
-  }
-  
-  
-  /* ==========================================================================
-     11. RESPONSIVE — GLOBAL BREAKPOINTS
-     ========================================================================== */
-  
-  @media (max-width: 768px) {
-    .section {
-      padding: 15px 10px;
-    }
-  
-    /* Legacy timeline helper (kept for compatibility) */
-    .timeline-item {
-      flex-direction: column;
-    }
-  
-    .time {
-      margin-right: 0;
-      margin-bottom: 10px;
-    }
-  
-    .admin-controls {
-      bottom: 10px;
-      right: 10px;
-    }
-  
-    .admin-button {
-      padding: 10px 20px;
-      font-size: 0.8rem;
-    }
-  
-    /* Hide decorative stars on small screens */
-    [class*="-star"],
-    .decor-star {
-      display: none;
-    }
-  }
+}

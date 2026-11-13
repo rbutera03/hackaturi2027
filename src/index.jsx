@@ -1,14 +1,12 @@
 // src/index.jsx
-// Application entrypoint: mounts App inside React StrictMode.
+// Entry point: mounts <App /> into index.html. Global styles are imported by App.jsx.
 
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './app/App.jsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.jsx';
 
-// Render the root application shell.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
-  </StrictMode>,
-)
+  </StrictMode>
+);

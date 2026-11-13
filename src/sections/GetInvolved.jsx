@@ -1,55 +1,78 @@
-// src/features/interest/InterestSection.jsx
-// Involvement opportunities: sponsor contact and volunteer/speaker/mentor/judge forms.
+// src/sections/GetInvolved.jsx
+// One card per sign-up form. The forms are listed in content/getInvolved.js:
+// a form with url: null shows a disabled "Opening soon" button, and pasting in
+// its link turns the button on.
+//
+// Each card has the id "form-<id>" so the header menu can link straight to it.
 
 import React from 'react';
-import '../../shared/styles/shared.css';
-import './InterestSection.css';
+import {
+  FaChalkboardTeacher,
+  FaExternalLinkAlt,
+  FaGavel,
+  FaHandshake,
+  FaHandsHelping,
+  FaLaptopCode,
+  FaRocket,
+} from 'react-icons/fa';
+import Reveal from '../components/Reveal.jsx';
+import SectionHeading from '../components/SectionHeading.jsx';
+import { FORMS, GET_INVOLVED_INTRO } from '../content/getInvolved.js';
+import { CONTACT } from '../content/site.js';
+import './GetInvolved.css';
 
-// ─── Interest Section Config ──────────────────────────────────────────────────
-const SPONSOR_INFO = {
-  email: 'hackaturi25@gmail.com',
-  donateUrl: 'https://hcb.hackclub.com/donations/start/hack-uri',
+// The `icon` keys used in content/getInvolved.js. Add a line here to offer another icon.
+const FORM_ICONS = {
+  hacker: FaLaptopCode,
+  judge: FaGavel,
+  mentor: FaHandsHelping,
+  workshop: FaChalkboardTeacher,
+  sponsor: FaHandshake,
 };
 
-const INTEREST_FORMS = [
-  { id: 'volunteer', title: 'Volunteering', description: 'Help us with check-in, meals, and logistics on event day. Great for seeing the energy behind the scenes!', url: 'https://forms.gle/FHgVZC41vPXodK2U9', linkLabel: 'Apply to Volunteer →' },
-  { id: 'speaker', title: 'Guest Speaker', description: 'Share your technical expertise or industry insights with our hackers and inspire the next generation.', url: 'https://forms.gle/vKetcjUPVGvTFqxa6', linkLabel: 'Apply to Speak →' },
-  { id: 'mentor', title: 'Mentor', description: 'Guide participants through technical hurdles and support creativity throughout the event.', url: 'https://forms.gle/yhsRPP5YzMw9B1sg6', linkLabel: 'Become a Mentor →' },
-  { id: 'judge', title: 'Judge', description: 'Evaluate projects and celebrate the standout work and innovation created during Hack@URI.', url: 'https://forms.gle/EBsaQn6kX8ws2mb57', linkLabel: 'Become a Judge →' },
-];
-// ─────────────────────────────────────────────────────────────────────────────
+const GetInvolved = ({ eyebrow }) => (
+  <>
+    <SectionHeading eyebrow={eyebrow} title={GET_INVOLVED_INTRO.title} lead={GET_INVOLVED_INTRO.lead} />
 
-const InterestSection = () => {
-  return (
-    <div className="interest-page">
-      <div className="interest-content">
-        <h1>Help Support Hack@URI!</h1>
-        {/* ── Sponsor Contact Callout ────────────────────────────────────── */}
-        <div id="sponsor" className="become-sponsor">
-          <h3>Interested in Becoming a Sponsor?</h3>
-          <p>
-            Join us in supporting the next generation of innovators! Contact us at {SPONSOR_INFO.email} or{' '}
-            <a href={SPONSOR_INFO.donateUrl} target="_blank" rel="noopener noreferrer" className="donate-link">
-              donate here
-            </a>.
-          </p>
-        </div>
-        {/* ── Involvement Role Cards ─────────────────────────────────────── */}
-        <div className="interest-forms-container">
-          {INTEREST_FORMS.map((form) => (
-            <div key={form.id} id={form.id} className="interest-form">
-              <h3>{form.title}</h3>
-              <p>{form.description}</p>
-              <a href={form.url} target="_blank" rel="noopener noreferrer" className="interest-form-link">
-                {form.linkLabel}
-              </a>
+    <ul className="involve-grid">
+      {FORMS.map((form, index) => {
+        const Icon = FORM_ICONS[form.icon] ?? FaRocket;
+        return (
+          <Reveal
+            as="li"
+            key={form.id}
+            id={`form-${form.id}`}
+            className="involve-card card card--interactive"
+            delay={(index % 3) * 90}
+          >
+            <span className="involve-icon" aria-hidden="true">
+              <Icon />
+            </span>
+            <h3>{form.title}</h3>
+            <p>{form.description}</p>
+
+            <div className="involve-actions">
+              {form.url ? (
+                <a className="btn btn--primary" href={form.url} target="_blank" rel="noopener noreferrer">
+                  {form.cta} <FaExternalLinkAlt aria-hidden="true" />
+                </a>
+              ) : (
+                <button type="button" className="btn" disabled>
+                  Opening soon
+                </button>
+              )}
+              {form.showEmail && (
+                <p className="involve-email">
+                  {form.url ? 'Or email' : 'In the meantime, email'}{' '}
+                  <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+                </p>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+          </Reveal>
+        );
+      })}
+    </ul>
+  </>
+);
 
-export default InterestSection;
-
+export default GetInvolved;

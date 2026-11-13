@@ -1,9 +1,13 @@
+// Archive page for Hack@URI Rapid Build 2026 (#archive-rapid-build-2026).
+// See ./index.js for what each field does.
+
 const MLH_GALLERY_URL = 'https://www.mlh.com/events/hack-uri-rapid-build/submissions';
 
 const RAPID_BUILD_2026 = {
   id: 'rapid-build-2026',
   navLabel: 'Rapid Build 2026',
-  theme: 'rapid-build',
+  // The look this event had when it ran. Themes live in src/theme/archive/.
+  theme: 'rapid-build-2026',
   pageTitle: 'Hack@URI Rapid Build 2026',
   pageSubtitle: 'Thank you all so much for coming! On October 17, 2026, students packed Ballentine Hall for a single day of building, and 16 projects were submitted by the end of it. Congratulations to everyone who participated! Gus Cloud, created by Isaac Gbaba, won Best Open-Source AI Project, and Pris, created by Camden Rose, Steven Doss, and Arnaud Sioho, won Best Use of Gemma 4. We also want to recognize our honorable mentions: Gemma Quest, created by Eric L., and Mote, created by Joshua M., Jesse H., and DJ D. Be sure to congratulate all of our winners and honorable mentions!',
   photoCaption: 'Look out for our bigger 48-hour hackathon in the spring. More information to come!',

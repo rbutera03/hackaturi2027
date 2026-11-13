@@ -1,6 +1,11 @@
+// Archive page for Hack@URI 2026 (#archive-2026).
+// See ./index.js for what each field does.
+
 const HACKATURI_2026 = {
   id: '2026',
   navLabel: 'Hack@URI 2026',
+  // The look this event had when it ran. Themes live in src/theme/archive/.
+  theme: 'pirate-2026',
   pageTitle: 'Hack@URI 2026',
   pageSubtitle: 'As organizers, we were incredibly proud to host URI’s first large-scale, multi-track hackathon in affiliation with Major League Hacking. Held at the Fascitelli Center for Advanced Engineering, Hack@URI 2026 brought together over 200 students from 60 universities—including teams from MIT, Brown, and Georgia Tech. Even an unexpected blizzard couldn’t slow us down; our participants adapted in real-time to submit 40 innovative projects across six specialized tracks. With the support of mentors from industry leaders like Google, Microsoft, and IBM, this weekend proved what students can achieve when given a platform for ambition. We invite you to explore our photo galleries to relive the energy and visit Devpost to see the submissions and category winners that made this event a historic success.',
   links: {

@@ -1,248 +1,206 @@
-// src/app/App.jsx
-// Root shell for the site: renders the main single-page section layout, 
-// plus conditional full-page overlays (schedule/archive) and landing lock mode.
+// src/App.jsx
+// The shell of the site. It decides what is on screen:
+//
+//   1. Landing mode   SITE_FLAGS.siteHidden is true and the visitor has not used
+//                     the Preview button: only the landing page is shown.
+//   2. Full site      every section listed in SECTIONS (content/site.js), in order.
+//   3. Overlay pages  opened by the address-bar hash, on top of either mode:
+//                       #full-schedule   full schedule page
+//                       #mini-event      fall mini-event page (#rapid-build also works)
+//                       #archive-<id>    a past event
+//
+// Yearly content does not live here. See src/content/.
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Header, Footer } from '../features/layout';
-import { Home, LandingPage } from '../features/home';
-import About from '../features/about';
-import Interest from '../features/interest';
-import Sponsors from '../features/sponsors';
-import Team from '../features/team';
-import Faq from '../features/faq';
-import Tracks from '../features/tracks';
-import Connect from '../features/connect';
-import { RegistrationPopup, FloatingRegistration } from '../features/registration';
-import Schedule, { SchedulePage } from '../features/schedule';
-import { RapidBuildPage } from '../features/hack-day';
-import ArchivePage from '../features/archive/ArchivePage.jsx';
-import { DEFAULT_ARCHIVE_EVENT_ID } from '../features/archive/data/events/index.js';
-import '../shared/styles/shared.css';
+import React, { useCallback, useEffect, useState } from 'react';
+import Starfield from './theme/Starfield.jsx';
+import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx';
+import RegistrationPrompts from './components/RegistrationPrompts.jsx';
+import Hero from './sections/Hero.jsx';
+import About from './sections/About.jsx';
+import WhyJoin from './sections/WhyJoin.jsx';
+import Tracks from './sections/Tracks.jsx';
+import Schedule from './sections/schedule/ScheduleSection.jsx';
+import Sponsors from './sections/Sponsors.jsx';
+import GetInvolved from './sections/GetInvolved.jsx';
+import Faq from './sections/Faq.jsx';
+import Team from './sections/Team.jsx';
+import Connect from './sections/Connect.jsx';
+import LandingPage from './pages/LandingPage.jsx';
+import SchedulePage from './pages/SchedulePage.jsx';
+import MiniEventPage from './pages/mini-event/MiniEventPage.jsx';
+import ArchivePage from './pages/archive/ArchivePage.jsx';
+import { SECTIONS, SITE_FLAGS, MLH } from './content/site.js';
+import { SCHEDULE_CONFIG } from './content/schedule.js';
+import { MINI_EVENT, MINI_EVENT_HASHES } from './content/miniEvent.js';
+import { ARCHIVE_EVENTS_BY_ID, DEFAULT_ARCHIVE_EVENT_ID } from './content/archive/index.js';
+import './theme/base.css';
 
-// ─── Site Visibility Config ───────────────────────────────────────────────────
-const SITE_HIDDEN = true;
-const SHOW_REGISTRATION_POPUPS = false; // Set false to hide modal + floating registration card
-// ─────────────────────────────────────────────────────────────────────────────
+// Which component renders each section id from SECTIONS (content/site.js).
+// To add a section: build it in src/sections/, add it here, then add a line to SECTIONS.
+const SECTION_COMPONENTS = {
+  home: Hero,
+  about: About,
+  'why-join': WhyJoin,
+  tracks: Tracks,
+  schedule: Schedule,
+  sponsors: Sponsors,
+  'get-involved': GetInvolved,
+  faq: Faq,
+  team: Team,
+  connect: Connect,
+};
+
+const REVEAL_STORAGE_KEY = 'hackaturi-site-revealed';
+const ARCHIVE_HASH_PREFIX = '#archive-';
+
+// Remembers (per browser) that an organizer unlocked the preview.
+const readRevealed = () => {
+  try {
+    return localStorage.getItem(REVEAL_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const storeRevealed = (revealed) => {
+  try {
+    if (revealed) localStorage.setItem(REVEAL_STORAGE_KEY, 'true');
+    else localStorage.removeItem(REVEAL_STORAGE_KEY);
+  } catch {
+    // Storage can be blocked (private browsing); the preview then lasts until reload.
+  }
+};
+
+// Turns the address-bar hash into the overlay page to show, if any.
+const resolveRoute = (hash) => {
+  if (hash === '#full-schedule') {
+    return SCHEDULE_CONFIG.published ? { page: 'schedule' } : { page: null };
+  }
+  if (MINI_EVENT_HASHES.includes(hash)) {
+    if (MINI_EVENT.enabled) return { page: 'mini-event' };
+    // Mini-event switched off: old links land on its recap instead of nowhere.
+    if (ARCHIVE_EVENTS_BY_ID[MINI_EVENT.recapArchiveId]) {
+      return { page: 'archive', archiveId: MINI_EVENT.recapArchiveId };
+    }
+    return { page: null };
+  }
+  if (hash.startsWith(ARCHIVE_HASH_PREFIX)) {
+    const id = hash.slice(ARCHIVE_HASH_PREFIX.length);
+    return { page: 'archive', archiveId: ARCHIVE_EVENTS_BY_ID[id] ? id : DEFAULT_ARCHIVE_EVENT_ID };
+  }
+  return { page: null };
+};
+
+const MlhBadge = () => (
+  <a className="mlh-badge" href={MLH.badgeHref} target="_blank" rel="noopener noreferrer">
+    <img src={MLH.badgeImage} alt={MLH.badgeAlt} />
+  </a>
+);
 
 const App = () => {
-  // Gate controls for landing lock, full schedule modal, and selected archive event.
-  const [isSiteRevealed, setIsSiteRevealed] = useState(!SITE_HIDDEN);
-  const [showSchedulePage, setShowSchedulePage] = useState(false);
-  const [showRapidBuildPage, setShowRapidBuildPage] = useState(false);
-  const [archiveEvent, setArchiveEvent] = useState(null);
+  const [hash, setHash] = useState(() => window.location.hash);
+  const [isRevealed, setIsRevealed] = useState(() => !SITE_FLAGS.siteHidden || readRevealed());
 
-  // Stores deferred section navigation while archive overlay is closing.
-  const scrollAfterArchiveCloseRef = useRef(null);
+  const route = resolveRoute(hash);
+  const isLanding = SITE_FLAGS.siteHidden && !isRevealed;
+  const isPreview = SITE_FLAGS.siteHidden && isRevealed;
 
-  // Shared smooth-scroll helper used by the main header navigation.
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  /** When the archive overlay is open, close it first; scroll runs after unmount (see effect below). */
-  const scrollToSectionFromArchive = (sectionId) => {
-    scrollAfterArchiveCloseRef.current = sectionId;
-    window.location.hash = '';
-    setArchiveEvent(null);
-  };
-
-  // On mount: check if an admin has previously revealed the site via localStorage
+  // Follow the address bar (links, back/forward buttons).
   useEffect(() => {
-    const adminRevealed = localStorage.getItem('hackaturi-site-revealed');
-    if (adminRevealed === 'true') {
-      setIsSiteRevealed(true);
-    } else {
-      setIsSiteRevealed(!SITE_HIDDEN);
-    }
-  }, []);
-
-  // Hash-based routing: listen for #full-schedule to open/close the overlay
-  useEffect(() => {
-    const handleHash = () => {
-      const hash = window.location.hash;
-
-      setShowSchedulePage(hash === '#full-schedule');
-      setShowRapidBuildPage(hash === '#rapid-build');
-
-      if (hash.startsWith('#archive-')) {
-        const eventId = hash.replace('#archive-', '');
-        setArchiveEvent(eventId || DEFAULT_ARCHIVE_EVENT_ID);
-      } else {
-        setArchiveEvent(null);
-      }
+    const syncHash = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', syncHash);
+    window.addEventListener('popstate', syncHash);
+    return () => {
+      window.removeEventListener('hashchange', syncHash);
+      window.removeEventListener('popstate', syncHash);
     };
-    handleHash(); // check on first load too
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // After archive overlay unmounts, scroll to the section requested from the archive header
+  // While an overlay page is open, the page underneath is hidden and cannot scroll
+  // (rules in base.css under "Full-page overlays").
+  const overlayOpen = Boolean(route.page);
   useEffect(() => {
-    if (archiveEvent) return;
-    const sectionId = scrollAfterArchiveCloseRef.current;
-    if (!sectionId) return;
-    scrollAfterArchiveCloseRef.current = null;
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [archiveEvent]);
+    document.documentElement.classList.toggle('has-overlay', overlayOpen);
+    return () => document.documentElement.classList.remove('has-overlay');
+  }, [overlayOpen]);
 
-  // Close the schedule overlay and restore the hash
-  const handleCloseSchedulePage = () => {
-    window.location.hash = '';
-    setShowSchedulePage(false);
-  };
+  // Leaving an overlay through a section link (for example "Tracks" in the header
+  // above an archive page): make sure that section ends up in view.
+  useEffect(() => {
+    if (overlayOpen || hash.length < 2) return;
+    document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+  }, [overlayOpen, hash]);
 
-  const handleCloseRapidBuildPage = () => {
-    window.location.hash = '';
-    setShowRapidBuildPage(false);
-  };
+  // Clears the hash without the jump to the top that setting it to '' causes, so
+  // the page underneath is where the visitor left it.
+  const closeOverlay = useCallback(() => {
+    window.history.pushState(null, '', window.location.pathname + window.location.search);
+    setHash('');
+  }, []);
 
-  const handleCloseArchivePage = () => {
-    window.location.hash = '';
-    setArchiveEvent(null);
-  };
-
-  // Simple access-code gate used while the site is hidden pre-launch.
   const handleRevealSite = () => {
-    const code = prompt('Enter access code:');
-    if (code === 'hackaturi-secret') {
-      setIsSiteRevealed(true);
-      localStorage.setItem('hackaturi-site-revealed', 'true');
+    const code = window.prompt('Enter access code:');
+    if (code === null) return;
+    if (code === SITE_FLAGS.previewCode) {
+      setIsRevealed(true);
+      storeRevealed(true);
+      window.scrollTo(0, 0);
     } else {
-      alert('Incorrect code.');
+      window.alert('Incorrect code.');
     }
   };
 
-  const handleBackToLanding = () => {
-    setIsSiteRevealed(false);
-    localStorage.removeItem('hackaturi-site-revealed');
+  const handleExitPreview = () => {
+    setIsRevealed(false);
+    storeRevealed(false);
+    window.scrollTo(0, 0);
   };
 
-  // Hidden mode: render only landing screen (plus rapid-build / archive overlays via hash).
-  if (SITE_HIDDEN && !isSiteRevealed) {
-    return (
-      <div className="app landing-mode">
-        {showRapidBuildPage && (
-          <RapidBuildPage onClose={handleCloseRapidBuildPage} />
-        )}
-        {archiveEvent && (
-          <ArchivePage
-            eventId={archiveEvent}
-            onClose={handleCloseArchivePage}
-            mode="landing"
-            onReturnToLanding={handleBackToLanding}
-          />
-        )}
-        <LandingPage onRevealSite={handleRevealSite} />
-      </div>
-    );
-  }
+  const overlay =
+    (route.page === 'schedule' && <SchedulePage onClose={closeOverlay} />) ||
+    (route.page === 'mini-event' && <MiniEventPage onClose={closeOverlay} />) ||
+    (route.page === 'archive' && (
+      <ArchivePage
+        key={route.archiveId}
+        eventId={route.archiveId}
+        onClose={closeOverlay}
+        showSiteHeader={!isLanding}
+      />
+    ));
 
   return (
-    <div className="app main-mode">
+    <div className={`app${MLH.showBadge ? '' : ' app--no-badge'}${isLanding ? ' app--landing' : ''}`}>
+      <Starfield />
+      {MLH.showBadge && <MlhBadge />}
+      {overlay}
 
-      {/* ── Full Schedule Page Overlay ───────────────────────────────────── */}
-      {showSchedulePage && (
-        <SchedulePage onClose={handleCloseSchedulePage} />
-      )}
-
-      {/* ── Rapid Build Page Overlay ─────────────────────────────────────── */}
-      {showRapidBuildPage && (
-        <RapidBuildPage onClose={handleCloseRapidBuildPage} />
-      )}
-
-      {/* ── Archive Page Overlay ─────────────────────────────────────────── */}
-      {archiveEvent && (
-        <ArchivePage
-          eventId={archiveEvent}
-          onClose={handleCloseArchivePage}
-          scrollToSection={scrollToSectionFromArchive}
-          mode="main"
-          onReturnToLanding={handleBackToLanding}
-        />
-      )}
-
-      {/* ── Global UI Elements ────────────────────────────────────────────── */}
-      {SHOW_REGISTRATION_POPUPS && (
+      {isLanding ? (
+        <LandingPage onRevealSite={handleRevealSite} />
+      ) : (
         <>
-          <RegistrationPopup />
-          <FloatingRegistration />
+          <a className="skip-link" href="#main">
+            Skip to content
+          </a>
+          <Header />
+          <main id="main" className="site-main" tabIndex={-1}>
+            {SECTIONS.map(({ id, eyebrow }) => {
+              const Section = SECTION_COMPONENTS[id];
+              if (!Section) return null;
+              return (
+                <section key={id} id={id} className={`section section--${id}`}>
+                  <div className="section-inner">
+                    {/* eyebrow: the small themed line above the section's title */}
+                    <Section eyebrow={eyebrow} />
+                  </div>
+                </section>
+              );
+            })}
+          </main>
+          <Footer onExitPreview={isPreview ? handleExitPreview : undefined} />
+          <RegistrationPrompts />
         </>
       )}
-
-      {/* MLH Trust Badge */}
-      <a
-        id="mlh-trust-badge"
-        style={{
-          display: 'block',
-          maxWidth: '100px',
-          minWidth: '60px',
-          position: 'fixed',
-          right: '50px',
-          top: '0',
-          width: '10%',
-          zIndex: '10000',
-        }}
-        href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2026-season&utm_content=white"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img
-          src="https://s3.amazonaws.com/logged-assets/trust-badge/2026/mlh-trust-badge-2026-white.svg"
-          alt="Major League Hacking 2026 Hackathon Season"
-          style={{ width: '100%' }}
-        />
-      </a>
-
-      {/* ── Navigation (single instance: archive overlay renders its own copy) ─ */}
-      {!archiveEvent && <Header scrollToSection={scrollToSection} />}
-
-      {/* ── Page Sections ─────────────────────────────────────────────────── */}
-      <main className="main-content">
-        <section id="home" className="section">
-          <Home />
-        </section>
-
-        <section id="about" className="section">
-          <About />
-        </section>
-
-        <section id="schedule" className="section">
-          <Schedule />
-        </section>
-
-        <section id="tracks" className="section">
-          <Tracks />
-        </section>
-
-        <section id="faq" className="section">
-          <Faq />
-        </section>
-
-        <section id="interest" className="section">
-          <Interest />
-        </section>
-
-        <section id="sponsors" className="section">
-          <Sponsors />
-        </section>
-
-        <section id="team" className="section">
-          <Team />
-        </section>
-
-        <section id="connect" className="section">
-          <Connect />
-        </section>
-      </main>
-
-      <Footer />
-
     </div>
   );
 };

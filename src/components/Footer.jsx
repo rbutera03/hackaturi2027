@@ -1,38 +1,44 @@
-// src/features/layout/components/Footer.jsx
-// Global site footer containing legal copy, policy link, and team credit.
+// src/components/Footer.jsx
+// Site footer. The year, email, socials and MLH link all come from content/site.js.
+//
+// Props:
+//   onExitPreview  when given, shows the organizer-only "Exit preview" button
+//                  (App.jsx passes it while the site is hidden but unlocked).
 
 import React from 'react';
 import { FaHeart } from 'react-icons/fa';
-import '../../../shared/styles/shared.css';
+import { CONTACT, EVENT, MLH, SOCIALS } from '../content/site.js';
 import './Footer.css';
 
-// ─── Footer Config ────────────────────────────────────────────────────────────
-const FOOTER_CONFIG = {
-  year:       '2026',
-  conductUrl: 'https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md',
-};
-// ─────────────────────────────────────────────────────────────────────────────
-
-const Footer = () => {
-  return (
-    <footer className="footer">
-      {/* ── Footer Content ──────────────────────────────────────────────── */}
-      <div className="footer-bottom">
-        <p>&copy; {FOOTER_CONFIG.year} Hack@URI. All rights reserved.</p>
-        <a
-          href={FOOTER_CONFIG.conductUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'block', margin: '8px 0' }}
-        >
+const Footer = ({ onExitPreview }) => (
+  <footer className="site-footer">
+    <div className="footer-inner">
+      <nav className="footer-links" aria-label="Footer">
+        <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+        {SOCIALS.map((social) => (
+          <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer">
+            {social.name}
+          </a>
+        ))}
+        <a href={MLH.codeOfConductUrl} target="_blank" rel="noopener noreferrer">
           MLH Code of Conduct
         </a>
-        <p>
-          Made with <FaHeart style={{ color: 'red', verticalAlign: 'middle' }} /> by the Hack@URI Team
-        </p>
-      </div>
-    </footer>
-  );
-};
+      </nav>
+
+      <p>
+        &copy; {EVENT.year} {EVENT.name}. All rights reserved.
+      </p>
+      <p>
+        Made with <FaHeart className="footer-heart" aria-label="love" /> by the {EVENT.name} Team
+      </p>
+
+      {onExitPreview && (
+        <button type="button" className="footer-preview" onClick={onExitPreview}>
+          Preview mode: back to the landing page
+        </button>
+      )}
+    </div>
+  </footer>
+);
 
 export default Footer;

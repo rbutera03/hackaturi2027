@@ -1,47 +1,29 @@
-// Full-screen schedule overlay. Opened by App.jsx when
-// window.location.hash === '#full-schedule'.
-// Uses the shared ScheduleCalendar component for the calendar + modal logic.
+// src/pages/SchedulePage.jsx
+// Full-page schedule, opened with #full-schedule (App.jsx). It reuses the same
+// Up Next card and calendar as the home page section.
+// Only reachable while SCHEDULE_CONFIG.published is true (content/schedule.js).
 
 import React from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
-import starsSvg from '../../../assets/stars-bg.svg';
-import ScheduleCalendar from '../components/ScheduleCalendar.jsx';
-import UpNext from '../components/UpNext.jsx';
-import '../../../shared/styles/shared.css';
-import '../ScheduleSection.css';
-import './SchedulePage.css';
+import PageOverlay from '../components/PageOverlay.jsx';
+import SectionHeading from '../components/SectionHeading.jsx';
+import ScheduleCalendar from '../sections/schedule/ScheduleCalendar.jsx';
+import UpNext from '../sections/schedule/UpNext.jsx';
+import { SCHEDULE_CONFIG } from '../content/schedule.js';
+import { EVENT } from '../content/site.js';
 
-const SchedulePage = ({ onClose }) => {
-  return (
-    <div className="schedule-page-overlay">
-      <div className="schedule-page-inner schedule-content">
-        {/* ── Back Navigation ─────────────────────────────────────────────── */}
-        <button className="schedule-back-btn" onClick={onClose}>
-          <FaArrowLeft /> Back to Main Site
-        </button>
+const SchedulePage = ({ onClose }) => (
+  <PageOverlay label="Full schedule">
+    <div className="page-overlay-inner">
+      <button type="button" className="back-btn" onClick={onClose}>
+        <FaArrowLeft aria-hidden="true" /> Back to the main site
+      </button>
 
-        {/* ── Decorative Star Field ───────────────────────────────────────── */}
-        {[1, 2, 3, 4, 5].map((n) => (
-          <img key={n} src={starsSvg} alt="" className={`schedule-star star-${n}`} />
-        ))}
-
-        {/* ── Page Heading ────────────────────────────────────────────────── */}
-        <h1>Event Schedule</h1>
-
-        {/* ── Calendar Helper Tip ─────────────────────────────────────────── */}
-        <p className="schedule-click-tip">
-          Click any <strong>workshop</strong> 👤 session to learn more about the speaker and the event!
-        </p>
-
-        {/* ── Live Up Next Widget ─────────────────────────────────────────── */}
-        <UpNext />
-
-        {/* ── Shared Calendar + Workshop Modals ──────────────────────────── */}
-        <ScheduleCalendar />
-      </div>
+      <SectionHeading as="h1" eyebrow={EVENT.title} title={SCHEDULE_CONFIG.title} lead={EVENT.dateDisplay} />
+      <UpNext />
+      <ScheduleCalendar />
     </div>
-  );
-};
+  </PageOverlay>
+);
 
 export default SchedulePage;
-

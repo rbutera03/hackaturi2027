@@ -1,98 +1,48 @@
-/* ==========================================================================
-   About.css — Pirate About Page
-   Depends on: shared.css (twinkle animation, .star-1..5 delays, font vars)
-   ========================================================================== */
+/* About.css — About section */
 
-
-/* ==========================================================================
-   1. PAGE WRAPPER
-   ========================================================================== */
-
-.pirate-about {
-  min-height: auto;
-  background: #F6E9C8;
-  position: relative;
-  overflow: hidden;
-  font-family: var(--font-main);
-  color: #2f2520;
-  padding: clamp(20px, 3vh, 30px) clamp(30px, 5vw, 60px) clamp(25px, 4vh, 40px);
-  margin: 0 auto;
+.about-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 4vw, 48px);
 }
 
-
-/* ==========================================================================
-   2. DECORATIVE STARS
-   Positions unique to the About page; animation + delays live in shared.css
-   ========================================================================== */
-
-.about-star {
-  width: 35px;
-  height: 35px;
+.about-text {
+  display: grid;
+  gap: 16px;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
 }
 
-.about-star.star-1 { top:  5%; left:  5%; }
-.about-star.star-2 { top: 10%; right: 5%; }
-.about-star.star-3 { top: 80%; left:  3%; }
-.about-star.star-4 { top: 85%; right: 8%; }
-.about-star.star-5 { top: 45%; left: 92%; }
-
-
-/* ==========================================================================
-   3. CONTENT
-   ========================================================================== */
-
-.about-content {
-  position: relative;
-  z-index: 3;
-  max-width: 1000px;
-  margin: 0 auto;
-  text-align: left;
+.about-facts {
+  display: grid;
+  gap: 18px;
 }
 
-.about-content h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #2f2520;
-  margin: 0 0 20px 0;
-  text-shadow: 2px 2px 4px rgba(47, 37, 32, 0.1);
+.about-fact dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
 }
 
-.about-content p {
-  color: #2f2520;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 15px;
+.about-fact dd {
+  margin-top: 2px;
+  color: var(--color-heading);
+  font-weight: 600;
 }
 
-
-/* ==========================================================================
-   4. RESPONSIVE
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  .pirate-about {
-    padding: 20px 30px 25px;
-    max-width: 100%;
-  }
-
-  .about-content h1 {
-    font-size: 2rem;
-    margin-bottom: 15px;
-  }
-
-  /* Stars hidden on mobile via shared.css rule */
+.about-fact + .about-fact {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-soft);
 }
 
-@media (max-width: 480px) {
-  .pirate-about {
-    padding: 15px 20px 20px;
-  }
-
-  .about-content h1 {
-    font-size: 1.8rem;
-  }
-
-  .about-content p {
-    font-size: 1rem;
+@media (max-width: 820px) {
+  .about-layout {
+    grid-template-columns: 1fr;
   }
 }

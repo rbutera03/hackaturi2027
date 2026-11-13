@@ -1,0 +1,162 @@
+/* ProjectCard.css — project card (archive winners, mini-event past projects).
+   Uses role tokens, so an archive theme recolours it. --archive-card-border
+   lets an archive theme set a heavier border (see pages/archive/ArchivePage.css). */
+
+/* Put cards in a .project-grid: flex (not grid) so a short last row sits centred. */
+.project-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(18px, 2.5vw, 28px);
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 340px;
+  max-width: 340px;
+  border: var(--archive-card-border, 1px solid var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.project-card--featured {
+  border-color: var(--color-accent-warm);
+}
+
+.project-card-image-wrap {
+  position: relative;
+  flex: none;
+  aspect-ratio: 16 / 9;
+  background: var(--color-surface-soft);
+  overflow: hidden;
+}
+
+.project-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.project-card:hover .project-card-image {
+  transform: scale(1.04);
+}
+
+.project-card-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-muted);
+  font-size: 3rem;
+  font-weight: 800;
+  opacity: 0.6;
+}
+
+.project-card-ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-warm);
+  color: var(--color-on-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.project-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 22px 24px 24px;
+}
+
+.project-card-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.project-card-track {
+  padding: 3px 10px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-soft);
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.project-card-name {
+  margin-bottom: 10px;
+  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.project-card-description {
+  flex: 1; /* pushes the team and link to the bottom of every card */
+  font-size: 0.9rem;
+}
+
+.project-card-bottom {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  margin-top: 18px;
+}
+
+.project-card-team {
+  font-size: 0.85rem;
+}
+
+.project-card-team-label {
+  margin-right: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.project-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform var(--duration-fast) ease,
+    box-shadow var(--duration-base) ease;
+}
+
+.project-card-link:hover {
+  color: var(--color-on-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.project-card-link svg {
+  font-size: 0.8em;
+}

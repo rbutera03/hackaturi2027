@@ -1,1226 +1,260 @@
 /* ==========================================================================
-   RapidBuildPage.css — Full-page Rapid Build overlay
-   Depends on: shared.css (design tokens, panel-card, btn-primary, stars)
+   MiniEventPage.css — the fall mini-event page (MiniEventPage.jsx and
+   EventSchedule.jsx). Drawn in the current site theme: only role tokens from
+   tokens.css are used, so re-theming the site re-themes this page too.
    ========================================================================== */
 
-/* ==========================================================================
-   1. OVERLAY SHELL
-   ========================================================================== */
-.rb-page-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  overflow-y: auto;
-  animation: rbSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  background:
-    radial-gradient(ellipse 90% 55% at 8% 12%, rgba(10, 78, 78, 0.16), transparent 58%),
-    radial-gradient(ellipse 75% 45% at 92% 28%, rgba(195, 168, 115, 0.28), transparent 52%),
-    radial-gradient(ellipse 70% 40% at 15% 72%, rgba(11, 79, 79, 0.12), transparent 55%),
-    radial-gradient(ellipse 60% 35% at 85% 88%, rgba(203, 185, 121, 0.22), transparent 50%),
-    linear-gradient(180deg, rgba(10, 78, 78, 0.18) 0%, transparent 18%),
-    linear-gradient(180deg, #f4e0a8 0%, var(--cream) 22%, #f8ecc8 58%, #efd7a0 100%);
+.mini-event {
+  --pin-size: 56px;
+  max-width: 1080px;
 }
 
-@keyframes rbSlideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
-}
+/* ── The journey trail ────────────────────────────────────────────────────────
+   Each stop is a two-column row: the marker, then the section. A dashed line
+   down the marker column joins one stop to the next. */
 
-.rb-page-inner {
+.mini-stop {
   position: relative;
-  z-index: 2;
-  /* Extra width for marker lanes outside the section content. */
-  max-width: 1268px;
-  margin: 0 auto;
-  padding: 40px 84px 80px;
-  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--pin-size) minmax(0, 1fr);
+  column-gap: clamp(14px, 3vw, 34px);
+  padding-bottom: clamp(48px, 8vw, 88px);
 }
 
-/* ==========================================================================
-   2b. PIRATE DECORATIONS
-   ========================================================================== */
-.rb-deco {
-  pointer-events: none;
-  user-select: none;
-}
-
-.rb-deco--map-corner {
-  position: fixed;
-  top: 48px;
-  right: -24px;
-  width: min(300px, 38vw);
-  opacity: 0.34;
-  z-index: 1;
-  transform: rotate(14deg);
-  filter: sepia(0.5) brightness(0.82) saturate(1.3);
-}
-
-.rb-deco--map-flip {
-  top: auto;
-  right: auto;
-  left: -36px;
-  bottom: 60px;
-  transform: rotate(-16deg) scaleX(-1);
-  opacity: 0.28;
-}
-
-.rb-deco--chest {
-  position: absolute;
-  right: -18px;
-  bottom: -22px;
-  width: clamp(72px, 12vw, 100px);
-  z-index: 3;
-  filter: drop-shadow(0 10px 18px rgba(47, 37, 32, 0.28));
-  animation: rbChestBob 4.5s ease-in-out infinite;
-}
-
-@keyframes rbChestBob {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%      { transform: translateY(-6px) rotate(2deg); }
-}
-
-/* ==========================================================================
-   2c. TREASURE MAP JOURNEY TRAIL
-   ========================================================================== */
-.rb-voyage {
-  position: relative;
-}
-
-.rb-treasure-trail-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  color: var(--brown-wood);
-  overflow: visible;
-}
-
-.rb-treasure-trail-path {
-  opacity: 0.88;
-  animation: rbTrailMarch 1.6s linear infinite;
-}
-
-@keyframes rbTrailMarch {
-  to { stroke-dashoffset: -32; }
-}
-
-.rb-map-stop {
-  position: relative;
-  margin-bottom: 32px;
-}
-
-.rb-map-rail {
+.mini-stop::before {
+  content: '';
   position: absolute;
   top: 0;
-  z-index: 4;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 84px;
+  bottom: 0;
+  left: calc(var(--pin-size) / 2 - 1px);
+  border-left: 2px dashed var(--color-border);
 }
 
-.rb-map-stop--left .rb-map-rail {
-  left: -84px;
+/* The trail ends at the last marker. */
+.mini-stop:last-child {
+  padding-bottom: 0;
 }
 
-.rb-map-stop--right .rb-map-rail {
-  right: -84px;
+.mini-stop:last-child::before {
+  display: none;
 }
 
-.rb-map-stop--last .rb-map-rail {
-  top: 120px;
-  right: 100px;
-}
-
-.rb-map-marker {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.rb-map-marker-pin {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, #fff6d8 0%, var(--parchment) 55%, #e8c882 100%);
-  border: 3px solid var(--brown-wood);
-  box-shadow:
-    0 6px 16px rgba(47, 37, 32, 0.22),
-    inset 0 0 0 2px rgba(195, 168, 115, 0.45);
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.rb-map-stop:last-of-type .rb-map-marker-pin {
-  border-color: var(--teal-dark);
-  color: var(--teal-dark);
-  font-weight: 900;
-  font-size: 1.55rem;
-  animation: rbXPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes rbXPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(195, 168, 115, 0.45); }
-  50%      { box-shadow: 0 0 0 10px rgba(195, 168, 115, 0); }
-}
-
-.rb-map-marker-label {
-  max-width: 84px;
-  padding: 3px 5px;
-  text-align: center;
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--teal-dark);
-  line-height: 1.2;
-  background: radial-gradient(circle at 35% 30%, #ffe8a8 0%, #e8b84a 45%, #c48e56 100%);
-  border-radius: 4px;
-  border: 2px solid var(--brown-wood);
-}
-
-.rb-map-stop--gap-after {
-  padding-bottom: 48px;
-}
-
-.rb-map-stop-content {
-  min-width: 0;
-  position: relative;
+/* The marker follows along while its section is on screen. */
+.mini-stop-pin {
+  position: sticky;
+  top: 20px;
   z-index: 1;
+  align-self: start;
+  display: grid;
+  place-items: center;
+  width: var(--pin-size);
+  height: var(--pin-size);
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-surface-solid);
+  box-shadow: var(--shadow-glow);
+  color: var(--color-accent-warm);
+  font-size: 1.35rem;
 }
 
-.rb-map-stop-content .rb-section {
-  margin-bottom: 0;
+.mini-stop-body {
+  min-width: 0;
 }
 
-.rb-cta {
-  position: relative;
+/* ── Intro ────────────────────────────────────────────────────────────────── */
+
+.mini-title {
+  width: fit-content;
+  font-size: clamp(2.1rem, 6vw, 3.6rem);
+  letter-spacing: -0.02em;
 }
 
-/* ==========================================================================
-   2. BACK NAV + STARS
-   ========================================================================== */
-.rb-back-btn {
+.mini-description {
+  max-width: 62ch;
+  margin-top: 14px;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+}
+
+.mini-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.mini-fact {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 14px;
+  align-items: center;
+  padding: 14px 18px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+}
+
+.mini-fact-icon {
+  grid-row: span 2;
+  font-size: 1.3rem;
+  color: var(--color-accent);
+}
+
+.mini-fact dt {
+  font-family: var(--font-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.mini-fact dd {
+  color: var(--color-heading);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.mini-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+/* ── Schedule (EventSchedule.jsx) ─────────────────────────────────────────────
+   --ev-color is set per item from its type's accent. */
+
+.mini-schedule-key {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  margin-bottom: 22px;
+  font-size: 0.9rem;
+}
+
+.mini-schedule-key li {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: linear-gradient(135deg, var(--teal-border) 0%, var(--teal-nav) 100%);
-  color: var(--parchment);
-  border: 2px solid var(--gold-light);
-  padding: 10px 22px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 50px;
-  cursor: pointer;
-  margin-bottom: 30px;
-  font-family: var(--font-main);
-  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 8px;
 }
 
-.rb-back-btn:hover {
-  background: linear-gradient(135deg, var(--brown-dark) 0%, #4a3a30 100%);
-  color: var(--gold);
-  transform: translateX(-3px);
-  box-shadow: 0 12px 28px rgba(12, 58, 64, 0.28);
-}
-
-.rb-star {
-  position: absolute;
-  pointer-events: none;
-  opacity: 0.75;
-  filter: drop-shadow(0 0 6px rgba(195, 168, 115, 0.45));
-  animation: twinkle 3s ease-in-out infinite;
-  z-index: 0;
-}
-
-.rb-star--sm { width: 26px; height: 26px; }
-.rb-star--md { width: 40px; height: 40px; }
-.rb-star--lg { width: 56px; height: 56px; }
-
-/* ==========================================================================
-   3. SHARED SECTION STYLES
-   ========================================================================== */
-.rb-section {
-  margin-bottom: 56px;
-}
-
-.rb-section-title {
-  text-align: center;
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: var(--teal-dark);
-  margin: 0 0 12px;
-  font-family: var(--font-main);
-  text-shadow: 0 2px 0 rgba(249, 233, 192, 0.85), 0 8px 24px rgba(12, 58, 64, 0.12);
-}
-
-.rb-section-title::after {
-  content: '';
-  display: block;
-  width: 96px;
-  height: 5px;
-  margin: 12px auto 0;
-  border-radius: 999px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--brown-wood) 0 10px,
-    transparent 10px 18px
-  );
-  opacity: 0.55;
-}
-
-.rb-section-subtitle {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto 28px;
-  color: var(--text-dark);
-  opacity: 0.9;
-  font-size: 1.05rem;
-}
-
-.rb-page-overlay .panel-card {
-  background: linear-gradient(160deg, rgba(249, 233, 192, 0.96) 0%, rgba(246, 233, 200, 0.9) 100%);
-  border-color: var(--teal-nav);
-  box-shadow:
-    0 10px 28px rgba(12, 58, 64, 0.14),
-    0 0 0 1px rgba(195, 168, 115, 0.35);
-}
-
-.rb-page-overlay .panel-card:hover {
-  box-shadow:
-    0 14px 34px rgba(12, 58, 64, 0.18),
-    0 0 0 1px rgba(195, 168, 115, 0.5);
-}
-
-/* ==========================================================================
-   4. HERO
-   ========================================================================== */
-.rb-hero {
-  display: grid;
-  grid-template-columns: minmax(220px, 340px) 1fr;
-  gap: clamp(20px, 4vw, 40px);
-  align-items: center;
-  margin-bottom: 0;
-}
-
-.rb-hero-art {
-  position: relative;
-}
-
-.rb-pirate-logo-wrap {
-  width: clamp(220px, 28vw, 320px);
-  height: clamp(220px, 28vw, 320px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.mini-schedule-dot {
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, #fff6d8 0%, var(--parchment) 55%, #edd79a 100%);
-  box-shadow:
-    0 22px 40px rgba(12, 58, 64, 0.22),
-    0 0 0 4px rgba(195, 168, 115, 0.45),
-    0 0 36px rgba(195, 168, 115, 0.35);
-  border: 6px solid var(--teal-dark);
-  padding: clamp(12px, 1.5vw, 18px);
-  margin: 0 auto;
-  animation: rbLogoFloat 5s ease-in-out infinite;
+  background: var(--ev-color);
 }
 
-@keyframes rbLogoFloat {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
+.mini-schedule-list {
+  display: grid;
+  gap: 10px;
 }
 
-.rb-pirate-logo {
-  width: 88%;
-  height: auto;
+.mini-schedule-item {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 6px 20px;
+  padding: 14px 18px;
+  border: 1px solid var(--color-border-soft);
+  border-left: 5px solid var(--ev-color);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
 }
 
-.rb-hero-copy {
-  text-align: left;
-  position: relative;
-  overflow: hidden;
+.mini-schedule-item.is-highlight {
+  border-color: var(--ev-color);
+  background: color-mix(in srgb, var(--ev-color) 12%, transparent);
 }
 
-.rb-hero-copy::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
-  opacity: 0.65;
+.mini-schedule-time {
+  color: var(--ev-color);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.rb-hero-eyebrow {
-  margin: 0 0 8px;
-  font-size: 0.95rem;
+.mini-schedule-title {
+  font-size: 1.08rem;
+}
+
+.mini-schedule-emoji {
+  margin-right: 8px;
+}
+
+.mini-schedule-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.mini-schedule-type {
+  font-family: var(--font-accent);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--brown-wood);
+  color: var(--ev-color);
 }
 
-.rb-hero-title {
-  margin: 0 0 10px;
-  font-size: clamp(2rem, 4vw, 2.9rem);
-  font-weight: 800;
-  color: var(--teal-dark);
-  line-height: 1.1;
-  text-shadow: 0 2px 0 rgba(249, 233, 192, 0.9);
-}
-
-.rb-hero-tagline {
-  margin: 0 0 14px;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--brown-wood);
-}
-
-.rb-hero-description {
-  margin: 0 0 22px;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  color: var(--text-dark);
-}
-
-.rb-hero-ctas {
-  justify-content: flex-start;
-}
-
-/* ==========================================================================
-   5. EVENT DETAILS
-   ========================================================================== */
-.rb-event-board {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 28px 30px 16px;
-  border-style: solid;
-  border-width: 3px;
-  border-color: var(--teal-nav);
-  background:
-    linear-gradient(160deg, rgba(249, 233, 192, 0.97) 0%, rgba(246, 233, 200, 0.94) 100%),
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 12px,
-      rgba(139, 69, 19, 0.04) 12px,
-      rgba(139, 69, 19, 0.04) 24px
-    );
-}
-
-.rb-event-meta {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px 26px;
-  padding-bottom: 18px;
-  border-bottom: 3px solid rgba(139, 69, 19, 0.3);
-}
-
-.rb-event-meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.35rem;
-  line-height: 1.3;
-  font-weight: 800;
-  color: var(--teal-dark);
-}
-
-.rb-event-meta-item svg {
-  flex-shrink: 0;
-  font-size: 1.35rem;
-  color: var(--brown-wood);
-}
-
-/* Event types: one color per kind of event (bar, time, legend dot) */
-.rb-type--kickoff  { --ev-color: #8b5a2b; }
-.rb-type--hacking  { --ev-color: #0b6b6b; }
-.rb-type--workshop { --ev-color: #2f5f9a; }
-.rb-type--fun      { --ev-color: #3d8a4a; }
-.rb-type--judging  { --ev-color: #a8372d; }
-
-.rb-legend {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 22px;
-  margin: 0;
-  padding: 14px 0 6px;
-}
-
-.rb-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  color: var(--teal-dark);
-}
-
-.rb-legend-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: var(--ev-color);
-  border: 2px solid rgba(47, 37, 32, 0.35);
-}
-
-/* Hour-by-hour timeline */
-.rb-hours {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.rb-hour {
-  display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 0 16px;
-  padding: 12px 0;
-  border-bottom: 2px dashed rgba(139, 69, 19, 0.3);
-}
-
-.rb-hour:last-child {
-  border-bottom: none;
-}
-
-.rb-hour-label {
-  padding-top: 6px;
-  padding-right: 12px;
-  font-size: 1.35rem;
-  font-weight: 800;
-  line-height: 1.1;
-  text-align: right;
-  color: var(--teal-dark);
-  border-right: 4px solid var(--teal-nav);
-}
-
-.rb-hour-events {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  min-height: 36px; /* keeps hours with no events from collapsing */
-}
-
-.rb-hour-event {
-  position: relative;
-  display: grid;
-  grid-template-columns: 162px minmax(0, 1fr) auto;
-  gap: 0 14px;
-  align-items: center;
-  padding: 8px 14px 8px 22px;
-  margin: 0 -14px;
-  border-radius: 8px;
-  outline: none;
-  transition: background 0.15s ease;
-}
-
-/* Colored bar marking the kind of event */
-.rb-hour-event::before {
-  content: '';
-  position: absolute;
-  left: 6px;
-  top: 7px;
-  bottom: 7px;
-  width: 6px;
-  border-radius: 4px;
-  background: var(--ev-color, var(--teal-nav));
-}
-
-.rb-hour-event--has-desc {
-  cursor: help;
-}
-
-.rb-hour-event--has-desc:hover,
-.rb-hour-event--has-desc:focus-visible {
-  background: rgba(195, 168, 115, 0.3);
-}
-
-.rb-hour-event--highlight {
-  background: rgba(232, 184, 74, 0.26);
-}
-
-.rb-hour-event--highlight:hover,
-.rb-hour-event--highlight:focus-visible {
-  background: rgba(232, 184, 74, 0.42);
-}
-
-.rb-hour-event-time {
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  color: var(--ev-color, var(--brown-wood));
-}
-
-.rb-hour-event-body {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 12px;
-  min-width: 0;
-}
-
-.rb-hour-event-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  line-height: 1.3;
-  color: var(--teal-dark);
-}
-
-.rb-hour-event-emoji {
-  font-weight: 400;
-  font-size: 1.15rem;
-}
-
-.rb-hour-event-hosts {
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-style: italic;
-  color: #6b5444;
-}
-
-.rb-hour-event-location {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  justify-self: end;
-  font-size: 1.02rem;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--brown-wood);
-}
-
-.rb-hour-event-location svg {
-  flex-shrink: 0;
-  font-size: 0.92rem;
-  color: var(--brown-wood);
-}
-
-.rb-hour-event-desc {
-  grid-column: 2 / -1;
-  margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: var(--text-dark);
-  transition: max-height 0.22s ease, opacity 0.18s ease, margin 0.22s ease;
-  pointer-events: none;
-}
-
-.rb-hour-event--has-desc:hover .rb-hour-event-desc,
-.rb-hour-event--has-desc:focus-visible .rb-hour-event-desc {
-  max-height: 90px;
-  opacity: 0.95;
-  margin-top: 5px;
-}
-
-/* ==========================================================================
-   6. PROJECT SHOWCASE
-   ========================================================================== */
-.rb-project-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch;
-  gap: 16px;
-}
-
-.rb-project-card {
-  display: flex;
-  flex-direction: column;
-  flex: 0 1 288px;
-  max-width: 300px;
-  width: 100%;
-  border-width: 4px;
-  padding: 0;
-  overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.rb-project-card:hover {
-  transform: translateY(-4px);
-}
-
-.rb-project-card--featured {
-  z-index: 1;
-  flex-basis: 316px;
-  max-width: 330px;
-  transform: translateY(-14px) scale(1.03);
-  box-shadow:
-    0 22px 44px rgba(12, 58, 64, 0.28),
-    0 0 34px rgba(232, 184, 74, 0.4);
-  background:
-    linear-gradient(160deg, #fff6d8 0%, rgba(249, 233, 192, 0.97) 45%, rgba(195, 168, 115, 0.3) 100%);
-}
-
-.rb-project-card--featured:hover {
-  transform: translateY(-18px) scale(1.03);
-}
-
-.rb-project-image-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 12 / 5;
-  overflow: hidden;
-  background: rgba(12, 58, 64, 0.08);
-  flex-shrink: 0;
-}
-
-.rb-project-winner-ribbon {
-  position: absolute;
-  z-index: 2;
-  top: 10px;
-  left: 10px;
+.mini-schedule-location {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #ffe8a8 0%, #e8b84a 55%, #c48e56 100%);
-  border: 2px solid var(--brown-wood);
-  color: var(--brown-dark);
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(47, 37, 32, 0.28);
 }
 
-.rb-project-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
+.mini-schedule-description {
+  margin-top: 6px;
+  font-size: 0.95rem;
 }
 
-.rb-project-card:hover .rb-project-image {
-  transform: scale(1.04);
-}
+/* ── Photos, projects, FAQ, closing card ──────────────────────────────────── */
 
-.rb-project-image-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(249, 233, 192, 0.7) 0%, rgba(246, 233, 200, 1) 100%);
-  font-size: 3rem;
-  font-weight: 900;
-  color: var(--teal-border);
-  opacity: 0.35;
-}
-
-.rb-project-card-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 14px 16px 16px;
-}
-
-.rb-project-tracks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 8px;
-}
-
-.rb-project-track-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 20px;
-  font-size: 0.64rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  background: rgba(12, 58, 64, 0.08);
-  color: var(--teal-dark);
-  border: 1px solid rgba(12, 58, 64, 0.2);
-}
-
-.rb-project-card--featured .rb-project-track-badge {
-  background: rgba(195, 168, 115, 0.28);
-  border-color: var(--gold-light);
-  color: var(--brown-dark);
-}
-
-.rb-project-card h3 {
-  margin: 0 0 8px;
-  color: var(--teal-dark);
-  font-size: 1.05rem;
-}
-
-.rb-project-card--featured h3 {
-  font-size: 1.22rem;
-  color: var(--brown-dark);
-}
-
-.rb-project-card p {
-  margin: 0;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  flex: 1;
-}
-
-.rb-project-card--featured p {
-  font-size: 0.86rem;
-}
-
-.rb-project-card-bottom {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.rb-project-team {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.rb-project-team-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(47, 37, 32, 0.65);
-  flex-shrink: 0;
-}
-
-.rb-project-team-members {
-  font-size: 0.74rem;
-  color: #48392f;
-  line-height: 1.45;
-}
-
-.rb-project-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  width: fit-content;
-  padding: 8px 14px;
-  border-radius: 32px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  background: var(--teal-dark);
-  color: var(--gold);
-  text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.rb-project-link:hover {
-  background: #0a2e34;
-  color: var(--gold);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(12, 58, 64, 0.2);
-}
-
-.rb-project-gallery-cta {
-  display: flex;
-  justify-content: center;
-  margin-top: 32px;
-}
-
-.rb-project-gallery-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 16px 34px;
-  border-radius: 36px;
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  background: var(--teal-dark);
-  color: var(--gold);
-  border: 2px solid var(--gold-light);
-  text-decoration: none;
-  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.22);
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.rb-project-gallery-link:hover {
-  background: #0a2e34;
-  color: var(--gold-light);
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(12, 58, 64, 0.28);
-}
-
-/* ==========================================================================
-   7. PHOTO CAROUSEL
-   ========================================================================== */
-.rb-photo-carousel {
-  position: relative;
-  max-width: 860px;
+.mini-photos {
+  max-width: 760px;
   margin: 0 auto;
-  padding: 0;
-  overflow: hidden;
-  border: 3px solid var(--teal-nav);
-  box-shadow:
-    0 14px 36px rgba(12, 58, 64, 0.18),
-    0 0 0 1px rgba(195, 168, 115, 0.4);
 }
 
-.rb-photo-slide {
-  width: 100%;
-  height: clamp(240px, 42vw, 420px);
-  object-fit: cover;
-  display: block;
-}
-
-.rb-photo-caption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  margin: 0;
-  padding: 36px 18px 16px;
+.mini-gallery-link {
+  margin-top: 28px;
   text-align: center;
-  font-size: 0.98rem;
-  font-weight: 700;
-  color: var(--parchment);
-  background: none;
-  text-shadow: 0 1px 3px rgba(12, 58, 64, 0.9);
-  pointer-events: none;
 }
 
-.rb-photo-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  background: linear-gradient(160deg, rgba(10, 78, 78, 0.12), rgba(195, 168, 115, 0.18));
-  color: var(--teal-dark);
-}
-
-.rb-photo-placeholder--large {
-  min-height: clamp(240px, 42vw, 420px);
-  font-size: 2.5rem;
-}
-
-.rb-photo-placeholder--large p {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.rb-carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 42px;
-  height: 42px;
-  border: 2px solid var(--gold-light);
-  border-radius: 50%;
-  background: rgba(12, 58, 64, 0.88);
-  color: var(--parchment);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 2;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.rb-carousel-arrow:hover {
-  background: var(--brown-dark);
-  color: var(--gold);
-}
-
-.rb-carousel-arrow--left { left: 14px; }
-.rb-carousel-arrow--right { right: 14px; }
-
-.fade-in {
-  animation: rbFadeIn 0.45s ease-out;
-}
-
-@keyframes rbFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* ==========================================================================
-   8. FAQ
-   ========================================================================== */
-.rb-faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-width: 860px;
+.mini-faq {
+  max-width: var(--content-narrow);
   margin: 0 auto;
 }
 
-.rb-faq-item {
-  padding: 0;
-  overflow: hidden;
-}
-
-.rb-faq-question {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: var(--font-main);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--teal-dark);
-}
-
-.rb-faq-arrow {
-  flex-shrink: 0;
-  transition: transform 0.25s ease;
-  color: var(--brown-wood);
-}
-
-.rb-faq-arrow.open {
-  transform: rotate(180deg);
-}
-
-.rb-faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease;
-}
-
-.rb-faq-answer p {
-  margin: 0;
-  padding: 0 22px 20px;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: var(--text-dark);
-}
-
-.rb-faq-bullets {
-  margin: 0;
-  padding: 0 22px 20px 42px;
-  color: var(--text-dark);
-  font-size: 0.98rem;
-  line-height: 1.6;
-}
-
-.rb-faq-bullets li + li {
-  margin-top: 8px;
-}
-
-/* ==========================================================================
-   9. CTA
-   ========================================================================== */
-.rb-cta-inner {
-  position: relative;
+.mini-cta {
   text-align: center;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 24px 28px;
-  background:
-    linear-gradient(160deg, rgba(10, 78, 78, 0.1) 0%, rgba(249, 233, 192, 0.95) 40%, rgba(195, 168, 115, 0.18) 100%);
-  border-color: var(--gold-light);
 }
 
-.rb-cta .rb-section-title {
-  font-size: 2rem;
+.mini-cta p {
+  margin-top: 10px;
 }
 
-.rb-cta .rb-section-subtitle {
-  margin-bottom: 20px;
-  font-size: 0.98rem;
-}
-
-.rb-cta-buttons {
-  display: flex;
-  flex-wrap: wrap;
+.mini-cta .mini-buttons {
   justify-content: center;
-  gap: 14px;
-  margin-top: 8px;
 }
 
-.rb-page-overlay .btn-primary.rb-cta-btn {
-  background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-nav) 50%, var(--teal-mid) 100%);
-  border: 2px solid var(--gold-light);
-  color: var(--parchment);
-  box-shadow: 0 8px 22px rgba(12, 58, 64, 0.25);
-}
+/* ── Phones ───────────────────────────────────────────────────────────────── */
 
-.rb-page-overlay .btn-primary.rb-cta-btn:hover {
-  background: linear-gradient(135deg, var(--brown-dark) 0%, #4a3a30 100%);
-  color: var(--gold);
-}
-
-.rb-cta-btn--secondary {
-  display: inline-block;
-  padding: 15px 28px;
-  border-radius: 8px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--teal-dark);
-  background: rgba(249, 233, 192, 0.65);
-  border: 2px solid var(--teal-dark);
-  transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.rb-cta-btn--secondary:hover {
-  background: var(--teal-dark);
-  color: var(--parchment);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(12, 58, 64, 0.22);
-}
-
-.rb-cta-btn--disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* ==========================================================================
-   10. RESPONSIVE
-   ========================================================================== */
-@media (max-width: 900px) {
-  .rb-hero {
-    grid-template-columns: 1fr;
+@media (max-width: 640px) {
+  .mini-event {
+    --pin-size: 38px;
   }
 
-  .rb-hero-copy {
-    text-align: center;
-  }
-
-  .rb-hero-ctas {
-    justify-content: center;
-  }
-
-  .rb-project-grid {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .rb-project-card,
-  .rb-project-card--featured {
-    flex-basis: auto;
-    max-width: 320px;
-    transform: none;
-  }
-
-  .rb-project-card--featured:hover {
-    transform: translateY(-4px);
-  }
-
-  .rb-map-marker-pin {
-    width: 48px;
-    height: 48px;
-    font-size: 1.15rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .rb-page-inner {
-    padding: 24px 18px 80px;
-  }
-
-  .rb-section-title {
-    font-size: 2rem;
-  }
-
-  .rb-event-board {
-    padding: 22px 16px 10px;
-  }
-
-  .rb-event-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .rb-event-meta-item,
-  .rb-event-meta-item svg {
-    font-size: 1.15rem;
-  }
-
-  .rb-legend {
-    justify-content: flex-start;
-  }
-
-  .rb-hour {
-    grid-template-columns: 56px 1fr;
-    gap: 0 12px;
-    padding: 10px 0;
-  }
-
-  .rb-hour-label {
-    font-size: 1.15rem;
-    padding-right: 10px;
-  }
-
-  .rb-hour-event {
-    grid-template-columns: 1fr;
-    gap: 2px 0;
-    padding: 8px 10px 8px 20px;
-    margin: 0 -10px;
-  }
-
-  .rb-hour-event-title {
-    font-size: 1.12rem;
-  }
-
-  .rb-hour-event-location {
-    justify-self: start;
+  .mini-stop-pin {
     font-size: 0.95rem;
   }
 
-  .rb-hour-event-desc {
-    grid-column: 1;
-    font-size: 0.98rem;
+  .mini-schedule-item {
+    grid-template-columns: 1fr;
   }
 
-  .rb-pirate-logo-wrap {
-    animation: none;
-  }
-
-  .rb-deco--map-corner {
-    display: none;
-  }
-
-  .rb-map-rail,
-  .rb-treasure-trail-overlay {
-    display: none;
-  }
-
-  .rb-map-stop:not(.rb-map-stop--last) {
-    border-bottom: 2px dashed rgba(139, 69, 19, 0.28);
-    padding-bottom: 28px;
-    margin-bottom: 28px;
-  }
-
-  .rb-deco--chest {
-    right: -12px;
-    bottom: -18px;
-    width: 72px;
+  .mini-buttons .btn {
+    flex: 1 1 100%;
   }
 }

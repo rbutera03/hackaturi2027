@@ -1,58 +1,92 @@
-// src/features/tracks/TracksSection.jsx
-// Track overview cards with descriptions, icons, and optional sponsor branding.
+// src/sections/Tracks.jsx
+// The hackathon tracks, shown as a grid of "planet" cards. Selecting a card
+// opens its mission brief (description and example project ideas).
+// The tracks themselves are in content/tracks.js.
 
-import React from 'react';
-import { FaHeartbeat, FaBrain, FaAnchor, FaPalette, FaShieldAlt } from 'react-icons/fa';
-import { GiWaterSplash } from 'react-icons/gi';
-import starsSvg from '../../assets/stars-bg.svg';
-import '../../shared/styles/shared.css';
-import './TracksSection.css';
+import React, { useState } from 'react';
+import { FaAtom, FaBrain, FaChevronDown, FaCoins, FaGamepad, FaGlobeAmericas, FaRocket } from 'react-icons/fa';
+import Reveal from '../components/Reveal.jsx';
+import SectionHeading from '../components/SectionHeading.jsx';
+import { TRACKS, TRACKS_INTRO } from '../content/tracks.js';
+import './Tracks.css';
 
-const yconicLogo = '/images/sponsors/yconic-transparent.png';
+// The `icon` keys used in content/tracks.js. Add a line here to offer another icon.
+const TRACK_ICONS = {
+  brain: FaBrain,
+  atom: FaAtom,
+  coins: FaCoins,
+  globe: FaGlobeAmericas,
+  gamepad: FaGamepad,
+  rocket: FaRocket,
+};
 
-// ─── Tracks Config ────────────────────────────────────────────────────────────
-const TRACKS = [
-  { id: 'hack-to-health', title: 'Hack to Health', icon: <FaHeartbeat />, color: '#0C3A40', description: 'Technology for better care and well-being', detailedDescription: 'Build solutions that improve patient outcomes and streamline health services. Create wearables for health monitoring, telemedicine platforms for underserved communities, accessibility apps, or health data dashboards.' },
-  { id: 'neural-tide', title: 'Neural Tide', icon: <FaBrain />, color: '#2f2520', description: 'AI-powered startups, technical projects, and compute-intensive experiments.', sponsorLogo: yconicLogo, detailedDescription: 'Participants can choose between launching an AI-native startup with an emphasis on validation and scalability, developing a focused AI project that demonstrates strong engineering or creative application, or leveraging high-performance hardware for advanced AI workloads. The track is designed for teams interested in applying AI to real problems through strong execution, technical depth, and experimentation.' },
-  { id: 'oceans-edge', title: "Ocean's Edge Ventures", icon: <FaAnchor />, color: '#0C3A40', description: 'Build tools to help ideas and businesses set sail', detailedDescription: 'Build tech for entrepreneurship and business growth. Create platforms connecting small businesses to customers, financial literacy apps, e-commerce solutions, or market analysis dashboards.' },
-  { id: 'creative-currents', title: 'Creative Currents', icon: <FaPalette />, color: '#8B4513', description: 'Shining light on creative, expressive, interactive tech', detailedDescription: 'Fuse art, design, and technology to push creative boundaries. Build interactive art installations, generative music platforms, AR/VR experiences, or accessibility tools for creative expression. Welcomes all majors beyond "just code."' },
-  { id: 'safe-harbor', title: 'Safe Harbor', icon: <FaShieldAlt />, color: '#0a4e4e', description: 'Explore, test, and secure — within trusted waters', detailedDescription: 'Chart a course through the world of ethical hacking. Safe Harbor invites participants to probe systems responsibly, discover vulnerabilities, and strengthen defenses — all within a protected, fully authorized environment. Tackle web exploits, break misconfigurations, analyze binaries, test authentication flows, or uncover hidden weaknesses in networks.' },
-  { id: 'splashzone', title: 'SplashZone', icon: <GiWaterSplash />, color: '#2f2520', description: 'Make your first splash into hacking and exploration', detailedDescription: 'Perfect for first-time hackers and coding beginners. Build your first website or mobile app, create simple games, experiment with beginner-friendly AI tools, or try anything experimental and fun. Focus on learning, creativity, and growth rather than pressure.' },
-];
-// ─────────────────────────────────────────────────────────────────────────────
+const Tracks = ({ eyebrow }) => {
+  // Ids of the cards whose mission brief is open (several can be open at once).
+  const [openIds, setOpenIds] = useState([]);
 
-const TracksSection = () => {
+  const toggle = (id) =>
+    setOpenIds((ids) => (ids.includes(id) ? ids.filter((openId) => openId !== id) : [...ids, id]));
+
   return (
-    <div className="pirate-tracks">
-      {/* ── Decorative Star Field ───────────────────────────────────────── */}
-      {[1, 2, 3, 4, 5].map((n) => (
-        <img key={n} src={starsSvg} alt="" className={`tracks-star star-${n}`} />
-      ))}
-      {/* ── Track Cards Content ──────────────────────────────────────────── */}
-      <div className="tracks-content">
-        <h1 className="tracks-title">Hackathon Tracks</h1>
-        <p className="tracks-intro">Choose your track and build something amazing!</p>
-        <div className="tracks-grid">
-          {TRACKS.map((track) => (
-            <div key={track.id} className="track-card" style={{ '--track-color': track.color }}>
-              <div className="track-header">
-                <div className="track-icon">{track.icon}</div>
-                <h3 className="track-title">{track.title}</h3>
-                {track.sponsorLogo && (
-                  <img src={track.sponsorLogo} alt="Track Sponsor" className="track-sponsor-logo" />
-                )}
-                <p className="track-subtitle">{track.description}</p>
+    <>
+      <SectionHeading eyebrow={eyebrow} title={TRACKS_INTRO.title} lead={TRACKS_INTRO.lead} />
+
+      <ul className="tracks-grid">
+        {TRACKS.map((track, index) => {
+          const Icon = TRACK_ICONS[track.icon] ?? FaRocket;
+          const isOpen = openIds.includes(track.id);
+          const briefId = `track-brief-${track.id}`;
+          return (
+            <Reveal
+              as="li"
+              key={track.id}
+              className={`card track-card${isOpen ? ' is-open' : ''}`}
+              style={{ '--track-accent': `var(--accent-${track.accent})` }}
+              delay={(index % 3) * 90}
+            >
+              <span className={`track-planet track-planet--${track.motion}`} aria-hidden="true">
+                <span className="track-planet-body">
+                  <Icon />
+                </span>
+              </span>
+
+              <h3 className="track-name">{track.name}</h3>
+              <p className="track-tagline">{track.tagline}</p>
+
+              {/* The button's hit area is stretched over the whole card in Tracks.css. */}
+              <button
+                type="button"
+                className="track-toggle"
+                aria-expanded={isOpen}
+                aria-controls={briefId}
+                onClick={() => toggle(track.id)}
+              >
+                {isOpen ? 'Close mission brief' : 'Open mission brief'}
+                <span className="visually-hidden">: {track.name}</span>
+                <FaChevronDown className="track-chevron" aria-hidden="true" />
+              </button>
+
+              <div id={briefId} className="track-brief">
+                <div className="track-brief-inner">
+                  <p>{track.description}</p>
+                  {track.ideas?.length > 0 && (
+                    <>
+                      <h4>Ideas to get you started</h4>
+                      <ul className="track-ideas">
+                        {track.ideas.map((idea) => (
+                          <li key={idea}>{idea}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="track-content">
-                <p className="track-description">{track.detailedDescription}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+            </Reveal>
+          );
+        })}
+      </ul>
+    </>
   );
 };
 
-export default TracksSection;
-
+export default Tracks;
