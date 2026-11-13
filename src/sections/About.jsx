@@ -1,49 +1,49 @@
-// src/features/about/AboutSection.jsx
-// About section describing the event mission, audience, and community goals.
+// src/sections/About.jsx
+// "About Hack@URI": a few paragraphs beside a quick-facts card.
+// The text is ABOUT in content/site.js.
 
 import React from 'react';
-import starsSvg from '../../assets/stars-bg.svg';
-import '../../shared/styles/shared.css';
-import './AboutSection.css';
+import { FaCalendarAlt, FaMapMarkerAlt, FaTicketAlt, FaUserAstronaut } from 'react-icons/fa';
+import Reveal from '../components/Reveal.jsx';
+import SectionHeading from '../components/SectionHeading.jsx';
+import { ABOUT } from '../content/site.js';
+import './About.css';
 
-// ─── About Content ────────────────────────────────────────────────────────────
-// Edit these paragraphs each year to keep the about section current.
-const ABOUT_PARAGRAPHS = [
-  `Hack@URI is the University of Rhode Island's first-ever hackathon — a
-  celebration of creativity, technology, and collaboration coming this
-  Spring! We're a community of students passionate about creating spaces
-  where others can learn by building — whether it's coding, design,
-  business, or exploring bold new ideas.`,
-
-  `Our mission is to bridge the gap between classroom learning and
-  real-world experience. By bringing together students from all majors,
-  we aim to spark innovation, inspire problem-solving, and connect
-  participants with Rhode Island's growing tech and creative community.`,
-
-  `Whether you're a first-time hacker or a seasoned builder, Hack@URI is
-  your chance to learn something new, meet amazing people, and make
-  something you're proud of.`,
-];
-// ─────────────────────────────────────────────────────────────────────────────
-
-const AboutSection = () => {
-  return (
-    <div className="pirate-about">
-      {/* ── Decorative Star Field ─────────────────────────────────────────── */}
-      {[1, 2, 3, 4, 5].map((n) => (
-        <img key={n} src={starsSvg} alt="" className={`about-star star-${n}`} />
-      ))}
-
-      {/* ── About Copy Blocks ─────────────────────────────────────────────── */}
-      <div className="about-content">
-        <h1>About Hack@URI</h1>
-        {ABOUT_PARAGRAPHS.map((text, i) => (
-          <p key={i}>{text}</p>
-        ))}
-      </div>
-    </div>
-  );
+// Icon for each fact, matched by its label. Facts with other labels get no icon.
+const FACT_ICONS = {
+  When: FaCalendarAlt,
+  Where: FaMapMarkerAlt,
+  Who: FaUserAstronaut,
+  Cost: FaTicketAlt,
 };
 
-export default AboutSection;
+const About = ({ eyebrow }) => (
+  <>
+    <SectionHeading eyebrow={eyebrow} title={ABOUT.title} />
 
+    <div className="about-layout">
+      <Reveal className="about-text">
+        {ABOUT.paragraphs.map((paragraph) => (
+          <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+        ))}
+      </Reveal>
+
+      <Reveal as="dl" className="about-facts card" delay={120}>
+        {ABOUT.facts.map(({ label, value }) => {
+          const Icon = FACT_ICONS[label];
+          return (
+            <div key={label} className="about-fact">
+              <dt>
+                {Icon && <Icon aria-hidden="true" />}
+                {label}
+              </dt>
+              <dd>{value}</dd>
+            </div>
+          );
+        })}
+      </Reveal>
+    </div>
+  </>
+);
+
+export default About;

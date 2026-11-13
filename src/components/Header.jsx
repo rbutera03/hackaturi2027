@@ -1,281 +1,199 @@
-// src/features/layout/components/Header.jsx
-// Site navigation header with:
-//   - Desktop: horizontal nav bar with hover dropdowns
-//   - Mobile: hamburger menu with expandable dropdown sections
-//   - Auto-hides on scroll down, reappears on scroll up
-//   - Highlights the active section based on scroll position
+// src/components/Header.jsx
+// The site header and navigation.
+//
+// The links are NOT listed here. They are built from:
+//   - SECTIONS in content/site.js        (every section with inNav: true)
+//   - FORMS in content/getInvolved.js    (the "Get Involved" menu)
+//   - content/archive/index.js           (the "Archive" menu)
+//
+// Behaviour: one set of markup for every screen size. Below the breakpoint in
+// Header.css it collapses behind a menu button. The bar hides while scrolling
+// down and returns when scrolling up, and highlights the section in view.
+//
+// Props:
+//   scrollRoot  element whose scrolling the header follows (default: the window).
+//               The archive page passes its overlay.
+//   current     id of the nav item to highlight instead of tracking scroll.
+//   solid       always draw the bar's dark backdrop (normally it only appears
+//               once the page has scrolled). Used above themed archive pages.
 
-import React, { useState, useEffect } from 'react';
-import { ARCHIVE_NAV_ITEMS } from '../../archive/data/events/index.js';
-import '../../../shared/styles/shared.css';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaChevronDown } from 'react-icons/fa';
+import { EVENT, SECTIONS } from '../content/site.js';
+import { FORMS } from '../content/getInvolved.js';
+import { ARCHIVE_NAV_ITEMS } from '../content/archive/index.js';
+import logo from '../assets/space-ram-head.webp';
 import './Header.css';
 
-// ─── Navigation Config ────────────────────────────────────────────────────────
-// Each item needs an `id` (matching the section's HTML element ID) and a `label`.
-// Items with a `dropdown` array render as a hover menu on desktop / tap-to-expand on mobile.
-// Dropdown item IDs can be subsection anchors within the parent section.
 const NAV_ITEMS = [
-  { id: 'home',      label: 'Home' },
-  /*{ id: 'about',     label: 'About' },*/
-  { id: 'schedule',  label: 'Schedule' },
-  { id: 'tracks',    label: 'Tracks' },
-  { id: 'faq',       label: 'FAQ' },
-  {
-    id: 'interest',
-    label: 'Get Involved',
-    dropdown: [
-      { id: 'sponsor',   label: 'Sponsor' },
-      { id: 'volunteer', label: 'Volunteer' },
-      { id: 'speaker',   label: 'Guest Speaker' },
-      { id: 'mentor',    label: 'Mentor' },
-      { id: 'judge',     label: 'Judge' },
-    ],
-  },
-  { id: 'sponsors',  label: 'Sponsors' },
-  { id: 'team',      label: 'Team' },
-  { id: 'connect',   label: 'Connect' },
-  {
-    id: 'archive',
-    label: 'Archive',
-    dropdown: ARCHIVE_NAV_ITEMS,
-  },
+  ...SECTIONS.filter((section) => section.inNav).map((section) =>
+    section.id === 'get-involved'
+      ? {
+          ...section,
+          children: [
+            { href: `#${section.id}`, label: 'Overview' },
+            ...FORMS.map((form) => ({ href: `#form-${form.id}`, label: form.navLabel })),
+          ],
+        }
+      : section
+  ),
+  ...(ARCHIVE_NAV_ITEMS.length > 0
+    ? [{ id: 'archive', label: 'Archive', children: ARCHIVE_NAV_ITEMS.map((item) => ({ href: item.id, label: item.label })) }]
+    : []),
 ];
-// ─────────────────────────────────────────────────────────────────────────────
 
-const Header = ({ scrollToSection, scrollContainerRef, scrollRootElement }) => {
-  const isArchiveNav = Boolean(scrollContainerRef);
-  const [activeSection, setActiveSection] = useState(() => (isArchiveNav ? 'archive' : 'home'));
-  const [isVisible, setIsVisible]                 = useState(true);
-  const [scrollHidden, setScrollHidden]           = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen]   = useState(false);
-  const [isMobile, setIsMobile]                   = useState(false);
-  const [openDropdown, setOpenDropdown]           = useState(null);      // desktop hover dropdown
-  const [openMobileDropdown, setOpenMobileDropdown] = useState(null);   // mobile tap dropdown
+const SECTION_IDS = SECTIONS.map((section) => section.id);
 
-  // Track whether we're on mobile to switch between nav layouts
+const Header = ({ scrollRoot = null, current = null, solid = false }) => {
+  const [activeId, setActiveId] = useState('home');
+  const [isHidden, setIsHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // small-screen menu
+  const [openSubmenu, setOpenSubmenu] = useState(null); // id of the open dropdown
+  const headerRef = useRef(null);
+
+  const closeMenus = () => {
+    setIsMenuOpen(false);
+    setOpenSubmenu(null);
+  };
+
+  // Hide on scroll down, show on scroll up, and track the section in view.
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+    const target = scrollRoot ?? window;
+    const getY = () => (scrollRoot ? scrollRoot.scrollTop : window.scrollY);
+    let lastY = getY();
+    let frame = 0;
 
-  useEffect(() => {
-    // Archive overlay should always highlight Archive in nav.
-    if (isArchiveNav) {
-      setActiveSection('archive');
-    }
-  }, [isArchiveNav]);
-
-  // Auto-hide header + active nav: window on main page; overlay element on archive
-  useEffect(() => {
-    if (isArchiveNav && scrollRootElement == null) {
-      return undefined;
-    }
-
-    const scrollRoot = isArchiveNav
-      ? (scrollRootElement ?? scrollContainerRef?.current ?? window)
-      : window;
-    const app = document.querySelector('.app');
-    const overlayEl =
-      scrollRoot !== window && scrollRoot instanceof HTMLElement ? scrollRoot : null;
-
-    let lastY = scrollRoot === window ? window.scrollY : scrollRoot.scrollTop;
-
-    const onScroll = () => {
-      const y = scrollRoot === window ? window.scrollY : scrollRoot.scrollTop;
-
-      const scrollingDown = y > lastY && y > 100;
-      const scrollingUp = y < lastY || y <= 100;
-
-      if (scrollingDown) {
-        setScrollHidden(true);
-        if (scrollRoot === window) {
-          app?.classList.add('scrolled');
-        } else {
-          overlayEl?.classList.add('archive-scrolled');
-        }
-      } else if (scrollingUp) {
-        setScrollHidden(false);
-        if (scrollRoot === window) {
-          app?.classList.remove('scrolled');
-        } else {
-          overlayEl?.classList.remove('archive-scrolled');
-        }
-      }
-
+    const update = () => {
+      frame = 0;
+      const y = getY();
+      setIsScrolled(y > 12);
+      if (y > lastY && y > 120) setIsHidden(true);
+      else if (y < lastY || y <= 120) setIsHidden(false);
       lastY = y;
 
-      if (scrollRoot === window) {
-        for (let i = NAV_ITEMS.length - 1; i >= 0; i--) {
-          const section = document.getElementById(NAV_ITEMS[i].id);
-          if (section && section.offsetTop <= y + 120) {
-            setActiveSection(NAV_ITEMS[i].id);
-            break;
-          }
+      if (!scrollRoot) {
+        const marker = y + window.innerHeight * 0.35;
+        let found = SECTION_IDS[0];
+        for (const id of SECTION_IDS) {
+          const section = document.getElementById(id);
+          if (section && section.offsetTop <= marker) found = id;
         }
+        setActiveId(found);
       }
     };
 
-    scrollRoot.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
 
-    return () => scrollRoot.removeEventListener('scroll', onScroll);
-  }, [isArchiveNav, scrollRootElement, scrollContainerRef]);
+    update();
+    target.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      target.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, [scrollRoot]);
 
-  // Scrolls to a section and optionally flashes it to draw the user's attention.
-  // `highlight: true` is used for dropdown sub-items (e.g. jumping to a specific role card).
-  const handleClick = (id, highlight = false) => {
-    scrollToSection?.(id);
+  // Close open menus with Escape or by clicking anywhere outside the header.
+  const anyMenuOpen = isMenuOpen || openSubmenu !== null;
+  useEffect(() => {
+    if (!anyMenuOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key !== 'Escape') return;
+      closeMenus();
+      headerRef.current?.querySelector('[aria-expanded="true"]')?.focus();
+    };
+    const onPointerDown = (event) => {
+      if (!headerRef.current?.contains(event.target)) closeMenus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+    };
+  }, [anyMenuOpen]);
 
-    if (highlight) {
-      const el = document.getElementById(id);
-      if (el) {
-        // Remove and re-add class to restart the CSS animation
-        el.classList.remove('highlight-section');
-        void el.offsetWidth; // Force reflow
-        el.classList.add('highlight-section');
-        setTimeout(() => el.classList.remove('highlight-section'), 2000);
-      }
-    }
-
-    // Reset all menu state after a nav click
-    setIsVisible(true);
-    setScrollHidden(false);
-    setIsMobileMenuOpen(false);
-    setOpenDropdown(null);
-    setOpenMobileDropdown(null);
-  };
-
-  // Shared reset used after archive jumps to keep nav closed/visible.
-  const openArchive = (hash) => {
-    const targetHash = hash.startsWith('#') ? hash : `#${hash}`;
-    window.location.hash = targetHash.replace(/^##/, '#');
-
-    setIsVisible(true);
-    setScrollHidden(false);
-    setIsMobileMenuOpen(false);
-    setOpenDropdown(null);
-    setOpenMobileDropdown(null);
-  };
+  const highlighted = current ?? activeId;
+  const hidden = isHidden && !anyMenuOpen;
 
   return (
-    <header className={`site-header ${!isVisible || scrollHidden ? 'hidden' : ''}`}>
+    <header
+      ref={headerRef}
+      className={`site-header${hidden ? ' is-hidden' : ''}${solid || isScrolled || isMenuOpen ? ' is-solid' : ''}`}
+    >
       <div className="header-inner">
+        <a className="header-logo" href="#home" onClick={closeMenus}>
+          <img src={logo} alt="" width="37" height="40" />
+          <span>{EVENT.name}</span>
+        </a>
 
-        {/* ── Desktop Navigation ──────────────────────────────────────── */}
-        {!isMobile ? (
-          <nav className="main-nav">
-            {NAV_ITEMS.map((item) =>
-              item.dropdown ? (
-                // Nav item with hover dropdown
-                <div
-                  key={item.id}
-                  className={`nav-item dropdown ${openDropdown === item.id ? 'open' : ''}`}
-                  onMouseEnter={() => setOpenDropdown(item.id)}
-                  onMouseLeave={() => setOpenDropdown(null)}
-                >
-                  <button
-                    className={`nav-btn ${activeSection === item.id ? 'active' : ''}`}
-                    onClick={() => handleClick(item.id)}
-                    data-section={item.id}
-                  >
-                    <strong>{item.label}</strong>
-                  </button>
-                  <div className="dropdown-menu">
-                    {item.dropdown.map((child) => (
-                      <button
-                        key={child.id}
-                        className="dropdown-item"
-                        onClick={() =>
-                          child.id.startsWith('#archive-')
-                            ? openArchive(child.id)
-                            : handleClick(child.id, true)
-                        }
-                      >
-                        {child.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                // Standard nav button
-                <button
-                  key={item.id}
-                  className={`nav-btn ${activeSection === item.id ? 'active' : ''}`}
-                  onClick={() => handleClick(item.id)}
-                  data-section={item.id}
-                >
-                  <strong>{item.label}</strong>
-                </button>
-              )
-            )}
-          </nav>
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={isMenuOpen}
+          aria-controls="site-nav"
+          onClick={() => {
+            setIsMenuOpen((open) => !open);
+            setOpenSubmenu(null);
+          }}
+        >
+          <span className={`nav-toggle-icon${isMenuOpen ? ' is-open' : ''}`} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="visually-hidden">{isMenuOpen ? 'Close menu' : 'Open menu'}</span>
+        </button>
 
-        ) : (
-          // ── Mobile Navigation ────────────────────────────────────────
-          <>
-            <button
-              className="mobile-menu-toggle"
-              onClick={() => setIsMobileMenuOpen((v) => !v)}
-              aria-label="Toggle navigation menu"
-            >
-              <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
-                <span /><span /><span />
-              </div>
-            </button>
+        <nav id="site-nav" className={`site-nav${isMenuOpen ? ' is-open' : ''}`} aria-label="Main">
+          <ul className="nav-list">
+            {NAV_ITEMS.map((item) => {
+              const isCurrent = highlighted === item.id;
 
-            <nav className={`mobile-nav ${isMobileMenuOpen ? 'open' : ''}`}>
-              {NAV_ITEMS.map((item) =>
-                item.dropdown ? (
-                  // Mobile expandable dropdown
-                  <div
-                    key={item.id}
-                    className={`mobile-dropdown ${openMobileDropdown === item.id ? 'open' : ''}`}
-                  >
-                    <button
-                      className={`mobile-nav-btn ${activeSection === item.id ? 'active' : ''}`}
-                      onClick={() =>
-                        setOpenMobileDropdown(openMobileDropdown === item.id ? null : item.id)
-                      }
-                      data-section={item.id}
+              if (!item.children) {
+                return (
+                  <li key={item.id} className="nav-item">
+                    <a
+                      className={`nav-link${isCurrent ? ' is-current' : ''}`}
+                      href={`#${item.id}`}
+                      aria-current={isCurrent ? 'true' : undefined}
+                      onClick={closeMenus}
                     >
-                      <strong>{item.label}</strong>
-                    </button>
-                    {openMobileDropdown === item.id && (
-                      <div className="mobile-dropdown-menu">
-                        {item.dropdown.map((child) => (
-                          <button
-                            key={child.id}
-                            className="mobile-dropdown-item"
-                            onClick={() =>
-                              child.id.startsWith('#archive-')
-                                ? openArchive(child.id)
-                                : handleClick(child.id, true)
-                            }
-                          >
-                            {child.label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // Standard mobile nav button
-                  <button
-                    key={item.id}
-                    className={`mobile-nav-btn ${activeSection === item.id ? 'active' : ''}`}
-                    onClick={() => handleClick(item.id)}
-                    data-section={item.id}
-                  >
-                    <strong>{item.label}</strong>
-                  </button>
-                )
-              )}
-            </nav>
-          </>
-        )}
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              }
 
+              const isOpen = openSubmenu === item.id;
+              return (
+                <li key={item.id} className={`nav-item nav-item--menu${isOpen ? ' is-open' : ''}`}>
+                  <button
+                    type="button"
+                    className={`nav-link${isCurrent ? ' is-current' : ''}`}
+                    aria-expanded={isOpen}
+                    aria-controls={`submenu-${item.id}`}
+                    onClick={() => setOpenSubmenu(isOpen ? null : item.id)}
+                  >
+                    {item.label}
+                    <FaChevronDown className="nav-chevron" aria-hidden="true" />
+                  </button>
+                  <ul id={`submenu-${item.id}`} className="nav-submenu">
+                    {item.children.map((child) => (
+                      <li key={child.href}>
+                        <a className="nav-sublink" href={child.href} onClick={closeMenus}>
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
     </header>
   );

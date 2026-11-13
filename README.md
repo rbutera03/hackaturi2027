@@ -1,314 +1,141 @@
 # Hack@URI Website
 
-Single-page React + Vite site for Hack@URI 2026, organized by feature folders.
+The website for Hack@URI, the University of Rhode Island's student-run hackathon. It is a single-page React + Vite site.
+
+**Updating the site for a new year?** Follow [docs/yearly-update-checklist.md](docs/yearly-update-checklist.md). Almost everything you need to edit is in `src/content/`.
+
+**Want to know why the code is laid out this way?** Read [docs/2027-redesign-changes.md](docs/2027-redesign-changes.md).
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+
+- [Node.js](https://nodejs.org/) 20.19 or newer (or 22.12+). Older 20.x versions build with a warning.
 - [npm](https://www.npmjs.com/) (bundled with Node.js)
 
 ## Setup
 
-1. Clone the repository:
-  ```bash
-   git clone https://github.com/muolii/hackaturi2025.git
-   cd hackaturi2025
-  ```
-2. Install dependencies:
-  ```bash
-   npm install
-  ```
+```bash
+git clone https://github.com/rbutera03/hackaturi2027.git
+cd hackaturi2027
+npm install
+```
 
 ## Scripts
 
-- Start dev server:
-  ```bash
-  npm run dev
-  ```
-- Build production bundle:
-  ```bash
-  npm run build
-  ```
-- Preview production build locally:
-  ```bash
-  npm run preview
-  ```
-- Run lint:
-  ```bash
-  npm run lint
-  ```
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Starts the dev server (usually at http://localhost:5173) and reloads as you edit |
+| `npm run lint` | Checks the code with ESLint |
+| `npm run build` | Builds the production site into `dist/` |
+| `npm run preview` | Builds, then serves the production build locally with Wrangler |
+| `npm run deploy` | Builds, then deploys to Cloudflare with Wrangler (settings in `wrangler.jsonc`) |
 
-## Current Project Structure
+## Seeing the full site while it is hidden
 
-Code is organized by feature. Some features now follow a nested structure (`components/`, `pages/`, `data/`) similar to `schedule`.
+While `SITE_FLAGS.siteHidden` is `true` in `src/content/site.js`, visitors only see the landing page. To see the full site, select **Preview** in the bottom corner of the landing page and enter the code from `SITE_FLAGS.previewCode`. Your browser remembers it; use "Preview mode: back to the landing page" in the footer to undo it.
+
+The code is visible to anyone who reads the page source. It keeps casual visitors out and is not a password.
+
+## Project structure
 
 ```text
 src/
-├── app/
-│   └── App.jsx
-├── assets/
-├── features/
-│   ├── about/
-│   │   ├── AboutSection.jsx
-│   │   ├── AboutSection.css
-│   │   └── index.js
-│   ├── connect/
-│   │   ├── ConnectSection.jsx
-│   │   ├── ConnectSection.css
-│   │   └── index.js
-│   ├── archive/
-│   │   ├── ArchivePage.jsx
-│   │   ├── ArchivePage.css
-│   │   ├── components/
-│   │   │   ├── Winners.jsx
-│   │   │   └── Winners.css
-│   │   └── data/
-│   ├── faq/
-│   │   ├── FAQSection.jsx
-│   │   ├── FAQSection.css
-│   │   └── index.js
-│   ├── home/
-│   │   ├── HomeSection.jsx
-│   │   ├── HomeSection.css
-│   │   ├── components/
-│   │   │   ├── Countdown.jsx
-│   │   │   └── Countdown.css
-│   │   ├── pages/
-│   │   │   ├── LandingPage.jsx
-│   │   │   └── LandingPage.css
-│   │   └── index.js
-│   ├── interest/
-│   │   ├── InterestSection.jsx
-│   │   ├── InterestSection.css
-│   │   └── index.js
-│   ├── layout/
-│   │   ├── components/
-│   │   │   ├── Header.jsx
-│   │   │   ├── Header.css
-│   │   │   ├── Footer.jsx
-│   │   │   ├── Footer.css
-│   │   │   ├── BottomBanner.jsx
-│   │   │   └── BottomBanner.css
-│   │   └── index.js
-│   ├── registration/
-│   │   ├── components/
-│   │   │   ├── RegistrationPopup.jsx
-│   │   │   ├── RegistrationPopup.css
-│   │   │   ├── FloatingRegistration.jsx
-│   │   │   └── FloatingRegistration.css
-│   │   └── index.js
-│   ├── schedule/
-│   │   ├── ScheduleSection.jsx
-│   │   ├── ScheduleSection.css
-│   │   ├── components/
-│   │   │   ├── ScheduleCalendar.jsx
-│   │   │   ├── UpNext.jsx
-│   │   │   └── WorkshopModal.jsx
-│   │   ├── pages/
-│   │   │   └── SchedulePage.jsx
-│   │   ├── data/
-│   │   └── index.js
-│   ├── sponsors/
-│   ├── team/
-│   └── tracks/
-├── shared/
-│   └── styles/
-│       └── shared.css
-├── index.jsx
-└── index.css
+├── App.jsx            decides what is on screen (landing page, full site, overlay pages)
+├── index.jsx          entry point
+├── content/           everything that changes yearly: text, dates, links, people
+│   ├── site.js          event facts, section order, contact, socials, MLH, flags
+│   ├── tracks.js, whyJoin.js, sponsors.js, getInvolved.js,
+│   │   schedule.js, faq.js, team.js, miniEvent.js
+│   └── archive/         one file per past event
+├── theme/             the look of the site
+│   ├── tokens.css       colours, fonts, spacing (re-theme here)
+│   ├── base.css         shared styles: sections, cards, buttons, tabs
+│   ├── Starfield.jsx    animated star background (planets and the rocket in SpaceDecor.jsx)
+│   └── archive/         frozen themes that past events keep on their archive pages
+├── sections/          one component (and stylesheet) per home page section
+├── pages/             full-screen pages: landing, schedule, mini-event, archive
+├── components/        pieces shared by several sections or pages
+└── assets/            images imported by code
+public/
+└── images/            sponsor logos, team photos, speaker photos, past-event photos
+docs/                  the update checklist and the redesign notes
 ```
 
-## Architecture Notes
+## How it works
 
-- No React Router; app is a single scroll page.
-- `App.jsx` listens for `#full-schedule` and renders the schedule overlay page.
-- `App.jsx` also listens for `#archive-<eventId>` and renders the archive overlay page.
-- Feature folders expose public entry points through `index.js` files.
+- There is no router. The home page is one long page, and the header links jump to its sections.
+- `SECTIONS` in `src/content/site.js` sets the order of the sections and which ones get a header link.
+- Three kinds of full-screen page open on top of the site, chosen by the address:
+  - `#full-schedule` opens the schedule page (only while the schedule is published).
+  - `#mini-event` opens the fall mini-event page (only while it is enabled; `#rapid-build` also works).
+  - `#archive-<id>` opens a past event, for example `#archive-2026`.
+- Features that are not ready stay off until their content is filled in:
+  - A form button is disabled until its `url` is set (`src/content/getInvolved.js`).
+  - A sponsor is shown only when it has `confirmed: true` (`src/content/sponsors.js`).
+  - The schedule is shown only when `published` is `true` (`src/content/schedule.js`).
 
-## Naming Conventions
+## Common tasks
 
-Use these conventions for all new code and when touching existing files:
+The [checklist](docs/yearly-update-checklist.md) has a full "Where do I change...?" table. The most common:
 
-### JavaScript / JSX
+| Task | Where |
+| --- | --- |
+| Change the event date, venue, or countdown | `EVENT` in `src/content/site.js` |
+| Open a sign-up form | paste its link as the `url` in `src/content/getInvolved.js` |
+| Show a confirmed sponsor | set `confirmed: true` in `src/content/sponsors.js` |
+| Publish the schedule | fill in `src/content/schedule.js`, then set `published: true` |
+| Make the full site public | set `SITE_FLAGS.siteHidden` to `false` in `src/content/site.js` |
+| Add a past event | add a file in `src/content/archive/` and list it in `index.js` there |
+| Change colours or fonts | `src/theme/tokens.css` |
 
-- `camelCase` for variables and functions
-- `PascalCase` for React components
-- `CONSTANT_CASE` for module-level constants/config objects
+### Adding a section
 
-### CSS
+1. Create `src/sections/MySection.jsx` (and a `.css` file if needed). `About.jsx` is a small one to copy.
+2. Put its text in a new file in `src/content/`.
+3. In `src/App.jsx`, import it and add it to `SECTION_COMPONENTS`.
+4. In `src/content/site.js`, add a line to `SECTIONS` where it should appear.
 
-- `kebab-case` class names
-- Avoid feature-local BEM element naming with `__` (use kebab-case equivalents instead)
+## Conventions
 
-### Contract Boundaries
+- **Content stays out of components.** Text, dates, links, and names go in `src/content/`.
+- **Colours come from tokens.** In CSS, use the role tokens from `src/theme/tokens.css` (`var(--color-accent)`, `var(--color-surface)`, and so on) instead of writing colour values. This is what lets the theme change in one place and lets archive pages wear their own colours.
+- **Reuse the shared styles** in `src/theme/base.css` before writing new ones: `.card`, `.btn`, `.tabs`, `.pill`, `.section-heading`.
+- **Naming:** `PascalCase` for components, `camelCase` for variables and functions, `CONSTANT_CASE` for the exported content objects, and `kebab-case` for CSS classes.
+- **Accessibility:** use real `<a>` and `<button>` elements, give images `alt` text, and do not remove focus outlines. Animations must respect the reduced-motion rules at the bottom of `base.css`.
+- Run `npm run lint` before opening a pull request.
 
-- Avoid broad renames of shared/global hooks in `src/shared/styles/shared.css` unless doing a coordinated repo-wide update.
-- Be careful with dynamic state classes (`active`, `open`, `hidden`, etc.) that are toggled in JSX logic.
+## Testing in other browsers
 
-## Common Yearly Updates
-
-When updating yearly values, preserve naming conventions for any new symbols/classes added in the same files.
-
-### Event title/date/home content
-
-- `src/features/home/HomeSection.jsx`
-  - `EVENT_DATE_DISPLAY`
-  - `EVENT_TITLE`
-  - `SHOW_PROJECT_GALLERY`, links, sponsor lockups
-- `src/features/home/components/Countdown.jsx`
-  - `EVENT_START`
-  - `SUBMISSION_DUE`
-
-### Landing (pre-launch) page
-
-- `src/features/home/pages/LandingPage.jsx`
-  - `LANDING_CONFIG`
-  - `MLH_BADGE`
-- `src/app/App.jsx`
-  - `SITE_HIDDEN` and reveal behavior
-
-### Schedule
-
-- `src/features/schedule/data/scheduleData.js` (source of truth)
-- `src/features/schedule/components/*`
-- `src/features/schedule/pages/SchedulePage.jsx`
-- Schedule section wrappers use schedule-specific naming (`schedule-content`, `schedule-star`) in `ScheduleSection`/`SchedulePage`.
-
-### FAQ
-
-- `src/features/faq/FAQSection.jsx`
-  - `FAQ_TABS`
-  - `FAQ_DATA`
-
-### Team
-
-- `src/features/team/TeamSection.jsx`
-  - `TEAM_TABS`
-  - `TEAM_DATA`
-
-### Sponsors/Donors
-
-- `src/features/sponsors/SponsorsSection.jsx`
-  - `SPONSOR_TIERS`
-  - `DONORS`
-- Sponsor image assets in `public/images/sponsors/`
-
-### Registration callouts
-
-- `src/features/registration/components/RegistrationPopup.jsx`
-- `src/features/registration/components/FloatingRegistration.jsx`
-  - `REGISTRATION_DEADLINE`
-  - `REGISTRATION_URL`
-
-### Navigation
-
-- `src/features/layout/components/Header.jsx`
-  - `NAV_ITEMS`
-
-### Archive (past events / winners)
-
-The archive is an overlay page opened via the URL hash `#archive-<eventId>` (for example `#archive-2026`). The header “Archive” dropdown is generated from `ARCHIVE_NAV_ITEMS`, so adding a new event automatically adds a new dropdown entry.
-
-- **Page**: `src/features/archive/ArchivePage.jsx`
-- **Event data (source of truth)**:
-  - `src/features/archive/data/events/index.js`
-  - `src/features/archive/data/events/<event>.js` (example: `hackaturi2026.js`)
-- **Winners UI**: `src/features/archive/components/Winners.jsx`
-- **Photo assets**: `public/images/past-events/<eventFolder>/...`
-
-#### Adding a new archive event
-
-1. Create a new event file in `src/features/archive/data/events/` (copy an existing one like `hackaturi2026.js`).
-  - Keep the module-level exported event object in `CONSTANT_CASE` (example: `HACKATURI_2026`).
-2. Add it to `ARCHIVE_EVENTS` in `src/features/archive/data/events/index.js` (order matters; the first item becomes `DEFAULT_ARCHIVE_EVENT_ID`).
-3. Set a unique:
-  - `id` (used in the hash: `#archive-<id>`)
-  - `navLabel` (used in the header dropdown)
-4. Photos / hero carousel:
-  - Prefer using `photoDirectory: '/public/images/past-events/<eventFolder>'`
-  - Put images under `public/images/past-events/<eventFolder>/` and the carousel will auto-load them (sorted by filename).
-  - If you don’t want repo-hosted images, you can use `heroImages: [...]` as a fallback list of explicit image URLs.
-5. Winners:
-  - `winners.announced` toggles “Winners have not been announced…” vs the winners grid.
-  - Each `winners.items[]` entry expects:
-    - `projectName`, `teamMembers` (array), `description`, `tracks` (array), `image` (optional), `devpostUrl`
-
-### Footer
-
-- `src/features/layout/components/Footer.jsx`
-  - `FOOTER_CONFIG.year`
-
-## Adding a New Section
-
-1. Create `src/features/<feature>/<FeatureName>Section.jsx`.
-2. Create `src/features/<feature>/<FeatureName>Section.css`.
-3. Export it from `src/features/<feature>/index.js`.
-4. Render it in `src/app/App.jsx` with a section ID.
-5. Add a matching nav item in `src/features/layout/components/Header.jsx`.
-6. Follow naming conventions:
-  - component names: `PascalCase`
-  - local vars/functions: `camelCase`
-  - module constants: `CONSTANT_CASE`
-  - CSS classes: `kebab-case`
-
-## Contributing Style Checklist
-
-Before opening a PR:
-
-- Naming conventions are followed (JS/JSX/CSS).
-- Section/comment style stays consistent with neighboring files.
-- Renames have no stale symbol/class references.
-- Lint passes:
-  ```bash
-  npm run lint
-  ```
-
-## Styling
-
-- Shared/global styles: `src/shared/styles/shared.css`
-- Feature styles: colocated with feature components
-- Prefer scoped selectors in feature CSS to avoid cross-feature conflicts
-
-## Deployment
-
-Build and deploy the `dist/` output:
-
-```bash
-npm run build
-```
-
-Deploy `dist/` to your static host (Netlify, Vercel, GitHub Pages, S3, etc.).
+[playwright.md](playwright.md) explains how to open the local site in Chromium, Firefox, and WebKit (Safari's engine).
 
 ## Troubleshooting
 
 ### Port already in use
 
 ```bash
-npx kill-port 5173
 npm run dev -- --port 3000
 ```
 
-### Dependency issues
+### Dependency problems
 
 PowerShell:
 
 ```powershell
 Remove-Item -Recurse -Force node_modules
-Remove-Item -Force package-lock.json
 npm install
 ```
 
 macOS/Linux:
 
 ```bash
-rm -rf node_modules package-lock.json
+rm -rf node_modules
 npm install
 ```
 
-### HMR not updating
+### Changes not showing up
 
-- Confirm you are running `npm run dev`
-- Hard refresh browser (`Ctrl+Shift+R`)
+- Confirm `npm run dev` is still running.
+- Hard refresh the browser (`Ctrl+Shift+R`).
+- If you are looking at the landing page instead of the site, see "Seeing the full site while it is hidden" above.
 
 ## License
 

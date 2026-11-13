@@ -1,221 +1,128 @@
-/* ==========================================================================
-   UpNext.css — Schedule "Up Next" widget styles
-   Depends on: shared.css (slideDown + pulse keyframes, font vars)
-   ========================================================================== */
+/* UpNext.css — live "Happening now / Up next" card */
 
-/* ==========================================================================
-   1. NEXT-UP EVENT CARD
-   ========================================================================== */
-
-.next-event-section {
-  max-width: 800px;
-  margin: 0 auto 30px;
-  animation: slideDown 0.5s ease-out;
+.upnext {
+  display: grid;
+  gap: 18px;
+  max-width: 860px;
+  margin: 0 auto clamp(18px, 3vw, 28px);
+  border-color: var(--color-accent-warm);
 }
 
-.next-event-card {
-  background: #0C3A40;
-  color: #F6E9C8;
-  padding: 20px 30px;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(12, 58, 64, 0.3);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border: 2px solid #F6E9C8;
+.upnext section + section {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-soft);
 }
 
-.next-event-label {
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: 2px;
+.upnext-label {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  opacity: 1;
-  margin-bottom: 5px;
+  gap: 6px 10px;
+  margin-bottom: 10px;
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent-warm);
 }
 
-/* Pulsing "live" dot */
-.pulse-icon {
-  width: 12px;
-  height: 12px;
-  background: #27AE60;
+.upnext-label--now {
+  color: var(--color-success);
+}
+
+.upnext-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  box-shadow: 0 0 0 rgba(39, 174, 96, 0.4);
-  animation: pulse 2s infinite; /* pulse keyframe lives in shared.css */
+  background: currentColor;
+  animation: upnext-pulse 2s ease-out infinite;
 }
 
-.next-event-content {
+@keyframes upnext-pulse {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+.upnext-countdown {
+  margin-left: auto;
+  color: var(--color-heading);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.upnext-list {
+  display: grid;
+  gap: 8px;
+}
+
+.upnext-event {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-}
-
-.next-event-info h4 {
-  font-size: 1.8rem;
-  margin: 0 0 8px 0;
-  font-weight: 800;
-  line-height: 1.2;
+  justify-content: space-between;
+  gap: 8px 16px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-soft);
   text-align: left;
 }
 
-.next-event-details {
-  display: flex;
-  gap: 20px;
-  font-size: 0.95rem;
-  opacity: 0.8;
-}
-
-.next-event-details span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.next-event-type {
-  padding: 6px 15px;
-  border-radius: 8px;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: white;
-}
-
-/* Right column: countdown timer + event type badge */
-.next-event-right-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  text-align: right;
-}
-
-.countdown-display {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.2);
-  padding: 8px 15px;
-  border-radius: 10px;
-  width: fit-content;
-  font-size: 0.85rem;
-  border: 1px solid rgba(246, 233, 200, 0.2);
-}
-
-.countdown-display strong {
-  font-family: 'Courier New', Courier, monospace;
-  color: #27AE60;
-  font-size: 1.1rem;
-  letter-spacing: 1px;
-}
-
-.hourglass {
-  color: #F6E9C8;
-  animation: rotateHourglass 2s infinite ease-in-out;
-}
-
-@keyframes rotateHourglass {
-  0%   { transform: rotate(0deg);   }
-  50%  { transform: rotate(180deg); }
-  100% { transform: rotate(180deg); }
-}
-
-/* ==========================================================================
-   2. UP NEXT — CLICKABLE EVENT ROWS
-   ========================================================================== */
-
-.next-event-content.upnext-clickable {
+.upnext-event.is-clickable {
   cursor: pointer;
-  border-radius: 10px;
-  padding: 8px;
-  margin: -8px;
-  transition: background 0.18s ease, transform 0.18s ease;
+  transition:
+    border-color var(--duration-base) ease,
+    transform var(--duration-fast) ease;
 }
 
-.next-event-content.upnext-clickable:hover {
-  background: rgba(246, 233, 200, 0.1);
-  transform: translateX(4px);
+.upnext-event.is-clickable:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
 }
 
-.next-event-content.upnext-clickable:active {
-  transform: translateX(2px);
+.upnext-event-info {
+  display: grid;
+  gap: 2px;
 }
 
-.upnext-click-hint {
-  margin-left: 7px;
-  font-size: 0.78em;
-  opacity: 0.8;
-  vertical-align: middle;
+.upnext-event-title {
+  color: var(--color-heading);
+  font-weight: 600;
 }
 
-/* ==========================================================================
-   3. HAPPENING NOW — label + divider variants
-   ========================================================================== */
-
-/* Red "live camera" label */
-.now-label {
-  color: #ff4444;
+.upnext-event-title svg {
+  margin-left: 8px;
+  vertical-align: -2px;
+  color: var(--color-accent);
 }
 
-.now-label .pulse-icon--green {
-  background: #ff4444;
-  box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
-  animation: pulseRed 1.4s ease-out infinite;
-}
-
-@keyframes pulseRed {
-  0%   { box-shadow: 0 0 0 0   rgba(255, 68, 68, 0.7); }
-  70%  { box-shadow: 0 0 0 9px rgba(255, 68, 68, 0);   }
-  100% { box-shadow: 0 0 0 0   rgba(255, 68, 68, 0);   }
-}
-
-/* Distinct divider between "Happening Now" and "Up Next" */
-.upnext-section-divider {
+.upnext-event-meta {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 18px 0;
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 2.5px;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.upnext-event-meta svg {
+  vertical-align: -1px;
+}
+
+.upnext-event-type {
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-family: var(--font-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(246, 233, 200, 0.35);
+  white-space: nowrap;
 }
-
-.upnext-section-divider::before,
-.upnext-section-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(246, 233, 200, 0.25);
-}
-
-.upnext-section-divider::after {
-  background: rgba(246, 233, 200, 0.25);
-}
-
-/* ==========================================================================
-   4. RESPONSIVE
-   ========================================================================== */
-
-@media (max-width: 600px) {
-  .next-event-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .next-event-type { align-self: flex-start; }
-
-  .next-event-right-col {
-    align-items: center;
-    width: 100%;
-  }
-
-  .countdown-display {
-    width: 100%;
-    justify-content: center;
-  }
-}
-

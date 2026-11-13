@@ -1,0 +1,341 @@
+/* The sky sits above the page gradient (body::before) and below all content.
+   .starfield is the wrapper so the canvas and the planets stay visible while
+   an overlay page is open (see the :not() rule in base.css). */
+
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.starfield-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+/* ── Planets, rockets, satellite ──────────────────────────────────────────── */
+
+.space-decor {
+  position: absolute;
+  inset: 0;
+}
+
+.space-decor__item {
+  position: absolute;
+  max-width: none;
+  filter: drop-shadow(0 0 18px rgba(0, 255, 255, 0.18));
+}
+
+/* A faint galaxy disc behind everything. */
+.space-decor__orbit {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(90vw, 1100px);
+  height: min(52vw, 640px);
+  border: 1px dashed rgba(215, 222, 252, 0.14);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-16deg);
+}
+
+.space-decor__saturn {
+  left: -8%;
+  top: 8%;
+  width: clamp(140px, 18vw, 220px);
+  animation: float-y 9s ease-in-out infinite;
+  filter: drop-shadow(0 0 28px rgba(255, 229, 102, 0.28));
+}
+
+.space-decor__pink {
+  right: -10%;
+  bottom: 2%;
+  width: clamp(88px, 12vw, 160px);
+  animation: float-y 7.5s 0.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgba(255, 78, 205, 0.32));
+}
+
+.space-decor__moon {
+  left: -12px;
+  top: 11%;
+  width: clamp(44px, 6vw, 78px);
+  animation: float-y 8s 0.4s ease-in-out infinite;
+}
+
+.space-decor__mint {
+  right: 4%;
+  top: 44%;
+  width: clamp(40px, 5.5vw, 72px);
+  animation: float-y 6.5s 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px rgba(110, 243, 177, 0.28));
+}
+
+.space-decor__cyan {
+  left: -8px;
+  bottom: 10%;
+  width: clamp(32px, 4.5vw, 56px);
+  animation: float-y 7s 0.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(0, 255, 255, 0.35));
+}
+
+.space-decor__satellite {
+  right: -1%;
+  top: auto;
+  bottom: 34%;
+  left: auto;
+  width: clamp(56px, 8vw, 88px);
+  animation: float-y 10s 0.6s ease-in-out infinite;
+}
+
+.space-decor__asteroids {
+  left: 1%;
+  top: 12%;
+  width: clamp(48px, 7vw, 90px);
+  opacity: 0.7;
+  animation: float-y 11s ease-in-out infinite;
+  filter: none;
+}
+
+/* The rocket crosses the screen from left to right along the lane that starts
+   at `top`. Its path and angle are in the rocket-cruise keyframes below. */
+.space-decor__rocket {
+  left: 0;
+  top: 88%;
+  width: clamp(44px, 5.5vw, 72px);
+  overflow: visible; /* the flame flickers past the edge of the drawing */
+  animation: rocket-cruise 42s linear infinite;
+  filter: drop-shadow(0 0 14px rgba(0, 255, 255, 0.4));
+}
+
+.space-decor__flame {
+  transform-origin: 36px 54px;
+  animation: flame-flicker 0.55s ease-in-out infinite;
+}
+
+.space-decor__flame-core {
+  transform-origin: 36px 54px;
+  animation: flame-flicker 0.4s 0.1s ease-in-out infinite;
+}
+
+.space-decor__sparkle {
+  width: 14px;
+  color: #fff4a3;
+  animation: sparkle-twinkle 3.4s ease-in-out infinite;
+  filter: none;
+}
+
+.space-decor__sparkle--a {
+  left: 22%;
+  top: 8%;
+  display: none;
+}
+
+.space-decor__sparkle--b {
+  right: 18%;
+  top: 28%;
+  color: var(--space-cyan);
+  animation-delay: 0.8s;
+}
+
+.space-decor__sparkle--c {
+  right: 12%;
+  bottom: 28%;
+  color: var(--space-pink);
+  animation-delay: 1.6s;
+}
+
+.space-decor__sparkle--d {
+  left: 28%;
+  bottom: 16%;
+  animation-delay: 2.2s;
+  display: none;
+}
+
+/* A straight flight to the right, climbing 8 degrees. Both distances are in vw
+   so the slope is the same on every screen: 17.4 / 124 = tan(8deg). Keep the
+   rotate() equal to that angle so the nose points where the rocket is going. */
+@keyframes rocket-cruise {
+  from {
+    transform: translate(-12vw, 0) rotate(-8deg);
+  }
+
+  to {
+    transform: translate(112vw, -17.4vw) rotate(-8deg);
+  }
+}
+
+@keyframes flame-flicker {
+  50% {
+    transform: scaleY(1.18) scaleX(0.9);
+    opacity: 0.75;
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7) rotate(0deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(20deg);
+  }
+}
+
+/* Phones: keep a couple of planets, drop the rest so the ram and the text
+   have the sky to themselves. */
+@media (max-width: 720px) {
+  .space-decor__orbit,
+  .space-decor__mint,
+  .space-decor__cyan,
+  .space-decor__satellite,
+  .space-decor__asteroids,
+  .space-decor__sparkle--b,
+  .space-decor__sparkle--c,
+  .space-decor__sparkle--d {
+    display: none;
+  }
+
+  .space-decor__saturn {
+    left: -8%;
+    top: 12%;
+    width: 120px;
+  }
+
+  .space-decor__pink {
+    top: 16%;
+    right: -8%;
+    bottom: auto;
+    width: 72px;
+  }
+
+  .space-decor__moon {
+    width: 40px;
+    left: 3%;
+    top: 4%;
+  }
+
+  .space-decor__rocket {
+    width: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .space-decor__rocket,
+  .space-decor__moon {
+    display: none;
+  }
+}
+
+/* ── Landing page ─────────────────────────────────────────────────────────
+   The landing page has its own arrangement, built around its layout. These
+   rules come after the general ones above so they win at every width. */
+
+/* Two columns (ram on the left, card in the middle): the left keeps two
+   planets clear of the ram, and the rest sit in the strip right of the card.
+   The rocket's lane runs under the ram. */
+@media (min-width: 861px) {
+  .app--landing .space-decor__moon,
+  .app--landing .space-decor__sparkle--b,
+  .app--landing .space-decor__sparkle--d {
+    display: none;
+  }
+
+  .app--landing .space-decor__saturn {
+    left: -4%;
+    top: 3%;
+    width: clamp(130px, 15vw, 200px);
+  }
+
+  .app--landing .space-decor__cyan {
+    left: 33%;
+    bottom: 5%;
+  }
+
+  .app--landing .space-decor__satellite {
+    right: 7%;
+    top: 34%;
+    rotate: -25deg;
+    bottom: auto;
+    width: clamp(56px, 8vw, 96px);
+  }
+
+  .app--landing .space-decor__mint {
+    left: 3%;
+    top: 60%;
+  }
+
+  .app--landing .space-decor__pink {
+    right: -2%;
+    bottom: 9%;
+  }
+
+  .app--landing .space-decor__asteroids {
+    left: 32%;
+    top: 13%;
+  }
+
+  .app--landing .space-decor__sparkle--a {
+    display: block;
+    left: 27%;
+    top: 9%;
+  }
+}
+
+/* Stacked (ram above the card): only the sky around the ram is free, so one
+   planet sits on each side of it and the rocket flies past behind it. */
+@media (max-width: 860px) {
+  .app--landing .space-decor__orbit,
+  .app--landing .space-decor__moon,
+  .app--landing .space-decor__mint,
+  .app--landing .space-decor__cyan,
+  .app--landing .space-decor__satellite,
+  .app--landing .space-decor__asteroids,
+  .app--landing .space-decor__sparkle--b,
+  .app--landing .space-decor__sparkle--c,
+  .app--landing .space-decor__sparkle--d {
+    display: none;
+  }
+
+  .app--landing .space-decor__saturn {
+    left: -36px;
+    top: 12%;
+    width: clamp(96px, 30vw, 120px);
+  }
+
+  /* Kept below the MLH badge on short screens. */
+  .app--landing .space-decor__pink {
+    top: max(16%, 124px);
+    right: max(-8%, -30px);
+    bottom: auto;
+    width: 72px;
+  }
+
+  .app--landing .space-decor__rocket {
+    display: block;
+    top: 30%;
+    width: 44px;
+  }
+}
+
+/* Reduced motion: the rocket is parked on its lane instead of flying (base.css
+   cuts every animation short, which would otherwise leave it off-screen). */
+@media (prefers-reduced-motion: reduce) {
+  .space-decor__rocket,
+  .app--landing .space-decor__rocket {
+    left: 5%;
+    transform: rotate(-8deg);
+    animation: none;
+  }
+
+  .space-decor__flame,
+  .space-decor__flame-core {
+    animation: none;
+  }
+}

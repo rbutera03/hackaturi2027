@@ -1,157 +1,121 @@
-// src/features/home/components/Countdown.jsx
-// Multi-phase countdown timer that automatically transitions through states:
+// src/components/Countdown.jsx
+// Countdown to the event. The dates come from EVENT in content/site.js; there
+// is nothing to edit here from year to year.
 //
-//   Phase 1 — "calm"    (> 24h before EVENT_START):  classic wood style
-//   Phase 2 — "active"  (≤ 24h before start OR during event before deadline):
-//                        nautical urgent style with time-based color:
-//                          blue  — 24h–11h remaining
-//                          yellow — 10h–2h remaining
-//                          red    — under 2h remaining
-//   Phase 3 — "done"    (after SUBMISSION_DUE): celebration message
+// It moves through these phases on its own:
+//   "calm"    more than 24 hours before EVENT.start: days / hours / minutes / seconds
+//   "active"  the last 24 hours before the start, then the hacking period until
+//             EVENT.submissionsDue. The colour shifts as time runs out:
+//               cyan (11+ hours left), yellow (2 to 11 hours), red (under 2 hours)
+//   "done"    after EVENT.submissionsDue: a closing message
 
 import React, { useEffect, useState } from 'react';
-import '../../../shared/styles/shared.css';
+import { EVENT } from '../content/site.js';
 import './Countdown.css';
 
-// ─── Countdown Config Controls ────────────────────────────────────────────────
-const EVENT_START    = '2026-04-21T08:00:00';
-const SUBMISSION_DUE = '2026-04-22T09:00:00';
-// ─────────────────────────────────────────────────────────────────────────────
+const START = new Date(EVENT.start).getTime();
+const DUE = new Date(EVENT.submissionsDue).getTime();
+const HOUR = 60 * 60 * 1000;
 
-// Milliseconds remaining until a target ISO datetime (clamped to zero).
-const msUntil = (iso) => Math.max(0, new Date(iso).getTime() - Date.now());
+// The venue's time zone, so "Sunday at 9:00 AM" reads the same for everyone.
+const EVENT_TIME_ZONE = 'America/New_York';
+const dueDate = new Date(DUE);
+const DUE_TEXT = `${dueDate.toLocaleDateString('en-US', { weekday: 'long', timeZone: EVENT_TIME_ZONE })} at ${dueDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: EVENT_TIME_ZONE })} ET`;
 
-// Split milliseconds into day/hour/minute/second display buckets.
+const getState = (now) => {
+  if (START - now > 24 * HOUR) return { phase: 'calm', remaining: START - now };
+  if (START > now) {
+    return { phase: 'active', remaining: START - now, label: 'Final countdown!', sublabel: `${EVENT.name} starts soon` };
+  }
+  if (DUE > now) {
+    return { phase: 'active', remaining: DUE - now, label: 'Hacking in progress!', sublabel: `Submissions due ${DUE_TEXT}` };
+  }
+  return { phase: 'done', remaining: 0 };
+};
+
 const breakdown = (ms) => {
   const totalSeconds = Math.floor(ms / 1000);
-  const seconds      = totalSeconds % 60;
   const totalMinutes = Math.floor(totalSeconds / 60);
-  const minutes      = totalMinutes % 60;
-  const totalHours   = Math.floor(totalMinutes / 60);
-  const hours        = totalHours % 24;
-  const days         = Math.floor(totalHours / 24);
-  return { days, hours, minutes, seconds };
+  const totalHours = Math.floor(totalMinutes / 60);
+  return {
+    days: Math.floor(totalHours / 24),
+    hours: totalHours % 24,
+    totalHours,
+    minutes: totalMinutes % 60,
+    seconds: totalSeconds % 60,
+  };
 };
 
-// Returns phase, ms remaining, banner label, and sublabel
-const getState = () => {
-  const now        = Date.now();
-  const msToStart  = new Date(EVENT_START).getTime()    - now;
-  const msToSubmit = new Date(SUBMISSION_DUE).getTime() - now;
+const pad = (value) => String(value).padStart(2, '0');
 
-  if (msToStart  > 24 * 60 * 60 * 1000) return { phase: 'calm',   remaining: msToStart,  label: 'UNTIL HACK@URI 2026',     sublabel: null };
-  if (msToStart  > 0)                    return { phase: 'active', remaining: msToStart,  label: 'ALL HANDS ON DECK!',       sublabel: 'HACK@URI STARTS SOON!' };
-  if (msToSubmit > 0)                    return { phase: 'active', remaining: msToSubmit, label: 'GOOD LUCK HACKERS!',         sublabel: 'SUBMISSIONS DUE SUNDAY @ 9AM' };
-  return { phase: 'done', remaining: 0, label: '', sublabel: null };
+const urgencyClass = (totalHours) => {
+  if (totalHours >= 11) return 'countdown--steady';
+  if (totalHours >= 2) return 'countdown--soon';
+  return 'countdown--urgent';
 };
 
-// Maps total hours remaining → CSS color modifier
-const colorClass = (totalHours) => {
-  if (totalHours >= 11) return 'cd-active--blue';
-  if (totalHours >= 2)  return 'cd-active--yellow';
-  return 'cd-active--red';
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
+const Segment = ({ value, label }) => (
+  <div className="cd-seg">
+    <span className="cd-num">{value}</span>
+    <span className="cd-label">{label}</span>
+  </div>
+);
 
 const Countdown = () => {
-  const [state, setState]             = useState(getState);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
-  // Recompute countdown state every second.
   useEffect(() => {
-    const tick = () => setState(getState());
-    tick();
-    const id = setInterval(tick, 1000);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
 
-  // Track tiny screens so seconds can be hidden for layout stability.
-  useEffect(() => {
-    const check = () => setIsSmallScreen(window.innerWidth <= 480);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const state = getState(now);
 
-  // ── Done ───────────────────────────────────────────────────────────────────
   if (state.phase === 'done') {
     return (
-      <div className="countdown-wrap cd-done" aria-live="polite">
-        <span className="cd-done-emoji">🏆</span>
-        <span className="cd-done-text">Submissions closed — good luck, hackers!</span>
+      <div className="countdown countdown--done">
+        <span aria-hidden="true">🏆</span> Submissions are closed. Amazing work, hackers!
       </div>
     );
   }
 
-  const { days, hours, minutes, seconds } = breakdown(state.remaining);
-  const totalHours = days * 24 + hours;
+  const { days, hours, totalHours, minutes, seconds } = breakdown(state.remaining);
 
-  // ── Calm ───────────────────────────────────────────────────────────────────
   if (state.phase === 'calm') {
     return (
-      <div className="countdown-wrap" role="timer" aria-live="polite">
-        <Segment value={String(days)}                     label="Days"    />
-        <Colon />
-        <Segment value={String(hours).padStart(2, '0')}   label="Hours"   />
-        <Colon />
-        <Segment value={String(minutes).padStart(2, '0')} label="Minutes" />
-        {!isSmallScreen && (
-          <>
-            <Colon />
-            <Segment value={String(seconds).padStart(2, '0')} label="Sec" />
-          </>
-        )}
+      <div
+        className="countdown"
+        role="timer"
+        aria-label={`${days} days, ${hours} hours and ${minutes} minutes until ${EVENT.title}`}
+      >
+        <p className="cd-caption">Countdown to liftoff</p>
+        <div className="cd-segs" aria-hidden="true">
+          <Segment value={days} label="Days" />
+          <Segment value={pad(hours)} label="Hours" />
+          <Segment value={pad(minutes)} label="Minutes" />
+          <Segment value={pad(seconds)} label="Seconds" />
+        </div>
       </div>
     );
   }
 
-  // ── Active (unified urgent + submission phase) ─────────────────────────────
-  const color = colorClass(totalHours);
-
   return (
-    <div className={`countdown-wrap cd-active ${color}`} role="timer" aria-live="assertive">
-      <div className="cd-active-text">
-        <div className="cd-active-banner">
-          <span className="cd-anchor">⚓</span>
-          {state.label}
-          <span className="cd-anchor">⚓</span>
-        </div>
-        {state.sublabel && (
-          <div className="cd-active-sublabel">{state.sublabel}</div>
-        )}
-      </div>
-      <div className="cd-active-segs">
-        {totalHours >= 1 && (
-          <>
-            <ActiveSegment value={String(totalHours).padStart(2, '0')} label="Hours" />
-            <ActiveColon />
-          </>
-        )}
-        <ActiveSegment value={String(minutes).padStart(2, '0')} label="Minutes" />
-        <ActiveColon />
-        <ActiveSegment value={String(seconds).padStart(2, '0')} label="Seconds" />
+    <div
+      className={`countdown countdown--active ${urgencyClass(totalHours)}`}
+      role="timer"
+      aria-label={`${state.label} ${state.sublabel}. ${totalHours} hours and ${minutes} minutes left.`}
+    >
+      <p className="cd-caption">
+        <span aria-hidden="true">🚀</span> {state.label}
+      </p>
+      <p className="cd-sublabel">{state.sublabel}</p>
+      <div className="cd-segs" aria-hidden="true">
+        {totalHours >= 1 && <Segment value={pad(totalHours)} label="Hours" />}
+        <Segment value={pad(minutes)} label="Minutes" />
+        <Segment value={pad(seconds)} label="Seconds" />
       </div>
     </div>
   );
 };
-
-// ── Segment components ────────────────────────────────────────────────────────
-
-const Segment = ({ value, label }) => (
-  <div className="cd-seg">
-    <div className="cd-num">{value}</div>
-    <div className="cd-label">{label}</div>
-  </div>
-);
-const Colon = () => <div className="cd-sepcolon">:</div>;
-
-const ActiveSegment = ({ value, label }) => (
-  <div className="cd-seg cd-active-seg">
-    <div className="cd-active-num">{value}</div>
-    <div className="cd-active-label">{label}</div>
-  </div>
-);
-const ActiveColon = () => <div className="cd-active-colon">:</div>;
 
 export default Countdown;

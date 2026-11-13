@@ -1,316 +1,232 @@
-/* ==========================================================================
-   LandingPage.css — Landing / Pre-Reveal Page
-   Depends on: shared.css (design tokens, panel-card, btn-primary, star animation)
-   ========================================================================== */
+/* LandingPage.css — the "coming soon" page shown while the site is hidden. */
 
-
-/* ==========================================================================
-   1. PAGE WRAPPER
-   ========================================================================== */
-.landing-app {
-  font-family: var(--font-main);
-  margin: 0;
-  padding: 0;
-  background: var(--teal-nav);
-  min-height: 100vh;
-  width: 100vw;
-  max-width: 100%;
-  overflow-x: hidden;
+.landing {
   position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* The bottom padding leaves room for the Preview button. */
+  padding: clamp(36px, 8vh, 72px) var(--page-gutter) 64px;
+  /* The card sits beside the MLH badge (pinned top right) instead of below it. */
+  padding-right: calc(var(--mlh-badge-width) + var(--page-gutter) * 2);
 }
 
-.landing-page {
-  min-height: 100vh;
-  background-color: var(--teal-nav);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  position: relative;
-  overflow: hidden;
+.app--no-badge .landing {
+  padding-right: var(--page-gutter);
 }
 
-/* ==========================================================================
-   2. MAIN LAYOUT
-   ========================================================================== */
-.landing-content {
-  display: flex;
+/* Wide screens: the centred content no longer reaches the badge, so centre it
+   on the screen again. (--content-max plus room for the badge on both sides.) */
+@media (min-width: 1560px) {
+  .landing {
+    padding-right: var(--page-gutter);
+  }
+}
+
+.landing-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  gap: clamp(10px, 2vw, 24px);
-  max-width: 1200px;
+  gap: clamp(24px, 5vw, 64px);
   width: 100%;
-  margin-bottom: 40px;
+  max-width: var(--content-max);
+}
+
+/* ── Mascot ───────────────────────────────────────────────────────────────── */
+
+.landing-art {
   position: relative;
-  z-index: 2;
+  display: grid;
+  place-items: center;
 }
 
-.landing-left {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.landing-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* ==========================================================================
-   3. HERO IMAGE (Pirate + Ring)
-   ========================================================================== */
-.pirate-logo-wrap {
-  width: clamp(280px, 30vw, 420px);
-  height: clamp(280px, 30vw, 420px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.landing-glow {
+  position: absolute;
+  width: 82%;
+  aspect-ratio: 1;
   border-radius: 50%;
-  background: #f9e9c0;
-  box-shadow: 0 22px 40px rgba(12, 58, 64, 0.18);
-  border: 6px solid var(--teal-dark);
-  padding: clamp(12px, 1.5vw, 18px);
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.3), rgba(168, 85, 247, 0.16) 55%, transparent 70%);
+  filter: blur(22px);
 }
 
-.pirate-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+.landing-ram {
+  position: relative;
+  width: min(100%, 400px);
+  filter: drop-shadow(0 18px 40px rgba(3, 5, 30, 0.55));
+  animation: float-y 6s ease-in-out infinite;
 }
 
-/* ==========================================================================
-   4. CONTENT CARD + TYPOGRAPHY
-   ========================================================================== */
-.landing-info {
-  background: rgba(246, 233, 200, 0.9);
-  padding: 40px;
-  max-width: 500px;
-  width: 100%;
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+
+.landing-card {
+  display: grid;
+  /* minmax(0, …) lets long content wrap instead of widening the card. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  justify-items: start;
 }
 
 .landing-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: var(--teal-dark);
-  margin: 0 0 15px 0;
-  line-height: 1.1;
+  font-size: clamp(2.1rem, 4.6vw, 3.75rem);
+  letter-spacing: -0.02em;
 }
 
-.landing-subtitle {
-  font-size: 1.3rem;
-  color: #48392f;
-  margin: 0 0 1px 0;
-  font-weight: 600;
-  letter-spacing: 1px;
+.landing-tagline {
+  font-family: var(--font-accent);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 700;
+  color: var(--color-accent-warm);
 }
 
-.landing-description {
-  margin-bottom: 1px;
-  color: var(--gold-light);
-}
-
-.landing-description p {
-  color: var(--text-dark);
-  font-size: 1.1rem;
-  margin: 10px 0;
-  line-height: 1.6;
-}
-
-.landing-dates {
-  font-weight: 600;
-  font-size: 1.2rem;
-  color: var(--teal-dark);
-}
-
-/* ==========================================================================
-   5. PRIMARY CTA
-   ========================================================================== */
-.preregistration-section {
-  margin-bottom: 30px;
+/* Date and venue, each with an icon. They wrap as whole items. */
+.landing-facts {
   display: flex;
-  justify-content: center;
-}
-
-.preregistration-button {
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-
-.preregistration-button:hover {
-  text-decoration: none;
-}
-
-.organizer-cta-section {
-  border-top: 1px solid rgba(12, 58, 64, 0.15);
-  margin-top: -6px;
-  margin-bottom: 26px;
-  padding-top: 20px;
-}
-
-.organizer-cta-copy {
-  margin: 0 0 14px;
-  font-size: 1rem;
-  color: var(--text-dark);
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.organizer-cta-button {
-  width: 100%;
-}
-
-/* ==========================================================================
-   6. FOOTER + SOCIAL LINKS
-   ========================================================================== */
-.landing-footer {
-  border-top: 1px solid rgba(12, 58, 64, 0.15);
-  padding-top: 20px;
-}
-
-.landing-footer p {
-  color: #5a4b40;
-  margin: 0 0 15px 0;
-  font-size: 0.9rem;
-}
-
-.landing-footer .social-links {
-  display: flex;
-  gap: 15px;
-  justify-content: center;
   flex-wrap: wrap;
-}
-
-.landing-footer .social-links a {
-  color: var(--teal-dark);
-  text-decoration: none;
+  gap: 6px 22px;
+  color: var(--color-heading);
   font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: rgba(12, 58, 64, 0.08);
-  transition: all 0.3s ease;
-  font-size: 0.9rem;
 }
 
-.landing-footer .social-links a:hover {
-  color: #fff;
-  background: var(--teal-mid);
-  transform: translateY(-2px);
+.landing-facts li {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
-/* ==========================================================================
-   7. ADMIN CONTROLS
-   ========================================================================== */
-.admin-controls {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
+/* The top margin lines the icon up with the first line of text when the venue wraps. */
+.landing-facts svg {
+  flex: none;
+  margin-top: 0.3em;
+  color: var(--color-accent);
 }
 
-.admin-button {
-  padding: 8px 16px;
-  background: rgba(12, 58, 64, 0.2);
-  color: rgba(12, 58, 64, 0.8);
-  border: 1px solid rgba(12, 58, 64, 0.3);
-  border-radius: 20px;
+/* The fall mini-event, when it is switched on */
+.landing-mini {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-strong);
+}
+
+.landing-mini-name {
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+}
+
+.landing-mini-when {
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.landing-mini-where {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.landing-mini .btn {
+  margin-top: 6px;
+}
+
+.landing-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.landing-follow {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border-soft);
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.landing-follow .social-links {
+  justify-content: flex-start;
+}
+
+/* ── Organizer preview button ─────────────────────────────────────────────── */
+
+.landing-preview {
+  position: absolute;
+  right: var(--page-gutter);
+  bottom: 14px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  opacity: 0.55;
+  transition: opacity var(--duration-base) ease;
 }
 
-.admin-button:hover {
-  background: rgba(12, 58, 64, 0.35);
-  border-color: rgba(12, 58, 64, 0.45);
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.admin-button.subtle {
-  opacity: 0.7;
-  font-size: 0.75rem;
-  padding: 6px 12px;
-}
-
-.admin-button.subtle:hover {
+.landing-preview:hover,
+.landing-preview:focus-visible {
   opacity: 1;
 }
 
-/* ==========================================================================
-   8. DECORATIVE STARS
-   Positioning for .decor-star instances rendered by LandingPage.jsx.
-   Animation + delay helpers come from shared.css.
-   ========================================================================== */
-.decor-star {
-  width: 40px;
-  height: 40px;
-}
+/* ── Tablets and phones ───────────────────────────────────────────────────── */
 
-.decor-star.star-1 { top: 15%; left: 8%; }
-.decor-star.star-2 { top: 25%; right: 12%; }
-.decor-star.star-3 { top: 45%; left: 5%; }
-.decor-star.star-4 { top: 60%; right: 8%; }
-.decor-star.star-5 { top: 35%; left: 85%; }
+@media (max-width: 860px) {
+  /* Stacked: the mascot is at the top with the badge beside it, so the page
+     can use its full width again. */
+  .landing {
+    padding-right: var(--page-gutter);
+  }
 
-/* ==========================================================================
-   9. RESPONSIVE
-   ========================================================================== */
-@media (max-width: 768px) {
-  .landing-content {
+  .landing-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-ram {
+    width: min(52vw, 240px);
+  }
+
+  .landing-card,
+  .landing-card .countdown {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .landing-links,
+  .landing-follow,
+  .landing-follow .social-links {
+    justify-content: center;
+    justify-items: center;
+  }
+
+  /* One fact per line. Each is plain centred text with its icon inline, so a
+     long venue name wraps neatly with the icon still beside its first word. */
+  .landing-facts {
     flex-direction: column;
     align-items: center;
-    gap: 40px;
-    padding: 20px;
   }
 
-  .landing-info {
-    padding: 30px 20px;
+  .landing-facts li {
+    display: block;
+    text-wrap: balance;
   }
 
-  .landing-title {
-    font-size: 2rem;
+  .landing-facts svg {
+    margin: 0 6px 0 0;
+    vertical-align: -0.125em;
   }
 
-  .landing-subtitle {
-    font-size: 1.1rem;
-  }
-
-  .landing-description p {
-    font-size: 1rem;
-  }
-
-  .pirate-logo-wrap {
-    width: clamp(240px, 48vw, 320px);
-    height: clamp(240px, 48vw, 320px);
+  .landing-mini {
+    justify-items: center;
   }
 }
 
 @media (max-width: 480px) {
-  .landing-title {
-    font-size: 1.8rem;
-  }
-  
-  .landing-subtitle {
-    font-size: 1rem;
-  }
-  
-  .landing-info {
-    padding: 20px 15px;
-  }
-
-  .admin-controls {
-    bottom: 10px;
-    right: 10px;
-  }
-
-  .admin-button {
-    padding: 10px 20px;
-    font-size: 0.8rem;
+  .landing-links,
+  .landing-links li,
+  .landing-links .btn {
+    width: 100%;
   }
 }

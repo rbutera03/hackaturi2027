@@ -1,213 +1,395 @@
 /* ==========================================================================
-   Tracks.css — Hackathon Tracks Page
-   Depends on: shared.css (twinkle animation, .star-1..5 delays, font vars)
-   ========================================================================== */
+   Tracks.css — the track "planet" cards.
 
-
-/* ==========================================================================
-   1. BASE RESET (page-level)
-   ========================================================================== */
-
-html, body {
-  min-height: 100%;
-  overflow-x: hidden;
-}
-
-
-/* ==========================================================================
-   2. PAGE WRAPPER
-   ========================================================================== */
-
-.pirate-tracks {
-  position: relative;
-  min-height: auto;
-  z-index: 10;
-  padding: 40px 20px 20px;
-  background: #F6E9C8;
-  overflow: hidden;
-}
-
-
-/* ==========================================================================
-   3. DECORATIVE STARS
-   Positions unique to the Tracks page; animation + delays live in shared.css
-   ========================================================================== */
-
-.tracks-star {
-  width: 40px;
-  height: 40px;
-}
-
-.tracks-star.star-1 { top: 10%; left:  5%; }
-.tracks-star.star-2 { top: 20%; right:  8%; }
-.tracks-star.star-3 { top: 40%; left:  3%; }
-.tracks-star.star-4 { top: 60%; right:  5%; }
-.tracks-star.star-5 { top: 80%; left:  12%; }
-
-
-/* ==========================================================================
-   4. LAYOUT & HEADER
-   ========================================================================== */
-
-.tracks-content {
-  position: relative;
-  z-index: 2;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.tracks-title {
-  text-align: center;
-  font-size: 3rem;
-  font-weight: 800;
-  color: #2f2520;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  font-family: var(--font-main);
-}
-
-.tracks-intro {
-  text-align: center;
-  font-size: 1.3rem;
-  color: #2f2520;
-  font-weight: 500;
-  font-family: var(--font-main);
-  max-width: 600px;
-  margin: 0 auto 50px;
-}
-
-
-/* ==========================================================================
-   5. TRACKS GRID
+   Each card gets its colour from --track-accent (set in Tracks.jsx from the
+   track's `accent`), and its planet animation from the track's `motion`:
+   .track-planet--pulse, --atom, --orbit, --spin, --bounce, --launch.
+   To add a new motion, add a .track-planet--<name> block at the bottom.
    ========================================================================== */
 
 .tracks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Cards keep their own height, so opening one does not stretch its neighbours. */
+  align-items: start;
+  gap: clamp(16px, 2.2vw, 26px);
 }
 
-
-/* ==========================================================================
-   6. TRACK CARD
-   ========================================================================== */
+/* ── Card ─────────────────────────────────────────────────────────────────── */
 
 .track-card {
-  background: rgba(246, 233, 200, 0.9);
-  border: 3px solid #0C3A40;
-  border-radius: 25px;
-  padding: 35px;
-  backdrop-filter: blur(10px);
-  color: #2f2520;
+  --track-accent: var(--color-accent);
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 25px rgba(47, 37, 32, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  border-color: color-mix(in srgb, var(--track-accent) 45%, transparent);
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) ease;
 }
 
-/* Colored top accent bar (color set via --track-color on the element) */
-.track-card::before {
+.track-card:hover,
+.track-card:focus-within,
+.track-card.is-open {
+  border-color: var(--track-accent);
+  box-shadow:
+    var(--shadow-card-hover),
+    0 0 28px color-mix(in srgb, var(--track-accent) 38%, transparent);
+}
+
+.track-card:hover,
+.track-card:focus-within {
+  transform: translateY(-6px);
+}
+
+.track-name {
+  font-size: clamp(1.15rem, 1.8vw, 1.35rem);
+  font-weight: 800;
+}
+
+.track-tagline {
+  color: var(--color-text);
+}
+
+/* The button's ::after covers the card, so a click or tap anywhere toggles it. */
+.track-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 4px;
+  color: var(--track-accent);
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.track-toggle::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: var(--track-color);
+  inset: 0;
+  border-radius: inherit;
 }
 
-/* Card header: icon + title + subtitle */
-.track-header {
-  text-align: center;
+/* The focus ring is drawn around the whole card rather than the small label. */
+.track-toggle:focus-visible {
+  outline: none;
 }
 
-.track-icon {
-  font-size: 3.5rem;
-  margin-bottom: 20px;
-  display: block;
-  color: var(--track-color);
+.track-toggle:focus-visible::after {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-lg);
 }
 
-.track-title {
-  color: #2f2520;
-  margin: 0 0 15px 0;
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-family: var(--font-main);
+.track-chevron {
+  font-size: 0.8em;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
-.track-subtitle {
-  margin: 0 0 15px 0;
-  line-height: 1.6;
-  color: #2f2520;
-  font-size: 1.1rem;
-  font-weight: 500;
-  font-family: var(--font-main);
+.track-card.is-open .track-chevron {
+  transform: rotate(180deg);
 }
 
-/* Card body: description */
-.track-content { flex: 1; }
+/* ── Mission brief (expands inside the card) ──────────────────────────────── */
 
-.track-description {
-  margin: 0;
-  line-height: 1.6;
-  color: #2f2520;
-  font-size: 0.95rem;
-  font-weight: 400;
-  font-family: var(--font-main);
+.track-brief {
+  display: grid;
+  grid-template-rows: 0fr;
+  width: 100%;
+  transition: grid-template-rows 0.45s var(--ease-out);
+}
+
+.track-card.is-open .track-brief {
+  grid-template-rows: 1fr;
+}
+
+.track-brief-inner {
+  /* Sits above the stretched button so the text can be selected. */
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
   text-align: left;
+  transition: visibility 0s 0.45s;
 }
 
-/* Optional sponsor logo displayed inside a track card */
-.track-sponsor-logo {
-  height: 2.5rem;
-  width: auto;
-  margin-bottom: 15px;
-  object-fit: contain;
-  display: inline-block;
+.track-card.is-open .track-brief-inner {
+  visibility: visible;
+  transition-delay: 0s;
 }
 
+.track-brief-inner > p {
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--track-accent) 35%, transparent);
+}
 
-/* ==========================================================================
-   7. RESPONSIVE
-   ========================================================================== */
+.track-brief-inner h4 {
+  margin: 14px 0 8px;
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--track-accent);
+}
 
-@media (max-width: 768px) {
-  .pirate-tracks { padding: 30px 15px 20px; }
+.track-ideas {
+  display: grid;
+  gap: 6px;
+}
 
-  .tracks-title  { font-size: 2.2rem; margin-bottom: 15px; }
-  .tracks-intro  { font-size: 1.1rem; margin-bottom: 35px; }
+.track-ideas li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 0.95rem;
+}
 
+.track-ideas li::before {
+  content: '\2726';
+  position: absolute;
+  left: 0;
+  color: var(--track-accent);
+}
+
+/* ── Planet ───────────────────────────────────────────────────────────────── */
+
+.track-planet {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  margin-bottom: 4px;
+}
+
+.track-planet-body {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    color-mix(in srgb, var(--track-accent) 45%, #fff),
+    var(--track-accent) 52%,
+    color-mix(in srgb, var(--track-accent) 50%, #05072b)
+  );
+  box-shadow: 0 0 26px color-mix(in srgb, var(--track-accent) 55%, transparent);
+  color: var(--color-on-accent);
+  font-size: 2rem;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.track-card:hover .track-planet-body,
+.track-card:focus-within .track-planet-body {
+  transform: scale(1.1);
+}
+
+.track-planet::before,
+.track-planet::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+/* pulse — signal rings radiate from the planet (AI) */
+.track-planet--pulse::before,
+.track-planet--pulse::after {
+  inset: 17px;
+  border: 2px solid var(--track-accent);
+  border-radius: 50%;
+  animation: track-pulse 2.8s ease-out infinite;
+}
+
+.track-planet--pulse::after {
+  animation-delay: 1.4s;
+}
+
+@keyframes track-pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* atom — two electron orbits (Quantum) */
+.track-planet--atom::before,
+.track-planet--atom::after {
+  inset: 2px 28px;
+  border: 2px solid color-mix(in srgb, var(--track-accent) 75%, transparent);
+  border-radius: 50%;
+  animation: track-atom-a 7s linear infinite;
+}
+
+.track-planet--atom::after {
+  animation-name: track-atom-b;
+}
+
+@keyframes track-atom-a {
+  from {
+    transform: rotate(55deg);
+  }
+  to {
+    transform: rotate(415deg);
+  }
+}
+
+@keyframes track-atom-b {
+  from {
+    transform: rotate(-55deg);
+  }
+  to {
+    transform: rotate(-415deg);
+  }
+}
+
+/* orbit — a coin-sized moon circles the planet (FinTech) */
+.track-planet--orbit::before {
+  inset: 4px;
+  border: 1px dashed color-mix(in srgb, var(--track-accent) 55%, transparent);
+  border-radius: 50%;
+}
+
+.track-planet--orbit::after {
+  top: -3px;
+  left: calc(50% - 7px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-heading);
+  box-shadow: 0 0 10px var(--track-accent);
+  transform-origin: 7px 59px; /* centre of the 112px planet box */
+  animation: track-spin 5s linear infinite;
+}
+
+/* spin — the globe turns inside a tilted ring (Global Impact) */
+.track-planet--spin::before {
+  inset: 38px -2px;
+  border: 3px solid color-mix(in srgb, var(--track-accent) 70%, transparent);
+  border-radius: 50%;
+  transform: rotate(-18deg);
+}
+
+.track-planet--spin svg {
+  animation: track-spin 16s linear infinite;
+}
+
+/* bounce — the planet hops like a game character (Gaming & Creative) */
+.track-planet--bounce {
+  animation: track-bounce 1.6s cubic-bezier(0.3, 0, 0.3, 1) infinite;
+}
+
+.track-planet--bounce::before {
+  left: 30px;
+  right: 30px;
+  bottom: 2px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(3, 5, 30, 0.55);
+  animation: track-bounce-shadow 1.6s cubic-bezier(0.3, 0, 0.3, 1) infinite;
+}
+
+@keyframes track-bounce {
+  0%,
+  100% {
+    transform: translateY(6px) scale(1.06, 0.94);
+  }
+  45% {
+    transform: translateY(-10px) scale(0.97, 1.04);
+  }
+}
+
+@keyframes track-bounce-shadow {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: translateY(0) scaleX(1);
+  }
+  45% {
+    opacity: 0.4;
+    transform: translateY(16px) scaleX(0.6);
+  }
+}
+
+/* launch — the rocket lifts off and comes back around (Beginner Zone) */
+.track-planet--launch svg {
+  animation: track-launch 3.2s ease-in-out infinite;
+}
+
+.track-planet--launch::after {
+  left: 22px;
+  bottom: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--space-yellow);
+  filter: blur(3px);
+  animation: track-exhaust 3.2s ease-in-out infinite;
+}
+
+@keyframes track-launch {
+  0%,
+  100% {
+    transform: translate(-3px, 3px);
+  }
+  10%,
+  30% {
+    transform: translate(-4px, 4px) rotate(-3deg);
+  }
+  20% {
+    transform: translate(-2px, 4px) rotate(3deg);
+  }
+  60% {
+    transform: translate(7px, -7px);
+  }
+}
+
+@keyframes track-exhaust {
+  0%,
+  35%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.5);
+  }
+  75% {
+    opacity: 0;
+    transform: translate(-8px, 8px) scale(0.4);
+  }
+}
+
+@keyframes track-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Smaller screens ──────────────────────────────────────────────────────── */
+
+@media (max-width: 960px) {
+  .tracks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
   .tracks-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 30px;
   }
-
-  .track-card    { padding: 25px; }
-  .track-icon    { font-size: 3rem;  margin-bottom: 15px; }
-  .track-title   { font-size: 1.4rem; }
-  .track-subtitle { font-size: 1rem; }
-  .track-description { font-size: 0.9rem; }
-
-  /* Stars hidden on mobile via shared.css */
-  .tracks-star   { width: 30px; height: 30px; }
-}
-
-@media (max-width: 480px) {
-  .pirate-tracks { padding: 20px 10px 15px; }
-
-  .tracks-title  { font-size: 1.8rem; margin-bottom: 10px; }
-  .tracks-intro  { font-size: 1rem;   margin-bottom: 25px; }
-
-  .tracks-grid   { gap: 15px; }
-
-  .track-card    { padding: 20px; }
-  .track-icon    { font-size: 2.5rem; margin-bottom: 12px; }
-  .track-title   { font-size: 1.2rem; }
-  .track-subtitle { font-size: 0.9rem; }
-  .track-description { font-size: 0.85rem; }
 }

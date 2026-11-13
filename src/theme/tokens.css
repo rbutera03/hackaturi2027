@@ -1,0 +1,111 @@
+/* ==========================================================================
+   tokens.css — the site's colours, fonts, spacing and layers.
+
+   HOW TO RE-THEME THE SITE
+   1. Change the PALETTE values below (the raw colours).
+   2. If needed, point the ROLE tokens at different palette colours.
+   Components only ever use ROLE tokens (--color-*, --accent-*, --gradient-*),
+   so nothing else needs to change.
+
+   The 2027 palette matches the sponsorship site (hackaturi-sponsorship).
+   Past events keep their own look: see src/theme/archive/.
+   ========================================================================== */
+
+:root {
+  /* ── PALETTE ───────────────────────────────────────────────────────────── */
+  --space-deep-blue: #0e1e6b;
+  --space-violet: #2d0a5e;
+  --space-navy: #0b0d4a;
+  --space-ink: #070a2e;
+  --space-cyan: #00ffff;
+  --space-blue: #3d85ff;
+  --space-yellow: #ffe566;
+  --space-soft-yellow: #fff4a3;
+  --space-pink: #ff4ecd;
+  --space-purple: #a855f7;
+  --space-mint: #6ef3b1;
+
+  /* ── ROLES: page and surfaces ──────────────────────────────────────────── */
+  --color-bg: var(--space-navy);
+  --gradient-page:
+    radial-gradient(60% 45% at 12% 8%, rgba(61, 133, 255, 0.28), transparent 70%),
+    radial-gradient(50% 40% at 88% 78%, rgba(255, 78, 205, 0.16), transparent 70%),
+    linear-gradient(160deg, var(--space-deep-blue) 0%, var(--space-violet) 55%, var(--space-navy) 100%);
+
+  --color-surface: linear-gradient(160deg, rgba(10, 38, 105, 0.94), rgba(22, 72, 165, 0.58));
+  --color-surface-solid: #10256f;
+  --color-surface-strong: rgba(7, 10, 46, 0.86);
+  --color-surface-soft: rgba(255, 255, 255, 0.06);
+  --color-border: rgba(0, 255, 255, 0.35);
+  --color-border-soft: rgba(215, 222, 252, 0.18);
+  --color-scrim: rgba(4, 6, 30, 0.78);
+
+  /* ── ROLES: text ───────────────────────────────────────────────────────── */
+  --color-heading: #ffffff;
+  --color-text: #d7defc;
+  --color-text-muted: #a9b4e6;
+  --color-link: var(--space-cyan);
+  --color-link-hover: var(--space-soft-yellow);
+  --color-on-accent: #0b0d4a; /* text on a bright accent background */
+  --color-on-primary: #ffffff; /* text on the primary button gradient */
+
+  /* ── ROLES: accents ────────────────────────────────────────────────────── */
+  --color-accent: var(--space-cyan);
+  --color-accent-warm: var(--space-yellow);
+  --color-focus: var(--space-yellow);
+  --color-success: var(--space-mint);
+  --color-danger: #ff6b81;
+
+  /* Named accents for tracks, schedule tags, etc. The purple, pink and blue are
+     lightened versions of the palette so they stay readable as text. */
+  --accent-cyan: var(--space-cyan);
+  --accent-blue: #7fb0ff;
+  --accent-purple: #cfa0ff;
+  --accent-pink: #ff7ad9;
+  --accent-yellow: var(--space-yellow);
+  --accent-mint: var(--space-mint);
+
+  /* ── ROLES: buttons ────────────────────────────────────────────────────── */
+  /* Slightly deeper than the palette blue/purple so white text meets 4.5:1. */
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #3b74f0 0%, #8b4ff0 100%);
+  --gradient-heading: linear-gradient(90deg, var(--space-cyan), var(--space-soft-yellow) 55%, var(--space-pink));
+
+  /* Logos are drawn for light backgrounds, so they sit on a light plate. */
+  --color-logo-plate: #ffffff;
+
+  /* ── TYPE ──────────────────────────────────────────────────────────────── */
+  --font-main: 'Poppins', 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-accent: 'Nunito', var(--font-main);
+
+  /* ── SHAPE AND DEPTH ───────────────────────────────────────────────────── */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 10px 30px rgba(3, 5, 30, 0.35);
+  --shadow-card-hover: 0 18px 44px rgba(3, 5, 30, 0.5);
+  --shadow-glow: 0 0 24px rgba(0, 255, 255, 0.28);
+
+  /* ── LAYOUT ────────────────────────────────────────────────────────────── */
+  --page-gutter: clamp(16px, 4vw, 40px);
+  --content-max: 1180px;
+  --content-narrow: 820px;
+  --section-space: clamp(56px, 9vw, 112px);
+  --header-height: 68px;
+  /* Room kept clear at the top right for the MLH trust badge. */
+  --mlh-badge-width: clamp(60px, 10vw, 100px);
+
+  /* ── LAYERS ────────────────────────────────────────────────────────────── */
+  --z-header: 100;
+  --z-floating: 200;
+  --z-overlay: 900;
+  --z-badge: 950;
+  --z-modal: 1000;
+
+  /* ── MOTION ────────────────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 280ms;
+}

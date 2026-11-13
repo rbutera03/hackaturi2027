@@ -1,194 +1,78 @@
-/* ==========================================================================
-   Interest.css — Interest / Sponsorship Page
-   Depends on: shared.css (.btn-primary, font vars)
-   ========================================================================== */
+/* GetInvolved.css — the sign-up form cards */
 
-
-/* ==========================================================================
-   1. PAGE WRAPPER
-   ========================================================================== */
-
-.interest-page {
-  min-height: auto;
-  background: #F6E9C8;
-  position: relative;
-  overflow: hidden;
-  font-family: var(--font-main);
-  color: #2f2520;
-  padding: 30px 60px 40px;
-  margin: 0 auto;
+/* Flex (not grid) so a last row with fewer cards sits centred. */
+.involve-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(14px, 2vw, 22px);
 }
 
-
-/* ==========================================================================
-   2. LAYOUT
-   ========================================================================== */
-
-.interest-content {
-  position: relative;
-  z-index: 3;
-  max-width: 1000px;
-  margin: 0 auto;
-  text-align: left;
-}
-
-.interest-content h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #2f2520;
-  margin: 0 0 30px 0;
-  text-shadow: 2px 2px 4px rgba(47, 37, 32, 0.1);
-}
-
-
-/* ==========================================================================
-   3. SHARED PANEL BASE
-   (Used by both .become-sponsor and .interest-form)
-   ========================================================================== */
-
-.become-sponsor,
-.interest-form {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 30px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(47, 37, 32, 0.2);
-}
-
-.become-sponsor h3,
-.interest-form h3 {
-  color: #2f2520;
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.become-sponsor p,
-.interest-form p {
-  color: #2f2520;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin: 0;
-}
-
-
-/* ==========================================================================
-   4. BECOME A SPONSOR BANNER (full-width, above the grid)
-   ========================================================================== */
-
-.become-sponsor {
-  margin-bottom: 30px;
-}
-
-.donate-link {
-  color: #0C3A40;
-  text-decoration: underline;
-  font-weight: 600;
-  transition: color 0.3s ease;
-}
-
-.donate-link:hover {
-  color: #0B4F4F;
-}
-
-
-/* ==========================================================================
-   5. INTEREST FORMS GRID (2×2)
-   ========================================================================== */
-
-.interest-forms-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-/* Each form card stretches to align its CTA button at the bottom */
-.interest-form {
+.involve-card {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1 1 300px;
+  max-width: 380px;
+  /* Header links jump to a card; keep it clear of the fixed header. */
+  scroll-margin-top: calc(var(--header-height) + 24px);
 }
 
-.interest-form p {
-  margin-bottom: 15px;
-  flex-grow: 1; /* pushes CTA button down */
+.involve-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: var(--color-on-primary);
+  font-size: 1.4rem;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
-.interest-form-link {
-  display: inline-block;
-  background: linear-gradient(135deg, #0C3A40 0%, #0B4F4F 100%);
-  color: white;
-  text-decoration: none;
-  padding: 15px 30px;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  text-align: center;
+.involve-card:hover .involve-icon {
+  transform: translateY(-3px) rotate(-8deg);
+}
+
+/* Pushes the button to the bottom so buttons line up across a row. */
+.involve-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  width: 100%;
   margin-top: auto;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  padding-top: 10px;
 }
 
-.interest-form-link:hover {
-  background: linear-gradient(135deg, #0B4F4F 0%, #0C3A40 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(12, 58, 64, 0.3);
-  color: white;
-  text-decoration: none;
+.involve-email {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
-
-/* ==========================================================================
-   6. SECTION HIGHLIGHT ANIMATION (e.g. anchor-link flash)
-   ========================================================================== */
-
-.highlight-section {
-  animation: sectionPulse 2s ease-out;
+/* The card a header link pointed at flashes briefly. */
+.involve-card:target {
+  animation: involve-flash 1.6s ease-out;
 }
 
-@keyframes sectionPulse {
-  0% {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: #0C3A40;
-    box-shadow: 0 0 20px rgba(12, 58, 64, 0.2);
-    transform: scale(1.02);
-  }
-  30% {
-    background: rgba(255, 255, 255, 0.4);
-    transform: scale(1.02);
-  }
-  100% {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(47, 37, 32, 0.2);
-    box-shadow: none;
-    transform: scale(1);
-  }
-}
-
-
-/* ==========================================================================
-   7. RESPONSIVE
-   ========================================================================== */
-
-@media (max-width: 900px) {
-  .interest-forms-container {
-    grid-template-columns: 1fr; /* stack on smaller screens */
-  }
-
-  .interest-page {
-    padding: 20px 30px 25px;
+@keyframes involve-flash {
+  0%,
+  40% {
+    border-color: var(--color-accent-warm);
+    box-shadow:
+      var(--shadow-card-hover),
+      0 0 0 4px rgba(255, 229, 102, 0.55);
   }
 }
 
 @media (max-width: 480px) {
-  .interest-page {
-    padding: 15px 20px 20px;
+  .involve-card {
+    max-width: none;
   }
 
-  .interest-content h1 {
-    font-size: 1.8rem;
-  }
-
-  .become-sponsor h3,
-  .interest-form h3 {
-    font-size: 1.3rem;
+  .involve-actions .btn {
+    width: 100%;
   }
 }

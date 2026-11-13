@@ -1,19 +1,41 @@
-// Single source of truth for schedule data, speaker info, and helpers.
-// Shared between UpNext.jsx, ScheduleCalendar.jsx, and WorkshopModal.jsx.
+// src/content/schedule.js
+// Schedule, event types and workshop speakers. This is data only; the helpers
+// that read it live in src/sections/schedule/scheduleUtils.js.
+//
+// NOTE: everything below SCHEDULE_CONFIG is the Hack@URI 2026 schedule, kept as
+// a template. Replace the dates, events and speakers with this year's, then set
+// `published` to true.
 
-// ─── Event Type Colors ────────────────────────────────────────────────────────
-export const EVENT_TYPE_COLORS = {
-  hacking: '#27AE60',
-  ceremony: '#C0392B',
-  food: '#5B2C6F',
-  workshop: '#275e83',
-  activity: '#B8860B',
-  mentoring: '#145A32',
-  cyber: '#117A65',
-  beginner: '#3b8ec5',
+// ─── Publishing ───────────────────────────────────────────────────────────────
+export const SCHEDULE_CONFIG = {
+  // false = the Schedule section shows a "coming soon" card and the full-page
+  //         schedule (#full-schedule) is switched off.
+  // true  = the schedule below is shown.
+  published: false,
+  title: 'Schedule',
+  comingSoon: 'The full schedule of workshops, meals, and activities will be posted here closer to the event.',
+  // Show the live "Up Next" widget and inline calendar on the home page. Turn
+  // off after the event to leave just the button to the full schedule page.
+  showInlineCalendar: true,
 };
 
-export const getEventTypeColor = (type) => EVENT_TYPE_COLORS[type] || '#0C3A40';
+// ─── Event Types ──────────────────────────────────────────────────────────────
+// label: shown in the legend. color: the event tile background (white text sits
+// on top, so keep these dark enough to read).
+export const EVENT_TYPES = {
+  hacking: { label: 'Hacking', color: '#1e8449' },
+  ceremony: { label: 'Ceremony', color: '#C0392B' },
+  activity: { label: 'Activity', color: '#8f6608' },
+  cyber: { label: 'Cyber', color: '#117A65' },
+  beginner: { label: 'Beginner Workshop', color: '#2471a3' },
+  workshop: { label: 'Workshop', color: '#275e83' },
+  mentoring: { label: 'Mentoring', color: '#145A32' },
+  food: { label: 'Food', color: '#6c3483' },
+};
+
+// Event types whose tiles open the speaker details popup (when a matching
+// entry exists in SPEAKERS).
+export const SPEAKER_EVENT_TYPES = ['workshop', 'beginner', 'cyber'];
 
 // ─── Speaker / Workshop Data ──────────────────────────────────────────────────
 // Keyed by lowercase workshop title. getSpeakerByTitle() does fuzzy matching.
@@ -231,22 +253,11 @@ export const SPEAKERS = {
   },
 };
 
-// ─── Speaker Lookup ───────────────────────────────────────────────────────────
-export const getSpeakerByTitle = (title) => {
-  if (!title) return null;
-  const key = title.toLowerCase().trim();
-  if (SPEAKERS[key]) return SPEAKERS[key];
-  for (const [storedKey, data] of Object.entries(SPEAKERS)) {
-    if (key.includes(storedKey) || storedKey.includes(key)) return data;
-    const keyWords = key.split(/\W+/).filter((w) => w.length > 3);
-    const storedWords = storedKey.split(/\W+/).filter((w) => w.length > 3);
-    const overlap = keyWords.filter((w) => storedWords.includes(w));
-    if (overlap.length >= 3) return data;
-  }
-  return null;
-};
-
 // ─── Schedule Data ────────────────────────────────────────────────────────────
+// One entry per day. `date` must be a full date like 'Saturday, March 6, 2027'
+// (the live "Up Next" widget reads it). Times are in the event's local time.
+// duration is in minutes; hero: true makes a full-width milestone banner.
+// Events after midnight on day one use '12:00 AM' and stay in the day1 list.
 export const SCHEDULE = {
   day1: {
     date: 'Saturday, February 21, 2026',
@@ -341,41 +352,3 @@ export const SCHEDULE = {
     ],
   },
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-export const parseEventDateTime = (dateStr, timeStr, dayKey) => {
-  const [timePart, modifier] = timeStr.split(' ');
-  let hour = parseInt(timePart.split(':')[0]);
-  if (modifier === 'PM' && hour !== 12) hour += 12;
-  if (modifier === 'AM' && hour === 12) hour = dayKey === 'day1' ? 24 : 0;
-  const base = new Date(dateStr);
-  base.setHours(hour, parseInt(timePart.split(':')[1]), 0, 0);
-  return base;
-};
-
-export const formatCountdown = (diff) => {
-  if (diff <= 0) return '00:00:00';
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const secs = Math.floor((diff % (1000 * 60)) / 1000);
-  const parts = [];
-  if (days > 0) parts.push(`${days}d`);
-  parts.push(`${hours.toString().padStart(2, '0')}h`);
-  parts.push(`${mins.toString().padStart(2, '0')}m`);
-  parts.push(`${secs.toString().padStart(2, '0')}s`);
-  return parts.join(' ');
-};
-
-// Returns a human-readable end time string like "2:30 PM" given a start Date and duration in minutes.
-export const formatEndTime = (startDate, durationMinutes) => {
-  if (!durationMinutes) return null;
-  const end = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
-  const h = end.getHours();
-  const m = end.getMinutes();
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  const mm = m.toString().padStart(2, '0');
-  return `${h12}:${mm} ${ampm}`;
-};
-

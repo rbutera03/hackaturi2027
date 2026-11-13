@@ -1,12 +1,7 @@
 /* ==========================================================================
-   Header.css — Fixed Navigation Header
-   Depends on: shared.css (--teal-nav, --teal-dark, --parchment, --gold-light,
-               --font-main)
-   ========================================================================== */
-
-
-/* ==========================================================================
-   1. HEADER SHELL
+   Header.css — fixed header bar, desktop nav with dropdowns, and the
+   small-screen menu. The switch between the two happens at 1080px (see the
+   media queries at the bottom); nothing in the JavaScript checks screen width.
    ========================================================================== */
 
 .site-header {
@@ -14,240 +9,308 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 60;
-  padding: 10px 22px;
-  background: rgba(10, 78, 78); /* var(--teal-nav) */
-  border-top: 10px solid var(--teal-nav);
-  transition: transform 280ms ease, opacity 180ms ease, visibility 280ms ease;
+  z-index: var(--z-header);
+  border-bottom: 1px solid transparent;
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    background var(--duration-base) ease,
+    border-color var(--duration-base) ease;
 }
 
-.site-header.hidden {
-  visibility: hidden;
-  opacity: 0;
+/* Once the page has scrolled (or the menu is open) the bar gets a backdrop. */
+.site-header.is-solid {
+  background: var(--color-surface-strong);
+  border-bottom-color: var(--color-border-soft);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.site-header.is-hidden {
   transform: translateY(-100%);
 }
 
 .header-inner {
-  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 18px;
+  gap: 16px;
+  height: var(--header-height);
+  padding-left: var(--page-gutter);
+  /* Keeps the nav clear of the MLH badge pinned to the top right. */
+  padding-right: calc(var(--mlh-badge-width) + var(--page-gutter) * 2);
 }
 
+.app--no-badge .header-inner {
+  padding-right: var(--page-gutter);
+}
 
-/* ==========================================================================
-   2. DESKTOP NAV BUTTONS
-   ========================================================================== */
+/* ── Logo ─────────────────────────────────────────────────────────────────── */
 
-.main-nav {
-  display: flex;
-  gap: 8px;
+.header-logo {
+  display: inline-flex;
   align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--color-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.nav-btn {
-  background: transparent;
-  border: none;
-  color: var(--parchment);
-  padding: 12px 20px;
-  border-radius: 25px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 1.4rem;
-  transition: transform 0.3s ease, background 0.3s ease;
+.header-logo img {
+  width: auto;
+  height: 40px;
+  transition: transform var(--duration-base) var(--ease-out);
 }
 
-.nav-btn:hover {
-  transform: translateY(-3px);
-  background: rgba(249, 233, 192, 0.08);
+.header-logo:hover {
+  color: var(--color-accent);
 }
 
-.nav-btn.active {
-  background: var(--gold-light);
-  color: var(--teal-nav);
-  box-shadow: 0 6px 18px rgba(203, 185, 121, 0.18);
+.header-logo:hover img {
+  transform: rotate(-8deg) scale(1.08);
 }
 
+/* ── Nav (shared) ─────────────────────────────────────────────────────────── */
 
-/* ==========================================================================
-   3. DESKTOP DROPDOWN MENU
-   ========================================================================== */
+.site-nav {
+  margin-left: auto;
+}
 
-.nav-item.dropdown {
+.nav-list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-item {
   position: relative;
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: rgba(10, 78, 78, 0.98);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: none;
-  flex-direction: column;
-  padding: 8px 0;
-  z-index: 100;
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--duration-fast) ease,
+    color var(--duration-fast) ease;
 }
 
-.nav-item.dropdown.open .dropdown-menu {
-  display: flex;
+.nav-link:hover,
+.nav-item--menu.is-open > .nav-link {
+  background: var(--color-surface-soft);
+  color: var(--color-heading);
 }
 
-.dropdown-item {
-  padding: 10px 20px;
-  color: var(--parchment);
-  background: transparent;
-  border: none;
-  text-align: left;
-  font-family: inherit;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.nav-link.is-current {
+  color: var(--color-accent);
 }
 
-.dropdown-item:hover {
-  background: rgba(249, 233, 192, 0.1);
+.nav-chevron {
+  font-size: 0.65em;
+  transition: transform var(--duration-base) ease;
 }
 
+.nav-item--menu.is-open .nav-chevron {
+  transform: rotate(180deg);
+}
 
-/* ==========================================================================
-   4. MOBILE HAMBURGER TOGGLE
-   ========================================================================== */
-
-.mobile-menu-toggle {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
+.nav-sublink {
   display: flex;
   align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.93rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.nav-sublink:hover {
+  background: var(--color-surface-soft);
+  color: var(--color-accent);
+}
+
+/* Menu button: only visible on small screens. */
+.nav-toggle {
+  display: none;
+  align-items: center;
   justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-left: auto;
+  border-radius: var(--radius-sm);
 }
 
-.hamburger {
-  width: 25px;
-  height: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: all 0.3s ease;
+.nav-toggle:hover {
+  background: var(--color-surface-soft);
 }
 
-.hamburger span {
-  width: 100%;
-  height: 3px;
-  background: var(--parchment);
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  transform-origin: center;
+.nav-toggle-icon {
+  position: relative;
+  display: block;
+  width: 24px;
+  height: 18px;
 }
 
-/* Hamburger → ✕ animation */
-.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-.hamburger.open span:nth-child(2) { opacity: 0; }
-.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
-
-
-/* ==========================================================================
-   5. MOBILE NAV PANEL
-   ========================================================================== */
-
-.mobile-nav {
+.nav-toggle-icon span {
   position: absolute;
-  top: 100%;
   left: 0;
-  right: 0;
-  background: rgba(10, 78, 78, 0.98);
-  backdrop-filter: blur(10px);
-  border-top: 2px solid var(--teal-nav);
-  z-index: 50;
-  /* Hidden state */
-  transform: translateY(-100%);
-  opacity: 0;
-  visibility: hidden;
-  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.mobile-nav.open {
-  transform: translateY(0);
-  opacity: 1;
-  visibility: visible;
-}
-
-.mobile-nav-btn {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid rgba(249, 233, 192, 0.1);
-  color: var(--parchment);
-  padding: 15px 20px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 700;
-  font-size: 1.1rem;
-  text-align: left;
-  transition: background 0.3s ease;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-heading);
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    opacity var(--duration-fast) ease;
 }
 
-.mobile-nav-btn:hover  { background: rgba(249, 233, 192, 0.1); }
-.mobile-nav-btn.active { background: var(--gold-light); color: var(--teal-nav); }
-.mobile-nav-btn:last-child { border-bottom: none; }
-
-
-/* ==========================================================================
-   6. MOBILE DROPDOWN MENU
-   ========================================================================== */
-
-.mobile-dropdown {
-  display: flex;
-  flex-direction: column;
+.nav-toggle-icon span:nth-child(1) {
+  top: 0;
+}
+.nav-toggle-icon span:nth-child(2) {
+  top: 8px;
+}
+.nav-toggle-icon span:nth-child(3) {
+  top: 16px;
 }
 
-.mobile-dropdown-menu {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 0;
-  background: rgba(10, 78, 78, 0.98);
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.nav-toggle-icon.is-open span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.nav-toggle-icon.is-open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle-icon.is-open span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
-.mobile-dropdown-item {
-  padding: 10px 20px;
-  color: var(--parchment);
-  background: transparent;
-  border: none;
-  text-align: left;
-  font-family: inherit;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
+/* ── Desktop: dropdown menus ──────────────────────────────────────────────── */
 
-.mobile-dropdown-item:hover {
-  background: rgba(249, 233, 192, 0.1);
-}
-
-
-/* ==========================================================================
-   7. RESPONSIVE — SHOW/HIDE DESKTOP VS MOBILE
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  .header-inner {
-    padding: 0 8px;
-    gap: 10px;
-    justify-content: space-between;
+@media (min-width: 1081px) {
+  .nav-submenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 200px;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-solid);
+    box-shadow: var(--shadow-card-hover);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition:
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease,
+      visibility var(--duration-fast);
   }
 
-  .main-nav           { display: none; }
-  .mobile-menu-toggle { display: flex; }
+  .nav-item--menu.is-open > .nav-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  /* Mouse users also get the menu on hover. */
+  @media (hover: hover) {
+    .nav-item--menu:hover > .nav-submenu {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    .nav-item--menu:hover > .nav-link {
+      background: var(--color-surface-soft);
+      color: var(--color-heading);
+    }
+  }
 }
 
-@media (min-width: 769px) {
-  .mobile-menu-toggle { display: none; }
-  .mobile-nav         { display: none; }
+/* ── Small screens: slide-down menu ───────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100vh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    margin: 0;
+    padding: 8px var(--page-gutter) 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-bottom: 1px solid var(--color-border);
+    /* Opaque, so the page underneath never shows through the menu. */
+    background: var(--color-bg);
+    box-shadow: var(--shadow-card-hover);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--duration-base) ease,
+      transform var(--duration-base) var(--ease-out),
+      visibility var(--duration-base);
+  }
+
+  .site-nav.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .nav-item + .nav-item {
+    border-top: 1px solid var(--color-border-soft);
+  }
+
+  .nav-link {
+    width: 100%;
+    min-height: 52px;
+    justify-content: space-between;
+    padding: 0 8px;
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+  }
+
+  .nav-submenu {
+    display: none;
+    padding: 0 0 10px 14px;
+  }
+
+  .nav-item--menu.is-open > .nav-submenu {
+    display: block;
+  }
+
+  .nav-sublink {
+    min-height: 48px;
+    font-size: 1rem;
+    color: var(--color-text-muted);
+  }
+}
+
+@media (max-width: 380px) {
+  .header-logo span {
+    font-size: 1rem;
+  }
 }

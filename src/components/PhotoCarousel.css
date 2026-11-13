@@ -1,0 +1,137 @@
+/* PhotoCarousel.css — photo slideshow (archive pages and mini-event page) */
+
+.photo-carousel {
+  display: grid;
+  gap: 10px;
+}
+
+.photo-carousel-frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.photo-carousel-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: photo-carousel-fade 0.6s ease-out;
+}
+
+@keyframes photo-carousel-fade {
+  from {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+}
+
+/* Controls sit on the photo, so they use fixed light-on-dark colours in every theme. */
+.photo-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  transition:
+    background var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+}
+
+.photo-carousel-arrow:hover {
+  background: rgba(0, 0, 0, 0.72);
+  transform: scale(1.08);
+}
+
+.photo-carousel-arrow:focus-visible {
+  outline-color: #fff;
+}
+
+.photo-carousel-arrow--prev {
+  left: 10px;
+}
+
+.photo-carousel-arrow--next {
+  right: 10px;
+}
+
+.photo-carousel-dots,
+.photo-carousel-count {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.photo-carousel-count {
+  padding: 2px 12px;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.photo-carousel-dots {
+  display: flex;
+  padding: 0 6px;
+}
+
+/* Small visible dot inside a larger tap target. */
+.photo-carousel-dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 28px;
+}
+
+.photo-carousel-dot::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background var(--duration-base) ease;
+}
+
+.photo-carousel-dot.is-active::before {
+  background: #fff;
+}
+
+.photo-carousel-dot:focus-visible {
+  outline-color: #fff;
+  outline-offset: -2px;
+}
+
+.photo-carousel-caption {
+  text-align: center;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.photo-carousel--empty {
+  place-items: center;
+  align-content: center;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.photo-carousel--empty svg {
+  font-size: 2rem;
+}

@@ -1,129 +1,127 @@
-// src/features/sponsors/SponsorsSection.jsx
-// Sponsor showcase section with desktop scroll layout and mobile stacked layout.
+// src/sections/Sponsors.jsx
+// Sponsors, partners and donors, followed by the "become a sponsor" block.
+//
+// ONLY entries marked confirmed: true in content/sponsors.js are displayed.
+// With none confirmed, an "announcing soon" card is shown instead of logos.
 
-import React, { useState, useEffect } from 'react';
-import starsSvg from '../../assets/stars-bg.svg';
-import sponsorScrollSvg from '../../assets/sponsor-scroll.svg';
-import '../../shared/styles/shared.css';
-import './SponsorsSection.css';
+import React from 'react';
+import { FaEnvelope, FaExternalLinkAlt, FaHeart } from 'react-icons/fa';
+import Reveal from '../components/Reveal.jsx';
+import SectionHeading from '../components/SectionHeading.jsx';
+import { DONORS, SPONSORS, SPONSORS_COPY, SPONSORSHIP, SPONSOR_TIERS } from '../content/sponsors.js';
+import { getForm } from '../content/getInvolved.js';
+import { CONTACT } from '../content/site.js';
+import './Sponsors.css';
 
-// ─── Sponsors Config Controls ────────────────────────────────────────────────
-const SPONSOR_TIERS = {
-  lead: [{ name: 'yconic', logo: '/images/sponsors/yconic-transparent.png', url: 'https://yconic.ai/', large: true }],
-  gold: [
-    { name: 'RiseUp', logo: '/images/sponsors/riseup.png', url: 'https://rise-upinnovation.org/' },
-    { name: 'RI Hub', logo: '/images/sponsors/RIHub.png', url: 'https://rihub.org/', large: true },
-    { name: 'URI Library Innovation Lab', logo: '/images/sponsors/library_innovation_lab.png', url: 'https://web.uri.edu/innovate/', large: true },
-    { name: 'URI Department of Computer Science and Statistics', logo: '/images/sponsors/uri_CSaS.png', url: 'https://web.uri.edu/cs/', large: true },
-    { name: 'URI College of Business', logo: '/images/sponsors/uri_CoB.png', url: 'https://web.uri.edu/business/', large: true },
-  ],
-  silver: [
-    { name: 'Brightstar', logo: '/images/sponsors/brightstar.png', url: 'https://www.brightstarlottery.com/', large: true },
-    { name: 'URI Research Foundation', logo: '/images/sponsors/urirf-transparent.png', url: 'https://web.uri.edu/research/', large: true },
-  ],
-  bronze: [
-    { name: 'MergeFund', logo: '/images/sponsors/mergefund-transparent.png', url: 'https://www.mergefund.org/' },
-    { name: 'Factset', logo: '/images/sponsors/factset.png', url: 'https://www.factset.com/', large: true },
-    { name: 'Microway', logo: '/images/sponsors/microway.png', url: 'https://www.microway.com/', large: true },
-    { name: 'URI College of Engineering', logo: '/images/sponsors/uri_CoE.png', url: 'https://web.uri.edu/engineering/', large: true },
-    { name: 'URI Digital Forensics and Cyber Security Center', logo: '/images/sponsors/uri_CSF.png', url: 'https://web.uri.edu/cs/dfcsc/', large: true },
-    { name: 'URI Cyber Club', logo: '/images/sponsors/cyberclub.png', url: 'https://www.instagram.com/uricyberclub/', large: true },
-    { name: 'Major League Hacking', logo: '/images/sponsors/mlh-logo-color.png', url: 'https://mlh.io/' },
-  ],
-  partners: [
-    { name: 'Monster', logo: '/images/sponsors/monster.png', url: 'https://www.monsterenergy.com/en-us/', large: true },
-    { name: 'The Move App', logo: '/images/sponsors/themoveapp.png', url: 'https://www.themoveapp.io/', large: true },
-    { name: 'URI AI Lab', logo: '/images/sponsors/uri_ailab.png', url: 'https://web.uri.edu/iacr/iacr-workshops-outreach/', large: true },
-    { name: 'CCRI', logo: '/images/sponsors/ccri.png', url: 'https://www.ccri.edu/' },
-    { name: 'Pure Buttons', logo: '/images/sponsors/Pure-Buttons-Logo.png', url: 'https://mlh.link/MLH-PureButtons-hackathons', large: true },
-    { name: 'URI Institute for AI and Computational Research', logo: '/images/sponsors/uri_IACR.png', url: 'https://events.uri.edu/group/center_for_computational_research', large: true },
-  ],
-};
-const DONORS = ['Stacey Azevedo', 'Erin Butera', 'Joseph Graf', 'Tara Rugg', 'Anne Totoro', 'Joel Totoro'];
-const TIER_LABELS = { lead: 'Lead Sponsor', gold: 'Gold Sponsors', silver: 'Silver Sponsors', bronze: 'Bronze Sponsors', partners: 'Partners' };
-// ─────────────────────────────────────────────────────────────────────────────
+const confirmedSponsors = SPONSORS.filter((sponsor) => sponsor.confirmed === true);
+const confirmedDonors = DONORS.filter((donor) => donor.confirmed === true);
 
-const SponsorLogo = ({ sponsor, sizeClass }) => {
-  const imgClass = `sponsor-img ${sponsor.large ? `${sizeClass}-large` : sizeClass}`;
-  // If a logo fails to load, reveal plain text fallback so sponsor still appears.
-  const image = (
-    <>
-      <img src={sponsor.logo} alt={sponsor.name} className={imgClass} onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }} />
-      <div className="sponsor-fallback" style={{ display: 'none' }}>{sponsor.name}</div>
-    </>
+// Tiers that have at least one confirmed sponsor, in display order.
+const visibleTiers = SPONSOR_TIERS.map((tier) => ({
+  ...tier,
+  sponsors: confirmedSponsors.filter((sponsor) => sponsor.tier === tier.id),
+})).filter((tier) => tier.sponsors.length > 0);
+
+const SponsorLogo = ({ sponsor }) => {
+  const image = <img src={sponsor.logo} alt={sponsor.name} loading="lazy" />;
+  return sponsor.url ? (
+    <a className="sponsor-plate" href={sponsor.url} target="_blank" rel="noopener noreferrer">
+      {image}
+    </a>
+  ) : (
+    <span className="sponsor-plate">{image}</span>
   );
-  return <div className="sponsor-logo-wrapper">{sponsor.url ? <a href={sponsor.url} target="_blank" rel="noopener noreferrer">{image}</a> : image}</div>;
 };
 
-const SponsorsSection = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  // Keep layout mode responsive so mobile uses the stacked sponsor list.
-  useEffect(() => {
-    const checkScreenSize = () => setIsMobile(window.innerWidth <= 768);
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+const Sponsors = ({ eyebrow }) => {
+  const inquiryForm = getForm('sponsor');
+  const nothingConfirmed = visibleTiers.length === 0 && confirmedDonors.length === 0;
 
   return (
-    <div className="pirate-sponsors">
-      {/* ── Decorative Star Field ───────────────────────────────────────── */}
-      {[1, 2, 3, 4, 5].map((n) => (<img key={n} src={starsSvg} alt="" className={`sponsor-star star-${n}`} />))}
-      {/* ── Sponsors Content Container ───────────────────────────────────── */}
-      <div className="sponsors-content">
-        <h1 className="sponsors-title">Our Sponsors</h1>
-        <p>We're grateful to our amazing sponsors who make Hack@URI 2026 possible!</p>
-        {/* ── Desktop Scroll Layout / Mobile Stacked Layout ─────────────── */}
-        {!isMobile ? (
-          <div className="scroll-container">
-            <img src={sponsorScrollSvg} alt="Sponsor Scroll" className="sponsor-scroll-bg" />
-            <div className="sponsors-inside-scroll">
-              {SPONSOR_TIERS.lead.length > 0 && (
-                <div className="tier-section">
-                  <h2 className="tier-title lead-title">{TIER_LABELS.lead}</h2>
-                  <div className="lead-sponsor-container">{SPONSOR_TIERS.lead.map((s) => (<SponsorLogo key={s.name} sponsor={s} sizeClass="img-lead" />))}</div>
-                </div>
-              )}
-              {(['gold', 'silver', 'bronze', 'partners']).map((tier) =>
-                SPONSOR_TIERS[tier]?.length > 0 ? (
-                  <div key={tier} className="tier-section">
-                    <h3 className="tier-title">{TIER_LABELS[tier]}</h3>
-                    <div className="grid-3-col">
-                      {SPONSOR_TIERS[tier].map((s) => (
-                        <SponsorLogo key={s.name} sponsor={s} sizeClass={tier === 'partners' ? 'img-partner' : 'img-standard'} />
-                      ))}
-                    </div>
-                  </div>
-                ) : null
-              )}
-              <div className="donors-section-inside">
-                <h3 className="donors-title-inside">Our Generous Donors</h3>
-                <div className="donors-list-inside">{DONORS.map((donor) => (<span key={donor} className="donor-name-inside">{donor}</span>))}</div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="mobile-sponsors-container">
-            {SPONSOR_TIERS.lead.map((s) => (
-              <div key={s.name} className="mobile-tier-block"><h2>{TIER_LABELS.lead}</h2><SponsorLogo sponsor={s} sizeClass="mobile-img-lead" /></div>
+    <>
+      <SectionHeading eyebrow={eyebrow} title={SPONSORS_COPY.title} lead={SPONSORS_COPY.lead} />
+
+      {nothingConfirmed && (
+        <Reveal className="sponsors-empty card">
+          <span className="sponsors-empty-orbit" aria-hidden="true" />
+          <h3>{SPONSORS_COPY.emptyState.title}</h3>
+          <p>{SPONSORS_COPY.emptyState.body}</p>
+        </Reveal>
+      )}
+
+      {visibleTiers.map((tier) => (
+        <Reveal key={tier.id} className={`sponsor-tier sponsor-tier--${tier.id}`}>
+          <h3 className="sponsor-tier-label">{tier.label}</h3>
+          <ul className="sponsor-logos">
+            {tier.sponsors.map((sponsor) => (
+              <li key={sponsor.name}>
+                <SponsorLogo sponsor={sponsor} />
+              </li>
             ))}
-            {(['gold', 'silver', 'bronze', 'partners']).map((tier) =>
-              SPONSOR_TIERS[tier]?.length > 0 ? (
-                <div key={tier} className="mobile-tier-block">
-                  <h3>{TIER_LABELS[tier]}</h3>
-                  {SPONSOR_TIERS[tier].map((s) => (
-                    <SponsorLogo key={s.name} sponsor={s} sizeClass={tier === 'partners' ? 'mobile-img-partner' : 'mobile-img-std'} />
-                  ))}
-                </div>
-              ) : null
-            )}
-            <div className="mobile-donors"><h3>Donors</h3>{DONORS.map((d) => <div key={d}>{d}</div>)}</div>
+          </ul>
+        </Reveal>
+      ))}
+
+      {confirmedDonors.length > 0 && (
+        <Reveal className="sponsor-tier">
+          <h3 className="sponsor-tier-label">{SPONSORS_COPY.donorsTitle}</h3>
+          <ul className="donor-list">
+            {confirmedDonors.map((donor) => (
+              <li key={donor.name}>{donor.name}</li>
+            ))}
+          </ul>
+        </Reveal>
+      )}
+
+      {/* ── Become a sponsor ─────────────────────────────────────────────── */}
+      <div id="sponsor-us" className="sponsor-us">
+        <Reveal className="sponsor-us-heading">
+          <h3>{SPONSORSHIP.title}</h3>
+          <p>{SPONSORSHIP.lead}</p>
+        </Reveal>
+
+        <ul className="sponsor-benefits">
+          {SPONSORSHIP.benefits.map((benefit, index) => (
+            <Reveal as="li" key={benefit.title} className="sponsor-benefit" delay={(index % 2) * 90}>
+              <h4>{benefit.title}</h4>
+              <p>{benefit.body}</p>
+            </Reveal>
+          ))}
+        </ul>
+
+        <Reveal className="sponsor-contact card">
+          <div>
+            <h4>{SPONSORSHIP.contactTitle}</h4>
+            <p>{SPONSORSHIP.contactBody}</p>
           </div>
-        )}
+          <div className="sponsor-contact-actions">
+            <a className="btn btn--primary" href={`mailto:${CONTACT.email}?subject=${encodeURIComponent(SPONSORSHIP.title)}`}>
+              <FaEnvelope aria-hidden="true" /> {CONTACT.email}
+            </a>
+            {inquiryForm?.url ? (
+              <a className="btn btn--secondary" href={inquiryForm.url} target="_blank" rel="noopener noreferrer">
+                Sponsorship inquiry form <FaExternalLinkAlt aria-hidden="true" />
+              </a>
+            ) : (
+              <button type="button" className="btn" disabled>
+                Inquiry form opening soon
+              </button>
+            )}
+            {SPONSORSHIP.prospectusUrl && (
+              <a className="btn btn--secondary" href={SPONSORSHIP.prospectusUrl} target="_blank" rel="noopener noreferrer">
+                {SPONSORSHIP.prospectusLabel} <FaExternalLinkAlt aria-hidden="true" />
+              </a>
+            )}
+            {CONTACT.donateUrl && (
+              <a className="btn btn--ghost" href={CONTACT.donateUrl} target="_blank" rel="noopener noreferrer">
+                <FaHeart aria-hidden="true" /> Make a donation
+              </a>
+            )}
+          </div>
+        </Reveal>
       </div>
-    </div>
+    </>
   );
 };
 
-export default SponsorsSection;
-
+export default Sponsors;
